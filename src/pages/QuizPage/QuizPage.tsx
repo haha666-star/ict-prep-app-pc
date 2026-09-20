@@ -343,7 +343,7 @@ export default function QuizPage() {
         </div>
 
         {/* 练习模式选择 */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
             <Card
               className="cursor-pointer h-full hover:border-cyan-500/40 transition-all border-cyan-500/10 group relative overflow-hidden"

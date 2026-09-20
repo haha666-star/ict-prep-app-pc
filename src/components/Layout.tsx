@@ -35,15 +35,16 @@ export function Layout() {
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none bg-[radial-gradient(ellipse_at_center,hsl(185_100%_55%/0.07)_0%,transparent_70%)]" />
       <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] pointer-events-none bg-[radial-gradient(ellipse_at_center,hsl(270_90%_70%/0.07)_0%,transparent_70%)]" />
 
-      {/* 手机外壳容器：用高不透明度替代 backdrop-blur，保留网格透出感且免去全屏实时模糊 */}
-      <div className="relative mx-auto w-full max-w-[420px] h-screen bg-background/85 flex flex-col overflow-hidden">
+      {/* 手机外壳容器：用高不透明度替代 backdrop-blur，保留网格透出感且免去全屏实时模糊。
+          桌面端(md+)取消 420px 手机宽度限制，改为全宽自适应。 */}
+      <div className="relative mx-auto w-full max-w-[420px] h-screen bg-background/85 flex flex-col overflow-hidden md:max-w-none">
         {/* App标题栏 */}
-        <header className="sticky top-0 z-40 h-12 flex items-center px-4 bg-background/70 backdrop-blur-xl border-b border-cyan-500/10">
-          <h1 className="text-sm font-semibold text-foreground font-tech tracking-wider flex items-center gap-2">
+        <header className="sticky top-0 z-40 h-12 flex items-center px-4 bg-background/70 backdrop-blur-xl border-b border-cyan-500/10 md:h-14 md:px-8">
+          <h1 className="text-sm font-semibold text-foreground font-tech tracking-wider flex items-center gap-2 md:text-base">
             <span className="text-cyan-400 text-glow-cyan">▌</span>
             {title}
           </h1>
-          <div className="ml-auto flex items-center gap-1 text-[10px] font-mono-data text-emerald-400/80">
+          <div className="ml-auto flex items-center gap-1 text-[10px] font-mono-data text-emerald-400/80 md:text-xs">
             <span className="relative flex size-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
               <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
@@ -52,8 +53,8 @@ export function Layout() {
           </div>
         </header>
 
-        {/* 主内容区 - 独立滚动 */}
-        <main className="flex-1 w-full overflow-y-auto px-2 py-2 pb-16 cyber-scroll">
+        {/* 主内容区 - 独立滚动；桌面端为左侧边栏留出空间并加大内边距 */}
+        <main className="flex-1 w-full overflow-y-auto px-2 py-2 pb-16 cyber-scroll md:pl-24 md:px-8 md:py-6 md:pb-8">
           {/*
             路由切换动画：用 keyed motion.div 实现「入场淡入」，不做 AnimatePresence 退场。
             实测 AnimatePresence mode="wait" + useOutlet 快照在懒加载页面下会卡死：

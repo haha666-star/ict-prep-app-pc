@@ -424,7 +424,7 @@ export default function StudyPlanPage() {
         </TabsContent>
 
         <TabsContent value="week" className="mt-3">
-           <div className="grid grid-cols-1 gap-3">
+           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {currentWeekDates.map((date) => {
               const tasks = tasksByDate[date] || [];
               const completed = tasks.filter((t) => t.completed).length;

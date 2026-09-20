@@ -240,7 +240,7 @@ export default function KnowledgePage() {
 
         {DIRECTIONS.map((d) => (
           <TabsContent key={d} value={d} className="mt-4">
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {/* 知识点树 */}
               <Card className="border-cyan-500/10">
                 <CardHeader className="pb-3">

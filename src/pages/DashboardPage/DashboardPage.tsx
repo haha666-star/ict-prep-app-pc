@@ -121,7 +121,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-2">
       {/* 顶部概览卡片 */}
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {/* 倒计时卡片 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -336,7 +336,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 各模块掌握度 */}
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <Card className="border-cyan-500/10">
           <CardHeader className="pb-1 pt-3">
             <CardTitle className="text-xs flex items-center gap-2">
