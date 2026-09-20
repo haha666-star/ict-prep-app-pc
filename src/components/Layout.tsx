@@ -39,7 +39,7 @@ export function Layout() {
           桌面端(md+)取消 420px 手机宽度限制，改为全宽自适应。 */}
       <div className="relative mx-auto w-full max-w-[420px] h-screen bg-background/85 flex flex-col overflow-hidden md:max-w-none">
         {/* App标题栏 */}
-        <header className="sticky top-0 z-40 h-12 flex items-center px-4 bg-background/70 backdrop-blur-xl border-b border-cyan-500/10 md:h-14 md:px-8">
+        <header className="sticky top-0 z-40 h-12 flex items-center px-4 bg-background/70 backdrop-blur-xl border-b border-cyan-500/10 md:h-14 md:pl-28 md:pr-8">
           <h1 className="text-sm font-semibold text-foreground font-tech tracking-wider flex items-center gap-2 md:text-base">
             <span className="text-cyan-400 text-glow-cyan">▌</span>
             {title}
@@ -54,7 +54,7 @@ export function Layout() {
         </header>
 
         {/* 主内容区 - 独立滚动；桌面端为左侧边栏留出空间并加大内边距 */}
-        <main className="flex-1 w-full overflow-y-auto px-2 py-2 pb-16 cyber-scroll md:pl-24 md:px-8 md:py-6 md:pb-8">
+        <main className="flex-1 w-full overflow-y-auto px-2 py-2 pb-16 cyber-scroll md:pl-24 md:pr-8 md:py-6 md:pb-8">
           {/*
             路由切换动画：用 keyed motion.div 实现「入场淡入」，不做 AnimatePresence 退场。
             实测 AnimatePresence mode="wait" + useOutlet 快照在懒加载页面下会卡死：
