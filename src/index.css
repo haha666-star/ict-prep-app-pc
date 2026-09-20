@@ -1,8 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./tailwind-theme.css";
 @import "./typography.css";
+
+/* 字体：Orbitron 已自托管到 public/fonts（避免请求被墙的 Google Fonts 拖慢首屏）；
+   中文与等宽字体全部走系统字体栈，零外部请求 */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 500 900;
+  font-display: swap;
+  src: url('/fonts/orbitron.woff2') format('woff2');
+}
 
 /* ===== Global Sci-Fi Cyberpunk Base ===== */
 
@@ -72,13 +81,13 @@ body::before {
 
 /* Font for tech/display text */
 .font-tech {
-  font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+  font-family: 'Orbitron', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   letter-spacing: 0.03em;
 }
 
 /* Data/mono font */
 .font-mono-data {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 

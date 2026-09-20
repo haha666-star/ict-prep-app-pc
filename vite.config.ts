@@ -44,23 +44,36 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // 新版本部署后自动清理旧版本预缓存，避免旧客户端请求已被替换的 hash chunk
+        // 新版本部署后自动清理旧版本预缓存
         cleanupOutdatedCaches: true,
+        // 只预缓存「应用外壳」，assets 下的 hash 资源走运行时缓存：
+        // 首屏不再一次性拉全站（原来预缓存 24 个资源 ≈1MB+）
+        globPatterns: [
+          'index.html',
+          'favicon.svg',
+          'manifest.webmanifest',
+          'icons/*.svg',
+          'icons/*.png',
+        ],
+        navigateFallback: 'index.html',
         maximumFileSizeToCacheInBytes: 10485760,
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
+            // 哈希资源（js/css）：先返回缓存、后台更新，长期缓存 30 天
+            urlPattern: ({ url }) =>
+              url.pathname.includes('/assets/') &&
+              /\.(js|css)$/.test(url.pathname),
+            handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: 'app-assets',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              }
-            }
-          }
-        ]
+                maxEntries: 80,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       }
     })
   ],
@@ -80,7 +93,8 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('echarts') || id.includes('zrender')) return 'echarts';
           }
-          if (id.includes('/src/data/')) return 'quiz-data';
+          if (id.includes('/src/data/quizzes')) return 'quiz-data';
+          if (id.includes('/src/data/')) return 'knowledge-data';
         },
       },
     },

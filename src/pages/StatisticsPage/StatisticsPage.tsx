@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -41,6 +40,52 @@ import {
   CHART_TOOLTIP_BG,
 } from '@/lib/chart-colors';
 
+// 懒加载 + 按需注册 echarts：只在统计页真正渲染图表时才拉取图表库，不进首屏
+function EChartLazy({ option, height }: { option: Record<string, unknown>; height: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<any>(null);
+  useEffect(() => {
+    let disposed = false;
+    (async () => {
+      const echarts = await import('echarts/core');
+      const { LineChart, BarChart, PieChart, RadarChart } = await import('echarts/charts');
+      const {
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        LegendComponent,
+      } = await import('echarts/components');
+      const { SVGRenderer } = await import('echarts/renderers');
+      echarts.use([
+        LineChart,
+        BarChart,
+        PieChart,
+        RadarChart,
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        LegendComponent,
+        SVGRenderer,
+      ]);
+      if (disposed || !ref.current) return;
+      const chart = echarts.init(ref.current, undefined, { renderer: 'svg' });
+      chart.setOption(option);
+      chartRef.current = chart;
+    })();
+    return () => {
+      disposed = true;
+      if (chartRef.current) {
+        chartRef.current.dispose();
+        chartRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (chartRef.current) chartRef.current.setOption(option, true);
+  }, [option]);
+  return <div ref={ref} style={{ height }} />;
+}
 export default function StatisticsPage() {
   const { statusMap } = useKnowledgeStatus();
   const { records } = useQuizRecords();
@@ -565,11 +610,7 @@ export default function StatisticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ReactECharts
-              option={studyTimeOption}
-              style={{ height: '280px' }}
-              opts={{ renderer: 'svg' }}
-            />
+            <EChartLazy option={studyTimeOption} height='280px' />
           </CardContent>
         </Card>
 
@@ -585,11 +626,7 @@ export default function StatisticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ReactECharts
-              option={radarOption}
-              style={{ height: '280px' }}
-              opts={{ renderer: 'svg' }}
-            />
+            <EChartLazy option={radarOption} height='280px' />
           </CardContent>
         </Card>
       </div>
@@ -607,11 +644,7 @@ export default function StatisticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ReactECharts
-              option={accuracyBarOption}
-              style={{ height: '260px' }}
-              opts={{ renderer: 'svg' }}
-            />
+            <EChartLazy option={accuracyBarOption} height='260px' />
           </CardContent>
         </Card>
 
@@ -627,11 +660,7 @@ export default function StatisticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ReactECharts
-              option={masteryPieOption}
-              style={{ height: '260px' }}
-              opts={{ renderer: 'svg' }}
-            />
+            <EChartLazy option={masteryPieOption} height='260px' />
           </CardContent>
         </Card>
       </div>
