@@ -199,6 +199,19 @@ export default function QuizPage() {
     return { real, hot };
   }, []);
 
+  // 当前筛选后实际题量（含方向+考试题型+标签三重过滤，与 handleStartMode 口径一致）
+  const filteredCount = useMemo(() => {
+    let list: IQuizQuestion[] =
+      selectedDirection === 'all'
+        ? MOCK_QUIZZES
+        : MOCK_QUIZZES.filter((q) => q.direction === selectedDirection);
+    if (examOnly) list = list.filter((q) => q.type !== 'judge');
+    if (tagFilter !== 'all') list = list.filter((q) => q.tag === tagFilter);
+    return list.length;
+  }, [selectedDirection, examOnly, tagFilter]);
+
+  const tagLabel = tagFilter === 'real' ? '真题' : tagFilter === 'hot' ? '高频' : null;
+
   const accuracy =
     records.totalCount > 0
       ? Math.round((records.correctCount / records.totalCount) * 100)
@@ -422,8 +435,13 @@ export default function QuizPage() {
                 <p className="text-sm text-muted-foreground">
                   按技术方向分类，针对性练习
                 </p>
+                {tagLabel && (
+                  <p className={cn('text-xs mt-1 font-medium', tagFilter === 'real' ? 'text-rose-300' : 'text-orange-300')}>
+                    当前筛选：仅{tagLabel} · {filteredCount} 题
+                  </p>
+                )}
                 <Button className="mt-4 w-full shadow-[0_0_16px_rgba(0_229_255_0.2)]">
-                  开始练习
+                  开始练习{tagLabel ? `（${filteredCount}题）` : ''}
                 </Button>
               </CardContent>
             </Card>
@@ -445,8 +463,13 @@ export default function QuizPage() {
                 <p className="text-sm text-muted-foreground">
                   随机抽题，全面检测掌握程度
                 </p>
+                {tagLabel && (
+                  <p className={cn('text-xs mt-1 font-medium', tagFilter === 'real' ? 'text-rose-300' : 'text-orange-300')}>
+                    当前筛选：仅{tagLabel} · {filteredCount} 题
+                  </p>
+                )}
                 <Button variant="secondary" className="mt-4 w-full bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30">
-                  开始随机
+                  开始随机{tagLabel ? `（${filteredCount}题）` : ''}
                 </Button>
               </CardContent>
             </Card>
@@ -532,9 +555,7 @@ export default function QuizPage() {
                   className="flex-1 shadow-[0_0_16px_rgba(0_229_255_0.2)]"
                   onClick={() => handleStartMode('select')}
                 >
-                  开始练习（{selectedDirection === 'all'
-                    ? MOCK_QUIZZES.length
-                    : MOCK_QUIZZES.filter((q) => q.direction === selectedDirection).length} 题）
+                  开始练习（{filteredCount} 题{tagLabel ? ` · 仅${tagLabel}` : ''}）
                 </Button>
               </div>
             </div>
