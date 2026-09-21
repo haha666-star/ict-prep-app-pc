@@ -9,6 +9,7 @@
 """
 import re
 import os
+import glob
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KNOWLEDGE_FILES = [
@@ -25,6 +26,23 @@ def load_knowledge_ids():
                 if m:
                     ids.add(m.group(1))
     return ids
+
+def norm_text(s):
+    """归一化题干：去空白与常见标点，忽略大小写，用于跨文件去重"""
+    return re.sub(r"[\s，。、；：（）()\"'？?！!·\-—]", "", s).lower()
+
+def load_existing_questions():
+    """收集其他题库文件(不含本生成目标 extra-d)的题干，用于全局去重"""
+    texts = set()
+    for f in glob.glob(os.path.join(REPO, 'src/data/quizzes*.ts')):
+        if f.endswith('quizzes-extra-d.ts'):
+            continue
+        with open(f, encoding='utf-8') as fh:
+            for line in fh:
+                m = re.search(r"question:\s*'((?:[^'\\]|\\.)*)'", line)
+                if m:
+                    texts.add(norm_text(m.group(1)))
+    return texts
 
 KNOWN = load_knowledge_ids()
 
@@ -552,11 +570,13 @@ def validate():
                     print('[ERR] 单选答案不在选项中:', q['q'][:30], ans)
 
 def emit(path):
-    seen = set()
+    # 全局去重：与主库(quizzes.ts/a/b/c/real)题干比对，重复的不再重复收录
+    seen = set(load_existing_questions())
     uniq = []
     for q in Q:
-        k = q['q'].strip()
+        k = norm_text(q['q'])
         if k in seen:
+            print('[SKIP] 与现有题库重复:', q['q'][:30])
             continue
         seen.add(k)
         uniq.append(q)
