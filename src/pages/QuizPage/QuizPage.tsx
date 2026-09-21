@@ -64,6 +64,8 @@ export default function QuizPage() {
   const [choosingDirection, setChoosingDirection] = useState(false);
   // 仅考试题型：省初赛/省复赛只考单选+多选，默认把判断题挡在练习外（错题本不受影响）
   const [examOnly, setExamOnly] = useState(true);
+  // 真题/高频筛选：冲刺国一的核心——优先刷往年真题与高频考点
+  const [tagFilter, setTagFilter] = useState<'all' | 'real' | 'hot'>('all');
 
   const questions = sessionQuestions;
   // 防越界钳制：错题被 SRS 移出等原因导致列表收缩时，索引自动回落到末尾
@@ -157,6 +159,10 @@ export default function QuizPage() {
     if (examOnly && m !== 'wrong') {
       list = list.filter((q) => q.type !== 'judge');
     }
+    // 真题/高频筛选：仅在题库中保留命中标签的题目（错题本不受影响）
+    if (tagFilter !== 'all' && m !== 'wrong') {
+      list = list.filter((q) => q.tag === tagFilter);
+    }
     setMode(m);
     setSessionQuestions(list);
     setCurrentIndex(0);
@@ -185,6 +191,13 @@ export default function QuizPage() {
     });
     return map;
   }, [wrongQuestions]);
+
+  // 真题/高频标签计数（冲刺国一核心资源）
+  const tagCounts = useMemo(() => {
+    const real = MOCK_QUIZZES.filter((q) => q.tag === 'real').length;
+    const hot = MOCK_QUIZZES.filter((q) => q.tag === 'hot').length;
+    return { real, hot };
+  }, []);
 
   const accuracy =
     records.totalCount > 0
@@ -215,6 +228,41 @@ export default function QuizPage() {
               <Filter className="size-3.5 mr-1" />
               仅考试题型{examOnly ? '开' : '关'}
             </Button>
+            <div className="flex items-center gap-1">
+              {(
+                [
+                  { key: 'all', label: '全部' },
+                  { key: 'real', label: '真题' },
+                  { key: 'hot', label: '高频' },
+                ] as const
+              ).map((t) => (
+                <Button
+                  key={t.key}
+                  variant={tagFilter === t.key ? 'default' : 'outline'}
+                  size="sm"
+                  className={cn(
+                    'h-8',
+                    tagFilter === t.key
+                      ? t.key === 'real'
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
+                        : t.key === 'hot'
+                        ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40 hover:bg-orange-500/30'
+                        : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/25'
+                      : 'border-border/50 text-muted-foreground hover:border-cyan-500/30'
+                  )}
+                  onClick={() => setTagFilter(t.key)}
+                  title={
+                    t.key === 'real'
+                      ? '仅刷往年真题/高命中题'
+                      : t.key === 'hot'
+                      ? '仅刷高频核心考点'
+                      : '不限标签'
+                  }
+                >
+                  {t.label}
+                </Button>
+              ))}
+            </div>
             <Dialog open={showWrongBook} onOpenChange={setShowWrongBook}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 border-rose-500/30 text-rose-400 hover:bg-rose-500/10">
@@ -279,6 +327,18 @@ export default function QuizPage() {
                                   >
                                     {DIRECTION_LABELS[q.direction]}
                                   </Badge>
+                                  {q.tag && (
+                                    <Badge
+                                      variant="outline"
+                                      className={
+                                        q.tag === 'real'
+                                          ? 'bg-rose-500/15 text-rose-300 border-transparent'
+                                          : 'bg-orange-500/15 text-orange-300 border-transparent'
+                                      }
+                                    >
+                                      {q.tag === 'real' ? '真题' : '高频'}
+                                    </Badge>
+                                  )}
                                 </div>
                                 <p className="text-sm font-medium text-foreground mb-2">
                                   {q.question}
@@ -337,7 +397,9 @@ export default function QuizPage() {
               <div className="text-xl font-bold text-purple-400 tabular-nums font-mono-data">
                 {MOCK_QUIZZES.length}
               </div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">题库总数</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                题库总数 · <span className="text-rose-300">真题 {tagCounts.real}</span> · <span className="text-orange-300">高频 {tagCounts.hot}</span>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -588,6 +650,19 @@ export default function QuizPage() {
                   >
                     {DIRECTION_LABELS[currentQuestion.direction]}
                   </Badge>
+                  {currentQuestion.tag && (
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'border-transparent',
+                        currentQuestion.tag === 'real'
+                          ? 'bg-rose-500/15 text-rose-300'
+                          : 'bg-orange-500/15 text-orange-300'
+                      )}
+                    >
+                      {currentQuestion.tag === 'real' ? '真题' : '高频'}
+                    </Badge>
+                  )}
                   <span className="ml-auto text-[10px] font-mono-data text-muted-foreground/60">
                     Q_{String(currentIndex + 1).padStart(3, '0')}
                   </span>

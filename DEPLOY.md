@@ -1,7 +1,10 @@
-# v3 部署说明
+# 部署说明（PC 版 · 国一冲刺）
 
-目标仓库：`haha666-star/ict-prep-app`，分支 `main`
-线上地址：https://haha666-star.github.io/ict-prep-app/
+目标仓库：`haha666-star/ict-prep-app-pc`，分支 `main`
+线上地址：https://haha666-star.github.io/ict-prep-app-pc/
+（本工程为**电脑版**，与手机版 `ict-prep-app` 同源同内容，独立仓库部署）
+
+> 最新版本：**v6 · 国家一等奖冲刺升级（2026-09-21）**，详见文末章节。
 
 ## 一、部署方式（二选一）
 
@@ -116,3 +119,71 @@ React Router 的 `<Outlet />` 在路由变化瞬间就渲染**新页面**，而 
 - `vite build` 成功，precache 32 项
 - 本地冒烟：首页 / 4 个首屏 chunk / sw.js / manifest / 图标 全部 200
 - `index.html` 中已无 echarts 引用（确认不再首屏加载）
+
+---
+
+## v6 · 国家一等奖冲刺升级（2026-09-21）
+
+面向目标：**华为 ICT 大赛实践赛·网络赛道 国家一等奖**。按官方考纲做全方位升级。
+
+### 升级依据（官方考纲权重）
+| 赛段 | datacom | DCN | security | WLAN |
+|---|---|---|---|---|
+| 省初赛 / 省复赛 | 40% | 20% | 20% | 20% |
+| **国家总决赛** | **50%** | **0%** | **25%** | **25%** |
+| 全球总决赛 | 50% | — | 20% | 30% |
+
+> 关键结论：**国家总决赛不考 DCN**，datacom 占半壁江山——题库与模考权重据此重排。
+
+### 一、题库扩容：556 → **730**（+174 题）
+| 项目 | 数值 |
+|---|---|
+| 新增文件 | `src/data/quizzes-extra-d.ts`（174 题，由 `scripts/gen_questions.py` 离线生成） |
+| 合入方式 | `quizzes.ts` 中 `...EXTRA_QUIZZES_D` 展开 |
+| 方向分布 | datacom 339 / security 174 / wlan 110 / dcn 107 |
+| 难度分布 | IA 245 / IP 373 / IE 111 |
+| 题型分布 | 单选 476 / 多选 126 / 判断 128 |
+
+生成器内置三重校验：knowledgeId 存在性、答案必须在选项中、题干去重。
+
+### 二、押题命中率升级（真题 + 高频标签）
+- `IQuizQuestion` 新增 `tag?: 'real' | 'hot'`
+- 全库命中：**真题(real) 29 题 + 高频(hot) 74 题**
+- 刷题页新增 **全部 / 真题 / 高频** 三段筛选开关（冲刺期一键只刷高价值题）
+- 答题卡与错题本均渲染「真题」「高频」徽章
+- 「题库总数」卡显示「真题 N · 高频 N」
+
+### 三、知识点补充（+12，共 89 个）
+新增 `src/data/knowledge-extra.ts`，补齐考纲缺口：
+- **数通**：MSTP、VLAN 聚合、策略路由(PBR)、网管(NMS/SNMP/LLDP/NQA)
+- **安全**：DHCP Snooping、端口安全、Portal 认证、防火墙高级(Vsys/智能选路)
+- **WLAN**：STA 上线(CAPWAP)、WLAN 规划（容量/信道/功率）
+- **DCN**：Clos 架构、SDN 控制器
+
+### 四、模考引擎赛制对齐
+- 修正省初赛/省复赛方向权重为官方值（原 DCN 15%/安全 25% → 统一 20%/20%）
+- 新增 **国家总决赛模考** 预设：**90 题 / 90 分钟**，datacom 50% + security 25% + WLAN 25%，**不含 DCN**
+
+### 五、数据质量 & 验证
+- 悬空 knowledgeId **0**、答案越界 **0**、重复题干 **0**
+- `tsc --noEmit` **零错误**
+- `vite build` **成功**，PWA precache **17 项**
+
+### 部署方式
+**方式 A（推荐 · git push）**
+```bash
+git init
+git remote add origin https://github.com/haha666-star/ict-prep-app-pc.git
+git add -A
+git commit -m "v6: 国一冲刺升级(题库730/真题高频标签/12知识点/国赛模考)"
+git push -f origin main
+```
+> `base: './'` 为相对路径，子路径部署无需改配置；本地无历史，用 `-f` 强推覆盖。
+
+**方式 B：网页端全量覆盖上传**（排除 `node_modules` 与 `dist`）
+
+### 部署后自检
+- [ ] Actions 绿色对勾
+- [ ] 「刷题」页题库总数显示 **730**，且可见「真题 N · 高频 N」
+- [ ] 「模考」页出现「**国家总决赛模考**」选项
+- [ ] 答题卡出现「真题」「高频」徽章，筛选开关可用

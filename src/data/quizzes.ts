@@ -2,6 +2,7 @@
 import { EXTRA_QUIZZES_A } from './quizzes-extra-a'
 import { EXTRA_QUIZZES_B } from './quizzes-extra-b'
 import { EXTRA_QUIZZES_C } from './quizzes-extra-c'
+import { EXTRA_QUIZZES_D } from './quizzes-extra-d'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
 
@@ -17,6 +18,8 @@ export interface IQuizQuestion {
   batch?: number // 批次号，无此字段表示基础题库立即可用；batch 1 起始日后2天解锁，batch 2 4天后，以此类推
   /** 难度分级：IA=HCIA（省初赛为主）、IP=HCIP（省复赛）、IE=HCIE（全国赛实验储备）。缺省视为 IA */
   difficulty?: QuizDifficulty
+  /** 题源标注：real=真题同源（公开回忆/高频真题模式），hot=高频预测考点。用于冲刺阶段重点筛选 */
+  tag?: 'real' | 'hot'
 }
 
 export const MOCK_QUIZZES: IQuizQuestion[] = [
@@ -3612,4 +3615,7 @@ export const MOCK_QUIZZES: IQuizQuestion[] = [
   ...EXTRA_QUIZZES_A,
   ...EXTRA_QUIZZES_B,
   ...EXTRA_QUIZZES_C,
+
+  // ==================== 第十届国一专项扩容（对齐官方考纲权重） ====================
+  ...EXTRA_QUIZZES_D,
 ];
