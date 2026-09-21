@@ -3,6 +3,7 @@ import { EXTRA_QUIZZES_A } from './quizzes-extra-a'
 import { EXTRA_QUIZZES_B } from './quizzes-extra-b'
 import { EXTRA_QUIZZES_C } from './quizzes-extra-c'
 import { EXTRA_QUIZZES_D } from './quizzes-extra-d'
+import { EXTRA_QUIZZES_REAL } from './quizzes-real'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
 
@@ -3618,4 +3619,7 @@ export const MOCK_QUIZZES: IQuizQuestion[] = [
 
   // ==================== 第十届国一专项扩容（对齐官方考纲权重） ====================
   ...EXTRA_QUIZZES_D,
+
+  // ==================== 全国总决赛 + 省赛 公开真题 ====================
+  ...EXTRA_QUIZZES_REAL,
 ];
