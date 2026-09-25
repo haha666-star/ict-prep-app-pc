@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,10 +29,12 @@ import {
   Trash2,
   BookOpen,
   Zap,
+  NotebookPen,
+  Save,
 } from 'lucide-react';
 import { MOCK_QUIZZES, type IQuizQuestion } from '@/data/quizzes';
 import { MOCK_KNOWLEDGE } from '@/data/knowledge';
-import { useQuizRecords } from '@/hooks/use-storage';
+import { useQuizRecords, useQuizNotes } from '@/hooks/use-storage';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -211,6 +213,26 @@ export default function QuizPage() {
   }, [selectedDirection, examOnly, tagFilter]);
 
   const tagLabel = tagFilter === 'real' ? '真题' : tagFilter === 'hot' ? '高频' : null;
+
+  // 题目笔记：随题保存，帮助快速记忆知识
+  const { getNote, saveNote } = useQuizNotes();
+  const [noteDraft, setNoteDraft] = useState('');
+  const [noteSaved, setNoteSaved] = useState(false);
+
+  // 切题时载入该题已有笔记
+  useEffect(() => {
+    setNoteDraft(getNote(currentQuestion?.id ?? '')?.text ?? '');
+    setNoteSaved(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion?.id]);
+
+  const handleSaveNote = () => {
+    if (!currentQuestion) return;
+    saveNote(currentQuestion.id, noteDraft);
+    setNoteSaved(true);
+    toast.success('笔记已保存');
+    setTimeout(() => setNoteSaved(false), 1600);
+  };
 
   const accuracy =
     records.totalCount > 0
@@ -848,6 +870,61 @@ export default function QuizPage() {
                     </div>
                   </motion.div>
                 )}
+
+                {/* 我的笔记：随题保存，帮助快速记忆知识 */}
+                <div className="pt-3 border-t border-border/40">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <NotebookPen className="size-4 text-violet-400" />
+                      <span className="text-sm font-semibold text-violet-300">
+                        我的笔记
+                      </span>
+                      {noteSaved && (
+                        <span className="text-[11px] text-emerald-400 font-medium">
+                          ✓ 已保存
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
+                      onClick={handleSaveNote}
+                    >
+                      <Save className="size-3.5 mr-1" />
+                      保存笔记
+                    </Button>
+                  </div>
+                  <textarea
+                    value={noteDraft}
+                    onChange={(e) => {
+                      setNoteDraft(e.target.value);
+                      setNoteSaved(false);
+                    }}
+                    placeholder="记录这道题的记忆要点，如：OSPF 邻居靠 Hello 报文建立，区域认证需在进程下配置…"
+                    className="w-full min-h-[76px] rounded-lg border border-violet-500/20 bg-card/40 p-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_12px_rgba(167_139_250_0.15)] cyber-scroll resize-y"
+                  />
+                  <div className="mt-1.5 flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground/50">
+                      笔记随题目保存，下次刷到本题自动显示
+                    </span>
+                    {noteDraft.trim() && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-[11px] text-muted-foreground hover:text-rose-400"
+                        onClick={() => {
+                          setNoteDraft('');
+                          saveNote(currentQuestion.id, '');
+                          setNoteSaved(false);
+                        }}
+                      >
+                        <Trash2 className="size-3 mr-1" />
+                        清空
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
