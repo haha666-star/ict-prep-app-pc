@@ -6,6 +6,7 @@ import {
   PenTool,
   BookOpen,
   BarChart3,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const TAB_ITEMS = [
   { path: '/knowledge', label: '知识', icon: BookOpen },
   { path: '/study-plan', label: '计划', icon: CalendarCheck },
   { path: '/statistics', label: '统计', icon: BarChart3 },
+  { path: '/settings', label: '设置', icon: Settings },
 ];
 
 export default function BottomTabBar() {
@@ -34,7 +36,7 @@ export default function BottomTabBar() {
         <span className="text-cyan-400 text-glow-cyan text-lg font-bold font-tech">▌</span>
       </div>
 
-      <div className="grid grid-cols-6 h-14 md:flex md:flex-col md:h-auto md:flex-1 md:py-4">
+      <div className="grid grid-cols-7 h-14 md:flex md:flex-col md:h-auto md:flex-1 md:py-4">
         {TAB_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
