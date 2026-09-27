@@ -995,7 +995,7 @@ export default function QuizPage() {
                             setNoteSaved(false);
                           }}
                           placeholder="记录这道题的记忆要点，如：OSPF 邻居靠 Hello 报文建立，区域认证需在进程下配置…"
-                          className="w-full min-h-[76px] rounded-lg border border-violet-500/20 bg-card/40 p-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_12px_rgba(167_139_250_0.15)] cyber-scroll resize-y"
+                          className="w-full min-h-[240px] rounded-lg border border-violet-500/20 bg-card/40 p-4 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_12px_rgba(167_139_250_0.15)] cyber-scroll resize-y"
                         />
                         <div className="mt-1.5 flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground/50">
