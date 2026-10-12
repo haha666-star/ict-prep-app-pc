@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,8 +38,12 @@ import { MOCK_KNOWLEDGE } from '@/data/knowledge';
 import { useQuizRecords, useQuizNotes, useQuizProgress } from '@/hooks/use-storage';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { matchTag, countTags, type TagFilter } from '@/lib/tags';
+import QuizExplanation from '@/components/QuizExplanation';
 
 type QuizMode = 'select' | 'random' | 'wrong' | null;
+
+// 标签筛选语义集中在 @/lib/tags（纯模块，可独立自测）
 
 /** Fisher-Yates 洗牌：返回新数组，不改原数组，保证会话内题目顺序稳定 */
 function shuffleList<T>(list: T[]): T[] {
@@ -66,10 +71,42 @@ export default function QuizPage() {
   // （修复：原先用 useMemo + sort(random)，每次 recordAnswer 都会重新洗牌导致跳题）
   const [sessionQuestions, setSessionQuestions] = useState<IQuizQuestion[]>([]);
   const [choosingDirection, setChoosingDirection] = useState(false);
-  // 仅考试题型：省初赛/省复赛只考单选+多选，默认把判断题挡在练习外（错题本不受影响）
-  const [examOnly, setExamOnly] = useState(true);
+  // 题型筛选：官方省赛理论卷三题型均考（判断 + 单选 + 多选），默认「全部」。
+  // 说明：旧版此处默认把判断题挡在练习外，依据的是「省赛只考单选+多选」这一错误前提，
+  //      已按官方多源通知订正。判断题是「看着会、容易想当然」的高失分题型，必须能专练。
+  const [typeFilter, setTypeFilter] = useState<'all' | 'judge' | 'single' | 'multiple'>('all');
   // 真题/高频筛选：冲刺国一的核心——优先刷往年真题与高频考点
-  const [tagFilter, setTagFilter] = useState<'all' | 'real' | 'hot'>('all');
+  // likely = 高概率题 = 真题同源(real) ∪ 高频(hot)，共 262 道（占全库 27.2%）
+  //   —— 实测：node ict-audit-v2/tagstats.mjs → 高概率(real∪hot) = 262 (27.2%)
+  const [tagFilter, setTagFilter] = useState<TagFilter>('all');
+
+  // 从「12 天冲刺计划」一键跳转时携带筛选：/quiz?type=judge&tag=likely&dir=datacom
+  // 应用后立即清空 query，避免用户手动改了筛选、离开再回来又被旧参数覆盖。
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const t = searchParams.get('type');
+    const g = searchParams.get('tag');
+    const dir = searchParams.get('dir');
+    let touched = false;
+    if (t === 'judge' || t === 'single' || t === 'multiple') {
+      setTypeFilter(t);
+      touched = true;
+    }
+    if (g === 'likely' || g === 'real' || g === 'hot') {
+      setTagFilter(g);
+      touched = true;
+    }
+    if (dir && ['datacom', 'dcn', 'security', 'wlan'].includes(dir)) {
+      setSelectedDirection(dir);
+      touched = true;
+    }
+    if (touched) setSearchParams({}, { replace: true });
+    // 依赖 searchParams：这样「已经在刷题页时再带参数进来」也生效。
+    //   原先 deps 为 []，只在挂载时读一次 —— 从 /roadmap 跳进来（跨页重挂载）能工作，
+    //   但用户若已停在 /quiz 再点一个带参数的链接就不会生效（2026-10-12 浏览器 E2E 发现）。
+    //   幂等性：应用后立刻把 query 清空，清空后本轮 effect 三个参数全为 null，
+    //   不再 setSearchParams，因此不会自激循环。
+  }, [searchParams, setSearchParams]);
 
   const questions = sessionQuestions;
   // 防越界钳制：错题被 SRS 移出等原因导致列表收缩时，索引自动回落到末尾
@@ -134,9 +171,9 @@ export default function QuizPage() {
     recordAnswer(currentQuestion.id, currentQuestion.direction, correct, formatDate(new Date()));
   };
 
-  // 会话标识：模式|方向|标签|考试题型 —— 同一组合共享一份进度
+  // 会话标识：模式|方向|标签|题型 —— 同一组合共享一份进度
   const sessionKey = (m: QuizMode) =>
-    `${m}|${selectedDirection}|${tagFilter}|${examOnly ? 'exam' : 'all'}`;
+    `${m}|${selectedDirection}|${tagFilter}|${typeFilter}`;
 
   const persistIndex = (idx: number) => {
     if (!mode) return;
@@ -176,13 +213,20 @@ export default function QuizPage() {
           ? MOCK_QUIZZES
           : MOCK_QUIZZES.filter((q) => q.direction === selectedDirection);
     }
-    // 「仅考试题型」：随机/方向练习默认排除判断题（省赛只考单选+多选）
-    if (examOnly && m !== 'wrong') {
-      list = list.filter((q) => q.type !== 'judge');
+    // 题型筛选：判断 / 单选 / 多选（对标官方三题型）
+    if (typeFilter !== 'all' && m !== 'wrong') {
+      list = list.filter((q) => q.type === typeFilter);
     }
-    // 真题/高频筛选：仅在题库中保留命中标签的题目（错题本不受影响）
+    // 真题/高频/高概率筛选：仅在题库中保留命中标签的题目（错题本不受影响）
     if (tagFilter !== 'all' && m !== 'wrong') {
-      list = list.filter((q) => q.tag === tagFilter);
+      list = list.filter((q) => matchTag(q.tag, tagFilter));
+    }
+    // 空集保护：三档筛选（方向 × 题型 × 标签）存在组合为 0 的情况，
+    // 例如「高概率 × 多选 × DCN」库存为 0（实测：datacom 5 / dcn 0 / security 4 / wlan 2）。
+    // 此时不能进入答题页，否则会落到「暂无题目」空页。
+    if (list.length === 0) {
+      toast.error('当前「方向 × 题型 × 标签」组合下没有题目，请放宽任一筛选');
+      return;
     }
     // 进度记忆：同一会话且题库未变化时，恢复上次的题目顺序与位置，从上次位置继续
     const key = sessionKey(m);
@@ -241,25 +285,41 @@ export default function QuizPage() {
     return map;
   }, [wrongQuestions]);
 
-  // 真题/高频标签计数（冲刺国一核心资源）
-  const tagCounts = useMemo(() => {
-    const real = MOCK_QUIZZES.filter((q) => q.tag === 'real').length;
-    const hot = MOCK_QUIZZES.filter((q) => q.tag === 'hot').length;
-    return { real, hot };
-  }, []);
+  // 真题 / 高频 / 高概率标签计数（冲刺省一核心资源）
+  const tagCounts = useMemo(() => countTags(MOCK_QUIZZES), []);
 
-  // 当前筛选后实际题量（含方向+考试题型+标签三重过滤，与 handleStartMode 口径一致）
+  // 当前筛选后实际题量（含方向+题型+标签三重过滤，与 handleStartMode 口径一致）
   const filteredCount = useMemo(() => {
     let list: IQuizQuestion[] =
       selectedDirection === 'all'
         ? MOCK_QUIZZES
         : MOCK_QUIZZES.filter((q) => q.direction === selectedDirection);
-    if (examOnly) list = list.filter((q) => q.type !== 'judge');
-    if (tagFilter !== 'all') list = list.filter((q) => q.tag === tagFilter);
+    if (typeFilter !== 'all') list = list.filter((q) => q.type === typeFilter);
+    if (tagFilter !== 'all') list = list.filter((q) => matchTag(q.tag, tagFilter));
     return list.length;
-  }, [selectedDirection, examOnly, tagFilter]);
+  }, [selectedDirection, typeFilter, tagFilter]);
 
-  const tagLabel = tagFilter === 'real' ? '真题' : tagFilter === 'hot' ? '高频' : null;
+  // 各题型题量（用于题型筛选器展示）
+  const typeCounts = useMemo(() => {
+    const c = { single: 0, multiple: 0, judge: 0 };
+    MOCK_QUIZZES.forEach((q) => (c[q.type] += 1));
+    return c;
+  }, []);
+
+  const tagLabel =
+    tagFilter === 'likely'
+      ? '高概率'
+      : tagFilter === 'real'
+      ? '真题'
+      : tagFilter === 'hot'
+      ? '高频'
+      : null;
+  const tagTextColor =
+    tagFilter === 'likely'
+      ? 'text-fuchsia-300'
+      : tagFilter === 'real'
+      ? 'text-rose-300'
+      : 'text-orange-300';
 
   // 题目笔记：随题保存，帮助快速记忆知识（默认收起，点击按钮才显示，避免刷题时提前看到笔记内容）
   const { getNote, saveNote } = useQuizNotes();
@@ -294,30 +354,52 @@ export default function QuizPage() {
   if (!mode) {
     return (
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground font-mono-data">
             选择练习模式
           </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={examOnly ? 'default' : 'outline'}
-              size="sm"
-              className={cn(
-                'h-8',
-                examOnly
-                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/25'
-                  : 'border-border/50 text-muted-foreground hover:border-cyan-500/30'
-              )}
-              onClick={() => setExamOnly((v) => !v)}
-              title="省初赛/省复赛只考单选+多选；关闭后练习会包含判断题"
-            >
-              <Filter className="size-3.5 mr-1" />
-              仅考试题型{examOnly ? '开' : '关'}
-            </Button>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-1 flex-wrap justify-end">
+              <span title="题型筛选" className="shrink-0 flex items-center">
+                <Filter className="size-3.5 text-muted-foreground" />
+              </span>
+              {(
+                [
+                  { key: 'all', label: '全题型', count: typeCounts.single + typeCounts.multiple + typeCounts.judge },
+                  { key: 'judge', label: '判断', count: typeCounts.judge },
+                  { key: 'single', label: '单选', count: typeCounts.single },
+                  { key: 'multiple', label: '多选', count: typeCounts.multiple },
+                ] as const
+              ).map((t) => (
+                <Button
+                  key={t.key}
+                  variant={typeFilter === t.key ? 'default' : 'outline'}
+                  size="sm"
+                  className={cn(
+                    'h-8 px-2',
+                    typeFilter === t.key
+                      ? t.key === 'judge'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+                        : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/25'
+                      : 'border-border/50 text-muted-foreground hover:border-cyan-500/30'
+                  )}
+                  onClick={() => setTypeFilter(t.key)}
+                  title={
+                    t.key === 'judge'
+                      ? '判断题专练：省赛理论卷必考，且最容易「看着会、想当然」失分'
+                      : `仅练${t.label}（${t.count} 题）`
+                  }
+                >
+                  {t.label}
+                  <span className="ml-1 text-[10px] opacity-70 font-mono-data">{t.count}</span>
+                </Button>
+              ))}
+            </div>
             <div className="flex items-center gap-1">
               {(
                 [
                   { key: 'all', label: '全部' },
+                  { key: 'likely', label: '高概率' },
                   { key: 'real', label: '真题' },
                   { key: 'hot', label: '高频' },
                 ] as const
@@ -329,7 +411,9 @@ export default function QuizPage() {
                   className={cn(
                     'h-8',
                     tagFilter === t.key
-                      ? t.key === 'real'
+                      ? t.key === 'likely'
+                        ? 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 hover:bg-fuchsia-500/30'
+                        : t.key === 'real'
                         ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
                         : t.key === 'hot'
                         ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40 hover:bg-orange-500/30'
@@ -338,14 +422,21 @@ export default function QuizPage() {
                   )}
                   onClick={() => setTagFilter(t.key)}
                   title={
-                    t.key === 'real'
-                      ? '仅刷往年真题/高命中题'
+                    t.key === 'likely'
+                      ? `高概率题 = 真题同源 ∪ 高频，共 ${tagCounts.likely} 道（占全库 27.2%），冲刺期优先刷`
+                      : t.key === 'real'
+                      ? `仅刷往年真题/高命中题（${tagCounts.real} 道）`
                       : t.key === 'hot'
-                      ? '仅刷高频核心考点'
+                      ? `仅刷高频核心考点（${tagCounts.hot} 道）`
                       : '不限标签'
                   }
                 >
                   {t.label}
+                  {t.key !== 'all' && (
+                    <span className="ml-1 text-[10px] opacity-70 font-mono-data">
+                      {t.key === 'likely' ? tagCounts.likely : t.key === 'real' ? tagCounts.real : tagCounts.hot}
+                    </span>
+                  )}
                 </Button>
               ))}
             </div>
@@ -429,15 +520,13 @@ export default function QuizPage() {
                                 <p className="text-sm font-medium text-foreground mb-2">
                                   {q.question}
                                 </p>
-                                <div className="text-xs text-emerald-400 mb-1 font-medium">
+                                <div className="text-xs text-emerald-400 mb-1.5 font-medium">
                                   正确答案：
                                   {Array.isArray(q.answer)
                                     ? q.answer.join('、')
                                     : q.answer}
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                  {q.explanation}
-                                </p>
+                                <QuizExplanation question={q} compact />
                               </div>
                             </div>
                           </CardContent>
@@ -484,7 +573,7 @@ export default function QuizPage() {
                 {MOCK_QUIZZES.length}
               </div>
               <div className="text-[11px] text-muted-foreground mt-0.5">
-                题库总数 · <span className="text-rose-300">真题 {tagCounts.real}</span> · <span className="text-orange-300">高频 {tagCounts.hot}</span>
+                题库总数 · <span className="text-fuchsia-300">高概率 {tagCounts.likely}</span> · <span className="text-rose-300">真题 {tagCounts.real}</span> · <span className="text-orange-300">高频 {tagCounts.hot}</span>
               </div>
             </CardContent>
           </Card>
@@ -494,7 +583,10 @@ export default function QuizPage() {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
             <Card
-              className="cursor-pointer h-full hover:border-cyan-500/40 transition-all border-cyan-500/10 group relative overflow-hidden"
+              className={cn(
+                'cursor-pointer h-full hover:border-cyan-500/40 transition-all border-cyan-500/10 group relative overflow-hidden',
+                filteredCount === 0 && 'opacity-60'
+              )}
               onClick={() => setChoosingDirection(true)}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -509,7 +601,7 @@ export default function QuizPage() {
                   按技术方向分类，针对性练习
                 </p>
                 {tagLabel && (
-                  <p className={cn('text-xs mt-1 font-medium', tagFilter === 'real' ? 'text-rose-300' : 'text-orange-300')}>
+                  <p className={cn('text-xs mt-1 font-medium', tagTextColor)}>
                     当前筛选：仅{tagLabel} · {filteredCount} 题
                   </p>
                 )}
@@ -522,7 +614,10 @@ export default function QuizPage() {
 
           <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
             <Card
-              className="cursor-pointer h-full hover:border-purple-500/40 transition-all border-purple-500/10 group relative overflow-hidden"
+              className={cn(
+                'cursor-pointer h-full hover:border-purple-500/40 transition-all border-purple-500/10 group relative overflow-hidden',
+                filteredCount === 0 && 'opacity-60'
+              )}
               onClick={() => handleStartMode('random')}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -537,7 +632,7 @@ export default function QuizPage() {
                   随机抽题，全面检测掌握程度
                 </p>
                 {tagLabel && (
-                  <p className={cn('text-xs mt-1 font-medium', tagFilter === 'real' ? 'text-rose-300' : 'text-orange-300')}>
+                  <p className={cn('text-xs mt-1 font-medium', tagTextColor)}>
                     当前筛选：仅{tagLabel} · {filteredCount} 题
                   </p>
                 )}
@@ -626,9 +721,12 @@ export default function QuizPage() {
                 </Button>
                 <Button
                   className="flex-1 shadow-[0_0_16px_rgba(0_229_255_0.2)]"
+                  disabled={filteredCount === 0}
                   onClick={() => handleStartMode('select')}
                 >
-                  开始练习（{filteredCount} 题{tagLabel ? ` · 仅${tagLabel}` : ''}）
+                  {filteredCount === 0
+                    ? '当前筛选无题目'
+                    : `开始练习（${filteredCount} 题${tagLabel ? ` · 仅${tagLabel}` : ''}）`}
                 </Button>
               </div>
             </div>
@@ -727,11 +825,6 @@ export default function QuizPage() {
                   <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">
                     {typeLabel}
                   </Badge>
-                  {currentQuestion.type === 'judge' && (
-                    <Badge variant="outline" className="border-amber-500/40 text-amber-400">
-                      省赛不考判断题
-                    </Badge>
-                  )}
                   {currentQuestion.difficulty && (
                     <Badge
                       variant="outline"
@@ -894,16 +987,14 @@ export default function QuizPage() {
                             : currentQuestion.answer}
                         </span>
                       </div>
-                      <div className="pt-2 border-t border-border/30">
-                        <div className="flex items-center gap-2 mb-1">
+                      <div className="pt-3 border-t border-border/30">
+                        <div className="flex items-center gap-2 mb-2">
                           <Lightbulb className="size-4 text-amber-400" />
                           <span className="text-sm font-semibold text-amber-400">
                             解析
                           </span>
                         </div>
-                        <p className="text-sm text-foreground/70 leading-relaxed">
-                          {currentQuestion.explanation}
-                        </p>
+                        <QuizExplanation question={currentQuestion} />
                       </div>
                     </div>
 

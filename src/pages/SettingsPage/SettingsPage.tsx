@@ -16,23 +16,20 @@ import {
   CheckCircle2,
   UserRound,
   Plus,
+  RefreshCw,
 } from 'lucide-react';
 import {
   exportBackup,
   importBackup,
-  directionAccuracyFromBackup,
+  mergeImportBackups,
+  teamMemberFromBackup,
   useQuizRecords,
   useUserProfiles,
+  useTeamMembers,
   type IBackup,
+  type IMergeSummary,
 } from '@/hooks/use-storage';
 import { DIRECTION_LABELS, DIRECTION_COLORS, cn } from '@/lib/utils';
-
-interface IMember {
-  name: string;
-  acc: Record<string, number>;
-  total: number;
-  accuracy: number;
-}
 
 const TEAM_TARGET = 80; // 团队弱项阈值：低于该正确率视为短板
 
@@ -44,8 +41,12 @@ export default function SettingsPage() {
   const [newProfileName, setNewProfileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const teamFileRef = useRef<HTMLInputElement>(null);
+  const mergeFileRef = useRef<HTMLInputElement>(null);
   const [owner, setOwner] = useState('');
-  const [members, setMembers] = useState<IMember[]>([]);
+  // 团队成员：持久化在本机（升级/换机不丢），用于团队弱项对比
+  const { members, upsert, remove } = useTeamMembers();
+  const [mergeResult, setMergeResult] = useState<IMergeSummary | null>(null);
+  const [mergeBusy, setMergeBusy] = useState(false);
 
   const accuracy =
     records.totalCount > 0
@@ -84,17 +85,41 @@ export default function SettingsPage() {
       reader.readAsText(file);
     });
 
+  /** 覆盖导入：先清空本机全部 key 再写入（会吃掉导出之后新刷的进度，仅在「恢复旧备份」时使用） */
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
       const backup = await readJson(file);
       importBackup(backup, 'replace');
-      toast.success('备份已导入，正在刷新…');
+      toast.success('备份已覆盖导入，正在刷新…');
       setTimeout(() => window.location.reload(), 600);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '导入失败');
     } finally {
+      e.target.value = '';
+    }
+  };
+
+  /**
+   * 合并导入：把「本机当前数据」与「一份或多份备份」做题级合并（逐题去重）。
+   * 与覆盖导入的区别：本机原有进度**不会被清空**，两边刷过的题会取并集。
+   */
+  const handleMergeImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setMergeBusy(true);
+    try {
+      const backups = await Promise.all(files.map((f) => readJson(f)));
+      const summary = await mergeImportBackups(backups);
+      setMergeResult(summary);
+      toast.success(
+        `合并完成：已答 ${summary.answered} 题（去重后）· 正确率 ${summary.accuracy}%`
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '合并失败');
+    } finally {
+      setMergeBusy(false);
       e.target.value = '';
     }
   };
@@ -105,26 +130,35 @@ export default function SettingsPage() {
     if (!file) return;
     try {
       const backup = await readJson(file);
-      const info = directionAccuracyFromBackup(backup);
-      const acc =
-        info.totalCount > 0
-          ? Math.round((info.correctCount / info.totalCount) * 100)
-          : 0;
-      setMembers((prev) => [
-        ...prev.filter((m) => m.name !== (backup.owner || file.name)),
-        {
-          name: backup.owner || file.name.replace('.json', ''),
-          acc: info.byDirection,
-          total: info.totalCount,
-          accuracy: acc,
-        },
-      ]);
+      upsert(teamMemberFromBackup(backup, file.name));
       toast.success(`已载入 ${backup.owner || file.name}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '解析失败');
     } finally {
       e.target.value = '';
     }
+  };
+
+  // ---------- 强制更新 ----------
+  /**
+   * 安全更新：注销 Service Worker + 清空 HTTP 缓存 + 重载。
+   * 与浏览器「清除网站数据」的本质区别：**不碰 localStorage**，做题数据完整保留。
+   */
+  const handleForceUpdate = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+    } catch {
+      // 忽略清理异常，直接重载
+    }
+    toast.success('已清缓存并重载（做题数据未受影响）');
+    setTimeout(() => window.location.reload(), 500);
   };
 
   // ---------- 清空 ----------
@@ -142,7 +176,7 @@ export default function SettingsPage() {
   // ---------- 团队共同弱项 ----------
   const weakDirections = ['datacom', 'dcn', 'security', 'wlan'].filter((d) => {
     if (members.length < 2) return false;
-    return members.every((m) => (m.acc[d] ?? 0) < TEAM_TARGET);
+    return members.every((m) => (m.acc?.[d] ?? 0) < TEAM_TARGET);
   });
 
   return (
@@ -301,11 +335,24 @@ export default function SettingsPage() {
               <Download className="size-4 mr-1" />
               导出备份
             </Button>
-            <Button variant="outline" className="flex-1" onClick={() => fileRef.current?.click()}>
+            <Button
+              variant="outline"
+              className="flex-1 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+              disabled={mergeBusy}
+              onClick={() => mergeFileRef.current?.click()}
+            >
               <Upload className="size-4 mr-1" />
-              导入备份
+              {mergeBusy ? '合并中…' : '合并导入'}
             </Button>
           </div>
+          <Button
+            variant="outline"
+            className="w-full border-border/50 text-muted-foreground"
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="size-4 mr-1" />
+            覆盖导入（会先清空本机数据）
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -313,12 +360,89 @@ export default function SettingsPage() {
             className="hidden"
             onChange={handleImport}
           />
+          <input
+            ref={mergeFileRef}
+            type="file"
+            accept="application/json"
+            multiple
+            className="hidden"
+            onChange={handleMergeImport}
+          />
+
+          {/* 合并结果 */}
+          {mergeResult && (
+            <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-2.5 space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-400" />
+                <span className="text-xs font-semibold text-emerald-300">
+                  合并完成（{mergeResult.sources} 份来源 · 题级去重）
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                <div className="rounded bg-muted/20 py-1.5">
+                  <div className="text-sm font-bold font-mono-data text-cyan-400">{mergeResult.answered}</div>
+                  <div className="text-[10px] text-muted-foreground">已答（去重）</div>
+                </div>
+                <div className="rounded bg-muted/20 py-1.5">
+                  <div className="text-sm font-bold font-mono-data text-emerald-400">{mergeResult.correct}</div>
+                  <div className="text-[10px] text-muted-foreground">首刷正确</div>
+                </div>
+                <div className="rounded bg-muted/20 py-1.5">
+                  <div className="text-sm font-bold font-mono-data text-rose-400">{mergeResult.wrong}</div>
+                  <div className="text-[10px] text-muted-foreground">错题本</div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.entries(mergeResult.byDirection).map(([d, v]) => (
+                  <Badge
+                    key={d}
+                    className={cn(
+                      'text-[10px] border-transparent',
+                      DIRECTION_COLORS[d]?.bg,
+                      DIRECTION_COLORS[d]?.text
+                    )}
+                  >
+                    {DIRECTION_LABELS[d]} {v.rate}%（{v.correct}/{v.total}）
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                本机原有进度未被清空；笔记 {mergeResult.notes} 条、收藏 {mergeResult.favorites} 条、模考{' '}
+                {mergeResult.sessions} 次已一并合并。
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full h-7 text-[11px]"
+                onClick={() => window.location.reload()}
+              >
+                刷新查看最新数据
+              </Button>
+            </div>
+          )}
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             数据只存在本机浏览器。换手机、换浏览器、清理缓存都会丢失，<b className="text-amber-400">建议每周导出一次</b>。
             点「导出备份」后，文件会下载到本机<b>下载目录</b>（手机浏览器一般在「下载」或「文件」应用里），
             文件名如 <span className="font-mono-data text-cyan-400/80">ict-backup-2026-09-26.json</span>，
             可通过微信 / 邮件发给队友用于导入。
           </p>
+          <div className="rounded-lg bg-muted/20 p-2.5 text-[11px] leading-relaxed space-y-1">
+            <div>
+              <b className="text-emerald-300">合并导入</b>
+              <span className="text-muted-foreground">
+                {' '}
+                —— 本机数据与备份<b>逐题去重合并</b>（已答取并集、错题取并集、答题次数累加），
+                <b className="text-emerald-300">本机原有进度不会被清空</b>。可一次选多个文件。
+              </span>
+            </div>
+            <div>
+              <b className="text-muted-foreground">覆盖导入</b>
+              <span className="text-muted-foreground">
+                {' '}
+                —— 先清空本机全部数据再写入。仅用于「恢复旧备份」，会吃掉导出之后新刷的进度。
+              </span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -359,34 +483,34 @@ export default function SettingsPage() {
           {members.length > 0 && (
             <div className="space-y-2">
               {members.map((m) => (
-                <div key={m.name} className="rounded-lg border border-border/40 p-2.5">
+                <div key={m.id} className="rounded-lg border border-border/40 p-2.5">
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className="text-xs font-medium">{m.name}</span>
                     <span className="text-[10px] text-muted-foreground font-mono-data">
-                      {m.total} 题
+                      {m.total ?? 0} 题
                     </span>
                     <span
                       className={cn(
                         'ml-auto text-xs font-bold font-mono-data',
-                        m.accuracy >= 85
+                        (m.accuracy ?? 0) >= 85
                           ? 'text-emerald-400'
-                          : m.accuracy >= 70
+                          : (m.accuracy ?? 0) >= 70
                           ? 'text-amber-400'
                           : 'text-rose-400'
                       )}
                     >
-                      {m.accuracy}%
+                      {m.accuracy ?? 0}%
                     </span>
                     <button
                       className="text-muted-foreground/60 hover:text-rose-400"
-                      onClick={() => setMembers((prev) => prev.filter((x) => x.name !== m.name))}
+                      onClick={() => remove(m.id)}
                     >
                       <Trash2 className="size-3.5" />
                     </button>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {['datacom', 'dcn', 'security', 'wlan'].map((d) => {
-                      const v = m.acc[d] ?? 0;
+                      const v = m.acc?.[d] ?? 0;
                       return (
                         <div key={d} className="text-center">
                           <div className="text-[9px] text-muted-foreground">
@@ -466,6 +590,48 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      <Card className="border-cyan-500/15">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <RefreshCw className="size-4 text-cyan-400" />
+            版本与更新
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2.5">
+          <div className="rounded-lg bg-muted/20 p-2.5 flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] text-muted-foreground">当前版本</div>
+              <div className="text-sm font-semibold text-cyan-300 font-mono-data">
+                v{__APP_VERSION__}
+              </div>
+            </div>
+            <div className="text-right min-w-0">
+              <div className="text-[10px] text-muted-foreground">构建时间</div>
+              <div className="text-[11px] text-foreground/70 font-mono-data truncate">
+                {new Date(__BUILD_TIME__).toLocaleString('zh-CN')}
+              </div>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            className="w-full border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10"
+            onClick={handleForceUpdate}
+          >
+            <RefreshCw className="size-4 mr-1" />
+            检查更新（不会删除做题数据）
+          </Button>
+
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            手机端更新正确做法：<b className="text-cyan-300">完全关闭页面再打开</b>（第一遍换缓存、第二遍拿到新页面）；
+            装了「添加到主屏幕」的 PWA 则从 App 切换器划掉再打开。
+            最稳的是点上面的按钮 —— 它只清 Service Worker 与缓存，
+            <b className="text-emerald-300">不碰做题数据</b>，
+            和浏览器设置里的「清除 Cookie 和网站数据」（会连做题数据一起删）完全不同。
+          </p>
+        </CardContent>
+      </Card>
+
       <Card className="border-rose-500/15">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2 text-rose-400">
@@ -479,6 +645,12 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <div className="pt-1 pb-2 text-center text-[10px] text-muted-foreground/50 font-mono-data leading-relaxed">
+        ICT 备考助手 · v{__APP_VERSION__}
+        <br />
+        华为 ICT 大赛网络赛道备考工作台
+      </div>
     </div>
   );
 }

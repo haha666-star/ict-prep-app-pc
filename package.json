@@ -1,6 +1,6 @@
 {
   "name": "ict-network-prep-assistant",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "description": "华为ICT大赛网络赛道备考工作台 - PWA 移动端应用",

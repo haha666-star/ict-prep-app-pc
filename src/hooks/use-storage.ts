@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { scopedStorage, STORAGE_PREFIX, getActiveUserId } from '@/lib/storage';
 import type { KnowledgeStatus } from '@/lib/utils';
+import { mergeQuizRecords as mergeQuizRecordsCore, backupFingerprint } from '@/lib/merge';
 
 // 存储 key 前缀
 const KEY_KNOWLEDGE_STATUS = 'knowledge_status';
@@ -655,6 +656,8 @@ export const BACKUP_KEYS: Record<string, string> = {
   favorites: KEY_FAVORITES,
   quiz_notes: KEY_QUIZ_NOTES,
   quiz_progress: KEY_QUIZ_PROGRESS,
+  team_members: 'team_members',
+  sprint_progress: 'sprint_progress',
 };
 
 export interface IBackup {
@@ -713,4 +716,312 @@ export function directionAccuracyFromBackup(backup: IBackup) {
     correctCount: rec?.correctCount ?? 0,
     wrongCount: rec?.wrongIds?.length ?? 0,
   };
+}
+
+// ========== 题级合并（真合并） ==========
+//
+// 与 importBackup(..., 'replace') 的区别：
+//   replace = 先清空本机全部 key 再写入（会吃掉本机在导出之后新刷的进度）
+//   merge   = 逐题去重合并：answeredIds 取并集、perQuestion 逐题累加、streak 取最近一端
+//
+// 幂等性：同一份备份重复合并结果不变 —— dailyRecords / study_time 采用「按天取 max」而非相加。
+
+/** 知识点掌握状态强弱（合并时取更强的一方） */
+const STATUS_STRENGTH: Record<KnowledgeStatus, number> = {
+  not_started: 0,
+  learning: 1,
+  mastered: 2,
+};
+
+function readJsonKey<T>(key: string, fallback: T): T {
+  const raw = scopedStorage.getItem(key);
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+/** 读取本机当前刷题记录（非 hook，供合并流程调用） */
+export function readQuizRecords(): IQuizRecords {
+  return { ...DEFAULT_QUIZ_RECORDS, ...readJsonKey<Partial<IQuizRecords>>(KEY_QUIZ_RECORDS, {}) };
+}
+
+export interface IMergeSummary {
+  sources: number;
+  /** 因「之前已合并过」而被跳过的备份署名 */
+  skipped: string[];
+  answered: number;
+  wrong: number;
+  correct: number;
+  accuracy: number;
+  byDirection: Record<string, { correct: number; total: number; rate: number }>;
+  notes: number;
+  favorites: number;
+  sessions: number;
+}
+
+/** 已合并过的备份指纹（避免同一份备份重复合并导致 attempts/wrongCount 累加） */
+const KEY_MERGED_FINGERPRINTS = 'merged_backup_fingerprints';
+
+/**
+ * 题级合并多份刷题记录。
+ * 实现抽到 @/lib/merge（零依赖纯函数），便于独立运行单元自测与跨实现交叉核验。
+ */
+export function mergeQuizRecords(
+  list: IQuizRecords[],
+  dirOf?: (id: string) => string | undefined
+): IQuizRecords {
+  return mergeQuizRecordsCore(list, dirOf) as IQuizRecords;
+}
+
+/**
+ * 合并导入：把「本机当前数据」与「若干份队友/其他设备备份」做真合并后写回本机。
+ * 与 importBackup(...,'replace') 不同，本机原有进度不会被清空。
+ *
+ * 题库（题目→方向映射）采用**动态导入**，只有真正执行合并时才拉取，不拖慢设置页。
+ */
+export async function mergeImportBackups(backups: IBackup[]): Promise<IMergeSummary> {
+  const valid = (backups ?? []).filter(
+    (b) => b && b.app === 'ict-network-prep-assistant' && b.data
+  );
+  if (!valid.length) throw new Error('没有可合并的有效备份文件');
+
+  // 指纹去重：跳过之前已合并过的备份，避免 attempts / wrongCount 被重复累加
+  const knownFingerprints = new Set(readJsonKey<string[]>(KEY_MERGED_FINGERPRINTS, []));
+  const skipped: string[] = [];
+  const fresh = valid.filter((b) => {
+    const fp = backupFingerprint(b);
+    if (knownFingerprints.has(fp)) {
+      skipped.push(b.owner || '未署名备份');
+      return false;
+    }
+    knownFingerprints.add(fp);
+    return true;
+  });
+  if (!fresh.length) {
+    throw new Error(
+      `这些备份之前已合并过（${skipped.join('、')}），已跳过，不会重复累加`
+    );
+  }
+
+  const { MOCK_QUIZZES } = await import('@/data/quizzes');
+  const dirMap = new Map(MOCK_QUIZZES.map((q) => [q.id, q.direction] as const));
+  const dirOf = (id: string) => dirMap.get(id);
+
+  // ---------- 1) 刷题记录：本机 + 全部待合并文件 一起题级合并 ----------
+  const recordsList: IQuizRecords[] = [
+    readQuizRecords(),
+    ...fresh.map((b) => b.data.quiz_records as IQuizRecords).filter(Boolean),
+  ];
+  const mergedRecords = mergeQuizRecords(recordsList, dirOf);
+  scopedStorage.setItem(KEY_QUIZ_RECORDS, JSON.stringify(mergedRecords));
+
+  // ---------- 2) 笔记：按 updatedAt 取较新 ----------
+  const noteMaps: QuizNotesMap[] = [
+    readJsonKey<QuizNotesMap>(KEY_QUIZ_NOTES, {}),
+    ...fresh.map((b) => (b.data.quiz_notes as QuizNotesMap) ?? {}),
+  ];
+  const notes: QuizNotesMap = {};
+  noteMaps.forEach((map) =>
+    Object.entries(map ?? {}).forEach(([id, n]) => {
+      if (!n) return;
+      const cur = notes[id];
+      if (!cur || (n.updatedAt ?? 0) > (cur.updatedAt ?? 0)) notes[id] = n;
+    })
+  );
+  scopedStorage.setItem(KEY_QUIZ_NOTES, JSON.stringify(notes));
+
+  // ---------- 3) 收藏：并集 ----------
+  const favSet = new Set<string>();
+  [readJsonKey<string[]>(KEY_FAVORITES, []), ...fresh.map((b) => (b.data.favorites as string[]) ?? [])]
+    .forEach((arr) => (arr ?? []).forEach((id) => favSet.add(id)));
+  scopedStorage.setItem(KEY_FAVORITES, JSON.stringify([...favSet]));
+
+  // ---------- 4) 知识点状态：取更强 ----------
+  const statusMaps: KnowledgeStatusMap[] = [
+    readJsonKey<KnowledgeStatusMap>(KEY_KNOWLEDGE_STATUS, {}),
+    ...fresh.map((b) => (b.data.knowledge_status as KnowledgeStatusMap) ?? {}),
+  ];
+  const status: KnowledgeStatusMap = {};
+  statusMaps.forEach((map) =>
+    Object.entries(map ?? {}).forEach(([id, s]) => {
+      const cur = status[id];
+      if (!cur || STATUS_STRENGTH[s] > STATUS_STRENGTH[cur]) status[id] = s;
+    })
+  );
+  scopedStorage.setItem(KEY_KNOWLEDGE_STATUS, JSON.stringify(status));
+
+  // ---------- 5) 学习时长：按天取 max（幂等，避免反复合并灌水） ----------
+  const timeMaps: Record<string, number>[] = [
+    readJsonKey<Record<string, number>>(KEY_STUDY_TIME, {}),
+    ...fresh.map((b) => (b.data.study_time as Record<string, number>) ?? {}),
+  ];
+  const studyTime: Record<string, number> = {};
+  timeMaps.forEach((map) =>
+    Object.entries(map ?? {}).forEach(([d, m]) => {
+      studyTime[d] = Math.max(studyTime[d] ?? 0, m ?? 0);
+    })
+  );
+  scopedStorage.setItem(KEY_STUDY_TIME, JSON.stringify(studyTime));
+
+  // ---------- 6) 模考记录：按 id 去重合并，保留最近 100 次 ----------
+  const sessionMap = new Map<string, IExamSession>();
+  [readJsonKey<IExamSession[]>(KEY_EXAM_SESSIONS, []), ...fresh.map((b) => (b.data.exam_sessions as IExamSession[]) ?? [])]
+    .forEach((arr) => (arr ?? []).forEach((s) => {
+      if (s?.id) sessionMap.set(s.id, s);
+    }));
+  const sessions = [...sessionMap.values()].sort((a, b) => b.startedAt - a.startedAt).slice(0, 100);
+  scopedStorage.setItem(KEY_EXAM_SESSIONS, JSON.stringify(sessions));
+
+  // ---------- 7) 进度记忆：每个 key 取 updatedAt 最新 ----------
+  const progMaps: QuizProgressMap[] = [
+    readJsonKey<QuizProgressMap>(KEY_QUIZ_PROGRESS, {}),
+    ...fresh.map((b) => (b.data.quiz_progress as QuizProgressMap) ?? {}),
+  ];
+  const progress: QuizProgressMap = {};
+  progMaps.forEach((map) =>
+    Object.entries(map ?? {}).forEach(([k, e]) => {
+      if (!e) return;
+      const cur = progress[k];
+      if (!cur || (e.updatedAt ?? 0) > (cur.updatedAt ?? 0)) progress[k] = e;
+    })
+  );
+  scopedStorage.setItem(KEY_QUIZ_PROGRESS, JSON.stringify(progress));
+
+  // ---------- 8) 学习计划：保留 createdAt 最新的一份 ----------
+  const plans = [readJsonKey<IStudyPlan | null>(KEY_STUDY_PLAN, null), ...fresh.map((b) => (b.data.study_plan as IStudyPlan) ?? null)]
+    .filter((p): p is IStudyPlan => Boolean(p));
+  if (plans.length) {
+    plans.sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''));
+    scopedStorage.setItem(KEY_STUDY_PLAN, JSON.stringify(plans[0]));
+  }
+
+  // ---------- 9) 比赛日期：本机没有才用备份里的 ----------
+  if (!scopedStorage.getItem(KEY_EXAM_DATE)) {
+    const d = fresh.map((b) => b.data.exam_date as string).find((x) => Boolean(x));
+    if (d) scopedStorage.setItem(KEY_EXAM_DATE, d);
+  }
+
+  // ---------- 汇总 ----------
+  scopedStorage.setItem(KEY_MERGED_FINGERPRINTS, JSON.stringify([...knownFingerprints]));
+
+  const answered = mergedRecords.totalCount;
+  const byDirection: IMergeSummary['byDirection'] = {};
+  Object.entries(mergedRecords.byDirection).forEach(([d, v]) => {
+    byDirection[d] = {
+      correct: v.correct,
+      total: v.total,
+      rate: v.total > 0 ? Math.round((v.correct / v.total) * 100) : 0,
+    };
+  });
+
+  return {
+    sources: fresh.length + 1,
+    skipped,
+    answered,
+    wrong: mergedRecords.wrongIds.length,
+    correct: mergedRecords.correctCount,
+    accuracy: answered > 0 ? Math.round((mergedRecords.correctCount / answered) * 100) : 0,
+    byDirection,
+    notes: Object.keys(notes).length,
+    favorites: favSet.size,
+    sessions: sessions.length,
+  };
+}
+
+// ========== 团队成员（本机「团队分析台」，持久化） ==========
+const KEY_TEAM_MEMBERS = 'team_members';
+
+export interface ITeamMember {
+  id: string;
+  name: string;
+  /** 由导入队友备份得到的正确率数据（只读展示，不参与本机数据合并） */
+  acc?: Record<string, number>;
+  total?: number;
+  correct?: number;
+  accuracy?: number;
+  updatedAt: number;
+}
+
+export function useTeamMembers() {
+  const [members, setMembers] = useState<ITeamMember[]>([]);
+
+  useEffect(() => {
+    setMembers(readJsonKey<ITeamMember[]>(KEY_TEAM_MEMBERS, []).slice(0, 3));
+  }, []);
+
+  const persist = useCallback((next: ITeamMember[]) => {
+    const trimmed = next.slice(0, 3);
+    setMembers(trimmed);
+    scopedStorage.setItem(KEY_TEAM_MEMBERS, JSON.stringify(trimmed));
+  }, []);
+
+  /** 新增或覆盖一位成员（按 id 或姓名去重） */
+  const upsert = useCallback((m: ITeamMember) => {
+    setMembers((prev) => {
+      const next = [
+        ...prev.filter((x) => x.id !== m.id && x.name !== m.name),
+        m,
+      ].sort((a, b) => a.updatedAt - b.updatedAt);
+      const trimmed = next.slice(0, 3);
+      scopedStorage.setItem(KEY_TEAM_MEMBERS, JSON.stringify(trimmed));
+      return trimmed;
+    });
+  }, []);
+
+  const remove = useCallback((id: string) => {
+    setMembers((prev) => {
+      const next = prev.filter((x) => x.id !== id);
+      scopedStorage.setItem(KEY_TEAM_MEMBERS, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  return { members, persist, upsert, remove };
+}
+
+/** 由一份队友备份构造团队成员条目 */
+export function teamMemberFromBackup(backup: IBackup, fileName?: string): ITeamMember {
+  const info = directionAccuracyFromBackup(backup);
+  const name = backup.owner || (fileName ? fileName.replace(/\.json$/i, '') : '未署名队友');
+  return {
+    id: 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    name,
+    acc: info.byDirection,
+    total: info.totalCount,
+    correct: info.correctCount,
+    accuracy: info.totalCount > 0 ? Math.round((info.correctCount / info.totalCount) * 100) : 0,
+    updatedAt: Date.now(),
+  };
+}
+
+// ========== 12 天冲刺计划进度 ==========
+const KEY_SPRINT_PROGRESS = 'sprint_progress';
+
+/** 冲刺计划打勾记录：key = `${day}-${taskIndex}` */
+export type SprintProgressMap = Record<string, boolean>;
+
+export function useSprintProgress() {
+  const [done, setDone] = useState<SprintProgressMap>({});
+
+  useEffect(() => {
+    setDone(readJsonKey<SprintProgressMap>(KEY_SPRINT_PROGRESS, {}));
+  }, []);
+
+  const toggle = useCallback((key: string) => {
+    setDone((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      scopedStorage.setItem(KEY_SPRINT_PROGRESS, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const clear = useCallback(() => {
+    setDone({});
+    scopedStorage.removeItem(KEY_SPRINT_PROGRESS);
+  }, []);
+
+  return { done, toggle, clear };
 }

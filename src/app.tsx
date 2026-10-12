@@ -11,6 +11,7 @@ const QuizPage = lazy(() => import("@/pages/QuizPage/QuizPage"));
 const ExamPage = lazy(() => import("@/pages/ExamPage/ExamPage"));
 const StatisticsPage = lazy(() => import("@/pages/StatisticsPage/StatisticsPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage/SettingsPage"));
+const RoadmapPage = lazy(() => import("@/pages/RoadmapPage/RoadmapPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage/NotFoundPage"));
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="roadmap" element={<RoadmapPage />} />
         <Route path="knowledge" element={<KnowledgePage />} />
         <Route path="lab-config" element={<LabConfigPage />} />
         <Route path="study-plan" element={<StudyPlanPage />} />

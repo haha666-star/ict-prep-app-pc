@@ -44,6 +44,22 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   );
 }
 
+// ---------- 手机端「打开即更新」 ----------
+// 线上 registerSW.js 只注册了 Service Worker，没有「发现新版就刷新」的逻辑，
+// 导致新版本已装上、但当前页面仍在跑旧代码，用户以为「更新失败」去清数据（连带删掉做题数据）。
+// 这里补上：新 SW 接管（controllerchange）后自动刷新一次。
+// 注意：仅当「之前已有 SW 在控制页面」时才刷新 —— 首次安装会触发 controllerchange，
+//       此时刷新会白屏。
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>

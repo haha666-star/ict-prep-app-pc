@@ -7,12 +7,15 @@ import {
   BookOpen,
   BarChart3,
   Settings,
+  Flag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // 省赛只考理论，实验速查优先级下调，改为「设置 → 实验速查」入口
+// 「赛程」页承载校赛倒计时与晋级流水线，是当前冲刺阶段的高频入口，置于第二位
 const TAB_ITEMS = [
   { path: '/', label: '总览', icon: LayoutDashboard },
+  { path: '/roadmap', label: '赛程', icon: Flag },
   { path: '/exam', label: '模考', icon: Timer },
   { path: '/quiz', label: '刷题', icon: PenTool },
   { path: '/knowledge', label: '知识', icon: BookOpen },
@@ -36,7 +39,7 @@ export default function BottomTabBar() {
         <span className="text-cyan-400 text-glow-cyan text-lg font-bold font-tech">▌</span>
       </div>
 
-      <div className="grid grid-cols-7 h-14 md:flex md:flex-col md:h-auto md:flex-1 md:py-4">
+      <div className="grid grid-cols-8 h-14 md:flex md:flex-col md:h-auto md:flex-1 md:py-4">
         {TAB_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =

@@ -10,6 +10,7 @@ import { Settings } from 'lucide-react';
 
 const PAGE_TITLES: Record<string, string> = {
   '/': '备考总览',
+  '/roadmap': '赛程与冲刺',
   '/knowledge': '知识体系',
   '/lab-config': '实验速查',
   '/study-plan': '学习计划',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,8 +42,11 @@ import {
   DIFFICULTY_LABELS,
   DIFFICULTY_COLORS,
   getDifficulty,
+  describeTypeMix,
+  countLikely,
   type IExamPreset,
 } from '@/lib/exam';
+import QuizExplanation from '@/components/QuizExplanation';
 
 type Phase = 'select' | 'running' | 'report';
 
@@ -102,6 +105,19 @@ export default function ExamPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining, phase]);
+
+  // 组卷预览：高概率题（真题同源 ∪ 高频）在各预设卷中的占比。
+  // 组卷开启 preferLikely（默认）后，题型/方向配额不变，只是格子内优先抽真题高频，
+  // 实测（ict-audit-v2/probe-exam.mjs，每预设 200 套）：省初赛 83.3% / 省复赛 64.7% /
+  // 冲刺小测 95.0% / 国赛 72.2%，关闭时分别只有 20.0% / 22.0% / 21.3% / 22.8%。
+  const likelyPreview = useMemo(() => {
+    const m: Record<string, { likely: number; total: number }> = {};
+    EXAM_PRESETS.forEach((p) => {
+      const c = countLikely(buildExamPaper(p));
+      m[p.id] = { likely: c.likely, total: c.total };
+    });
+    return m;
+  }, []);
 
   const startExam = useCallback((p: IExamPreset) => {
     const paper = buildExamPaper(p);
@@ -229,16 +245,22 @@ export default function ExamPage() {
 
   // ---------------- 选择页 ----------------
   if (phase === 'select') {
-    const poolSize = MOCK_QUIZZES.filter((q) => q.type !== 'judge').length;
+    const poolSize = MOCK_QUIZZES.length;
+    const typeCounts = { single: 0, multiple: 0, judge: 0 };
+    MOCK_QUIZZES.forEach((q) => {
+      typeCounts[q.type] += 1;
+    });
     return (
       <div className="space-y-3">
-        <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-3">
+        <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-3">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="size-4 text-amber-400 shrink-0 mt-0.5" />
-            <div className="text-[12px] leading-relaxed text-amber-200/90">
-              省初赛、省复赛均为<b className="text-amber-300">理论机考（单选+多选）</b>。
-              本模考已自动排除判断题，并按官方题型配比抽题。当前可用考试题池{' '}
-              <b className="text-amber-300 font-mono-data">{poolSize}</b> 题。
+            <AlertTriangle className="size-4 text-cyan-400 shrink-0 mt-0.5" />
+            <div className="text-[12px] leading-relaxed text-cyan-100/90">
+              省赛理论卷题型为
+              <b className="text-cyan-300">判断 + 单选 + 多选</b>
+              （三题型均考），按官方方向配比 40/20/20/20 组卷。当前题池{' '}
+              <b className="text-cyan-300 font-mono-data">{poolSize}</b> 题（单选{' '}
+              {typeCounts.single} · 多选 {typeCounts.multiple} · 判断 {typeCounts.judge}）。
             </div>
           </div>
         </div>
@@ -281,6 +303,15 @@ export default function ExamPage() {
                         </Badge>
                       ))}
                     </div>
+                    <div className="text-[10px] text-cyan-300/80 mt-1.5 font-mono-data">
+                      题型：{describeTypeMix(p)}
+                    </div>
+                    {likelyPreview[p.id] && (
+                      <div className="text-[10px] text-fuchsia-300/85 mt-1 font-mono-data">
+                        高概率题 ≈ {likelyPreview[p.id].likely} 道（真题同源 ∪ 高频，占本卷{' '}
+                        {Math.round((likelyPreview[p.id].likely / likelyPreview[p.id].total) * 100)}%）
+                      </div>
+                    )}
                   </div>
                   <Button size="sm" className="shrink-0 shadow-[0_0_14px_rgba(0_229_255_0.25)]">
                     开始
@@ -388,6 +419,15 @@ export default function ExamPage() {
                 <span className="text-rose-400"> · 未答 {report.unanswered} 题</span>
               )}
             </div>
+            {(() => {
+              const c = countLikely(report.questions);
+              return (
+                <div className="text-[11px] text-fuchsia-300/85 mt-1 font-mono-data">
+                  本卷高概率题 {c.likely} 道（真题 {c.real} · 高频 {c.hot}，占本卷{' '}
+                  {Math.round((c.likely / c.total) * 100)}%）
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-3 gap-2 mt-4">
               <div className="rounded-lg bg-muted/20 py-2">
                 <div className="text-sm font-bold font-mono-data text-cyan-400">
@@ -525,13 +565,11 @@ export default function ExamPage() {
                     </span>
                   </div>
                   <p className="text-xs font-medium mb-1.5 leading-relaxed">{q.question}</p>
-                  <div className="text-[11px] text-emerald-400 mb-1">
+                  <div className="text-[11px] text-emerald-400 mb-1.5">
                     正确答案：
                     {Array.isArray(q.answer) ? q.answer.join('、') : q.answer}
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    {q.explanation}
-                  </p>
+                  <QuizExplanation question={q} compact />
                 </div>
               ))}
               {wrongQuestions.length > 10 && (
@@ -624,7 +662,7 @@ export default function ExamPage() {
               variant="outline"
               className="border-cyan-500/30 text-cyan-400 text-[10px]"
             >
-              {isMulti ? '多选题' : '单选题'}
+              {isMulti ? '多选题' : current.type === 'judge' ? '判断题' : '单选题'}
             </Badge>
             <Badge
               className={cn(

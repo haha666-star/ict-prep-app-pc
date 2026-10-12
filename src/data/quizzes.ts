@@ -10,9 +10,12 @@ import { stableShuffleOptions } from '../lib/options'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
 
+/** 官方省赛题型：判断 + 单选 + 多选（三题型均考，不可排除判断题） */
+export type QuizType = 'single' | 'multiple' | 'judge'
+
 export interface IQuizQuestion {
   id: string
-  type: 'single' | 'multiple' | 'judge'
+  type: QuizType
   question: string
   options: string[]
   answer: string | string[]
@@ -24,6 +27,10 @@ export interface IQuizQuestion {
   difficulty?: QuizDifficulty
   /** 题源标注：real=真题同源（公开回忆/高频真题模式），hot=高频预测考点。用于冲刺阶段重点筛选 */
   tag?: 'real' | 'hot'
+  /** 记忆要点：一句话口诀/记忆锚点，可选。用于结构化解析面板 */
+  tip?: string
+  /** 易错点：最容易想当然踩的坑，可选。用于结构化解析面板 */
+  pitfall?: string
 }
 
 const RAW_QUIZZES: IQuizQuestion[] = [

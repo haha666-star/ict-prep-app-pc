@@ -29,6 +29,7 @@ import {
   Zap,
   Radio,
   Cpu,
+  Flag,
 } from 'lucide-react';
 import { MOCK_KNOWLEDGE } from '@/data/knowledge';
 import {
@@ -38,24 +39,19 @@ import {
   useExamDate,
 } from '@/hooks/use-storage';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
+import { SCHOOL_CONTEST_DATE } from '@/data/contest';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { statusMap, getStatus } = useKnowledgeStatus();
   const { plan, toggleTask } = useStudyPlan();
   const { records } = useQuizRecords();
-  const { examDate, setExamDate } = useExamDate();
+  const { examDate, setExamDate } = useExamDate(SCHOOL_CONTEST_DATE);
   const [dateInput, setDateInput] = useState(examDate);
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
 
-  // 默认比赛日期（90天后）
-  const defaultExamDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 90);
-    return formatDate(d);
-  }, []);
-
-  const effectiveExamDate = examDate || defaultExamDate;
+  // 默认比赛日期 = 校赛日期（与「赛程」页保持一致）
+  const effectiveExamDate = examDate || SCHOOL_CONTEST_DATE;
 
   // 倒计时计算
   const countdown = useMemo(() => {
@@ -120,6 +116,18 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-2">
+      {/* 校赛冲刺入口 */}
+      <button
+        onClick={() => navigate('/roadmap')}
+        className="w-full text-left rounded-lg border border-cyan-500/25 bg-cyan-500/5 p-2.5 flex items-center gap-2 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors"
+      >
+        <Flag className="size-4 text-cyan-400 shrink-0" />
+        <span className="text-xs text-cyan-100/90 flex-1">
+          校赛冲刺看板 —— 倒计时 · 晋级流水线 · 题库覆盖缺口
+        </span>
+        <ChevronRight className="size-3.5 text-cyan-400 shrink-0" />
+      </button>
+
       {/* 顶部概览卡片 */}
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {/* 倒计时卡片 */}
