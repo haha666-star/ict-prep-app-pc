@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { scopedStorage, STORAGE_PREFIX, getActiveUserId } from '@/lib/storage';
+import { type IProgressEntry, type IProgressMap, shouldKeepResetFlag } from '@/lib/quiz-progress';
 import type { KnowledgeStatus } from '@/lib/utils';
 import { mergeQuizRecords as mergeQuizRecordsCore, backupFingerprint } from '@/lib/merge';
 
@@ -517,13 +518,11 @@ export function useExamDate(defaultDate = '') {
 }
 
 // ========== 刷题进度记忆 ==========
-export interface IQuizProgressEntry {
-  ids: string[];
-  index: number;
-  updatedAt: number;
-}
-
-export type QuizProgressMap = Record<string, IQuizProgressEntry>;
+// 类型与「续刷位置恢复算法」集中在 @/lib/quiz-progress（纯模块，可独立单测）——
+// 2026-10-13 题库扩容把旧恢复条件 prog.ids.length === list.length 打爆，
+// 导致所有会话的续刷位置作废，修复细节见该文件顶部注释。
+export type IQuizProgressEntry = IProgressEntry;
+export type QuizProgressMap = IProgressMap;
 
 const KEY_QUIZ_PROGRESS = 'quiz_progress';
 
@@ -543,19 +542,32 @@ export function useQuizProgress() {
     try {
       const raw = scopedStorage.getItem(KEY_QUIZ_PROGRESS);
       const map: QuizProgressMap = raw ? (JSON.parse(raw) as QuizProgressMap) : {};
-      map[key] = entry;
+      // 保留「用户主动重置」标记，直到位置真的被推过 0：
+      //   否则「点从头开始 → 立刻返回 → 刷新」会被续刷位置重建逻辑又推回旧位置。
+      //   一旦 index > 0，标记自然消失（用户已经在主动往下刷了）。
+      map[key] = shouldKeepResetFlag(map[key], entry.index)
+        ? { ...entry, resetByUser: true }
+        : entry;
       scopedStorage.setItem(KEY_QUIZ_PROGRESS, JSON.stringify(map));
     } catch {
       // 忽略损坏的进度缓存
     }
   }, []);
 
-  const clearProgress = useCallback((key: string) => {
+  const clearProgress = useCallback((key: string, ids?: string[]) => {
     try {
       const raw = scopedStorage.getItem(KEY_QUIZ_PROGRESS);
-      if (!raw) return;
-      const map = JSON.parse(raw) as QuizProgressMap;
-      delete map[key];
+      const map: QuizProgressMap = raw ? (JSON.parse(raw) as QuizProgressMap) : {};
+      // 关键：这里**不删除**，而是写入带 resetByUser 标记的 index=0。
+      //   「index=0 但池里已有大量作答记录」会被恢复算法判为「位置被覆盖丢失」
+      //   并自动续刷到上次位置 —— 这对被动丢进度是对的，但会把用户主动点的
+      //   「从头开始」也一起顶掉。显式标记才能区分这两种意图。
+      map[key] = {
+        ids: ids ?? map[key]?.ids ?? [],
+        index: 0,
+        updatedAt: Date.now(),
+        resetByUser: true,
+      };
       scopedStorage.setItem(KEY_QUIZ_PROGRESS, JSON.stringify(map));
     } catch {
       // 忽略

@@ -36,6 +36,7 @@ import {
 import { MOCK_QUIZZES, type IQuizQuestion } from '@/data/quizzes';
 import { MOCK_KNOWLEDGE } from '@/data/knowledge';
 import { useQuizRecords, useQuizNotes, useQuizProgress } from '@/hooks/use-storage';
+import { restoreSession } from '@/lib/quiz-progress';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import {
@@ -240,36 +241,29 @@ export default function QuizPage() {
       toast.error('当前「方向 × 题型 × 标签」组合下没有题目，请放宽任一筛选');
       return;
     }
-    // 进度记忆：同一会话且题库未变化时，恢复上次的题目顺序与位置，从上次位置继续
+    // 续刷位置恢复：以**题目 id** 为准，题池增删都不再让位置作废。
+    //   旧实现的条件是 `prog.ids.length === list.length`（题量必须一字不差），
+    //   2026-10-13 题库扩容 964 → 1351 后全部会话的位置被判为「不可恢复」
+    //   并用 index 0 覆盖存档 —— 用户侧表现为「做题数据还在、刷题记忆没了」。
+    //   新算法见 src/lib/quiz-progress.ts 顶部注释。
     const key = sessionKey(m);
     const prog = getProgress(key);
-    let restored = false;
-    let restoreIndex = 0;
-    if (prog && prog.ids && prog.ids.length === list.length) {
-      const progSet = new Set(prog.ids);
-      const currentIds = list.map((q) => q.id);
-      if (currentIds.every((id) => progSet.has(id))) {
-        const idToQ = new Map(list.map((q) => [q.id, q] as const));
-        const ordered = prog.ids
-          .map((id) => idToQ.get(id))
-          .filter((q): q is IQuizQuestion => Boolean(q));
-        if (ordered.length === list.length) {
-          list = ordered;
-          restoreIndex = Math.min(prog.index, Math.max(0, list.length - 1));
-          restored = true;
-        }
-      }
-    }
+    const restored = restoreSession(list, prog, records.perQuestion);
+    list = restored.order;
     setMode(m);
     setSessionQuestions(list);
-    setCurrentIndex(restoreIndex);
+    setCurrentIndex(restored.index);
     setSelectedAnswers({});
     setSubmittedMap({});
     setChoosingDirection(false);
-    if (restored) {
-      toast.success(`已恢复上次进度：第 ${restoreIndex + 1}/${list.length} 题`);
-    } else {
-      saveProgress(key, { ids: list.map((q) => q.id), index: 0, updatedAt: Date.now() });
+    // 无论哪种策略都回写一次：恢复出的顺序可能已含新增题，回写后下次继续命中
+    saveProgress(key, {
+      ids: list.map((q) => q.id),
+      index: restored.index,
+      updatedAt: Date.now(),
+    });
+    if (restored.index > 0 || restored.strategy === 'relocated') {
+      toast.success(restored.note);
     }
   };
 
@@ -296,6 +290,20 @@ export default function QuizPage() {
     });
     return map;
   }, [wrongQuestions]);
+
+  // 各方向「已刷 / 总数」—— 2026-10-13 进度丢失事故后新增：
+  //   位置记忆（quiz_progress）容易静默失效，而「已答题数」是按题目 id 记的、不易丢，
+  //   把两者并排显示，用户一眼就能核对「我的进度到底在不在」。
+  const doneByDirection = useMemo(() => {
+    const answered = new Set(records.answeredIds);
+    const map: Record<string, { done: number; total: number }> = {};
+    MOCK_QUIZZES.forEach((q) => {
+      const e = (map[q.direction] ??= { done: 0, total: 0 });
+      e.total += 1;
+      if (answered.has(q.id)) e.done += 1;
+    });
+    return map;
+  }, [records.answeredIds]);
 
   // 标签上下文：把「哪些知识点算高频」从逐题标注推导出来（刷题侧会按知识点补齐多选/判断，
   //   见 src/lib/tags.ts 顶部注释；组卷侧仍用严格手标，两套口径并存）
@@ -762,6 +770,7 @@ export default function QuizPage() {
                 </Button>
                 {(['datacom', 'dcn', 'security', 'wlan'] as const).map((d) => {
                   const count = MOCK_QUIZZES.filter((q) => q.direction === d).length;
+                  const done = doneByDirection[d]?.done ?? 0;
                   return (
                     <Button
                       key={d}
@@ -773,6 +782,16 @@ export default function QuizPage() {
                       )}
                     >
                       {DIRECTION_LABELS[d]} ({count})
+                      {done > 0 && (
+                        <span
+                          className={cn(
+                            'ml-1 text-[10px]',
+                            selectedDirection === d ? 'text-primary-foreground/70' : 'text-cyan-400/80'
+                          )}
+                        >
+                          已刷 {done}
+                        </span>
+                      )}
                     </Button>
                   );
                 })}
@@ -852,7 +871,8 @@ export default function QuizPage() {
             <button
               type="button"
               onClick={() => {
-                clearProgress(sessionKey(mode));
+                // 传入当前会话的题目 id：写入「主动重置」标记，避免刷新后被续刷逻辑推回旧位置
+                clearProgress(sessionKey(mode), questions.map((q) => q.id));
                 handleStartMode(mode);
               }}
               className="text-[11px] px-1.5 py-0.5 rounded border border-border/50 text-muted-foreground hover:text-cyan-300 hover:border-cyan-500/40 transition-colors"
