@@ -80,9 +80,12 @@ export default function QuizExplanation({
     [question]
   );
   const knowledgeName = KNOWLEDGE_NAME.get(question.knowledgeId);
-  // 巧妙记忆：题目自带优先，其次按知识点挂载（题库 tip 字段全空，故以知识点为准）
+  // 巧妙记忆：题目自带优先，其次按知识点挂载（题库 tip 字段全空，故以知识点为准）。
+  // 传入 mnemonicSeq（该题在本知识点内的出现序号），让同一知识点的连续几题轮换不同变体 ——
+  // 否则扩容后同知识点题目在题库顺序上高度连续，会出现「连着几题口诀一模一样」。
   const mnemonic =
-    (question as { mnemonic?: string }).mnemonic || mnemonicOf(question.knowledgeId);
+    (question as { mnemonic?: string }).mnemonic ||
+    mnemonicOf(question.knowledgeId, question.mnemonicSeq ?? 0);
 
   // 顶部那一句：有真结论就用结论，否则退而显示话题（标题相应改成「考点」）
   const headline = conclusion || topic;
