@@ -6,6 +6,14 @@ import { EXTRA_QUIZZES_D } from './quizzes-extra-d'
 import { EXTRA_QUIZZES_E } from './quizzes-extra-e'
 import { EXTRA_QUIZZES_F } from './quizzes-extra-f'
 import { EXTRA_QUIZZES_REAL } from './quizzes-real'
+import { EXTRA_QUIZZES_EXPAND_A } from './quizzes-expand-a'
+import { EXTRA_QUIZZES_EXPAND_B } from './quizzes-expand-b'
+import { EXTRA_QUIZZES_EXPAND_C } from './quizzes-expand-c'
+import { EXTRA_QUIZZES_EXPAND_D } from './quizzes-expand-d'
+import { EXTRA_QUIZZES_EXPAND_E } from './quizzes-expand-e'
+import { EXTRA_QUIZZES_EXPAND_F } from './quizzes-expand-f'
+import { EXTRA_QUIZZES_EXPAND_G } from './quizzes-expand-g'
+import { EXTRA_QUIZZES_EXPAND_H } from './quizzes-expand-h'
 import { stableShuffleOptions } from '../lib/options'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
@@ -3638,6 +3646,16 @@ const RAW_QUIZZES: IQuizQuestion[] = [
 
   // ==================== v7b 省赛专项（DCN 补齐省赛 20% 权重） ====================
   ...EXTRA_QUIZZES_F,
+
+  // ==================== 题库扩容 v8（2026-10-13：三题型全覆盖，见 quizzes-expand-a.ts 顶部说明） ====================
+  ...EXTRA_QUIZZES_EXPAND_A,
+  ...EXTRA_QUIZZES_EXPAND_B,
+  ...EXTRA_QUIZZES_EXPAND_C,
+  ...EXTRA_QUIZZES_EXPAND_D,
+  ...EXTRA_QUIZZES_EXPAND_E,
+  ...EXTRA_QUIZZES_EXPAND_F,
+  ...EXTRA_QUIZZES_EXPAND_G,
+  ...EXTRA_QUIZZES_EXPAND_H,
 ];
 
 // 选项顺序稳定打乱：消除"正确答案集中在 A/B"的位置偏斜（按题号定种子，顺序稳定）

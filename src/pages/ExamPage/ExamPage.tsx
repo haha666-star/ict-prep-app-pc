@@ -108,8 +108,8 @@ export default function ExamPage() {
 
   // 组卷预览：高概率题（真题同源 ∪ 高频）在各预设卷中的占比。
   // 组卷开启 preferLikely（默认）后，题型/方向配额不变，只是格子内优先抽真题高频，
-  // 实测（ict-audit-v2/probe-exam.mjs，每预设 200 套）：省初赛 83.3% / 省复赛 64.7% /
-  // 冲刺小测 95.0% / 国赛 72.2%，关闭时分别只有 20.0% / 22.0% / 21.3% / 22.8%。
+  // 实测（ict-audit-v2/probe-exam.mjs，每预设 200 套）：扩容后四个预设均 100.0%
+  // （关闭时约 45.6% / 50.4% / 49.2% / 51.9%，随机基线 48.0%）。
   const likelyPreview = useMemo(() => {
     const m: Record<string, { likely: number; total: number }> = {};
     EXAM_PRESETS.forEach((p) => {

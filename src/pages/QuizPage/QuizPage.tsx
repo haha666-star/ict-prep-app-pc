@@ -85,10 +85,10 @@ export default function QuizPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'judge' | 'single' | 'multiple'>('all');
   // 真题/高频筛选：冲刺国一的核心——优先刷往年真题与高频考点
   // likely = 高概率题 = 真题同源(real) ∪ 高频(hot)
-  //   刷题侧按知识点补齐多选/判断后 = 442 道（占全库 45.9%）
-  //   —— 实测：node ict-audit-v2/diag-plan-quota.mjs → likely = 442 (45.9%)
+  //   刷题侧按知识点补齐多选/判断后 = 875 道（占全库 64.8%）
+  //   —— 实测：node ict-audit-v2/diag-snapshot-v8.mjs → likely = 875 (64.8%)
   //   ★ 这里的数字必须与 src/lib/tags.ts 的 effectiveTag 保持一致；
-  //     组卷侧（src/lib/exam.ts 的 tagRank / countLikely）仍走严格手标的 262 道窄集，
+  //     组卷侧（src/lib/exam.ts 的 tagRank / countLikely）仍走严格手标的 649 道窄集，
   //     两套口径**故意不同**，改动前先读 src/lib/tags.ts 顶部那段说明。
   const [tagFilter, setTagFilter] = useState<TagFilter>('all');
 
@@ -448,7 +448,7 @@ export default function QuizPage() {
                     t.key === 'likely'
                       ? `高概率题 = 真题同源 ∪ 高频，共 ${tagCounts.likely} 道（占全库 ${((tagCounts.likely / MOCK_QUIZZES.length) * 100).toFixed(1)}%），冲刺期优先刷`
                       : t.key === 'real'
-                      ? `严格真题同源（${tagCounts.real} 道）——这些题能追溯到真题出处，不按知识点外推`
+                      ? `真题同源考法（${tagCounts.real} 道）——按公开真题回忆 / 官方样题的同源考法逐题标注，不按知识点外推`
                       : t.key === 'hot'
                       ? `高频考点（${tagCounts.hot} 道）——含按知识点补齐的多选/判断，保证各题型都有题可刷`
                       : '不限标签'
@@ -476,7 +476,8 @@ export default function QuizPage() {
                     {tagTypeCounts.single ?? 0} · 多选 {tagTypeCounts.multiple ?? 0}
                     {tagFilter === 'real' ? (
                       <span className="text-muted-foreground/60">
-                        （真题逐题标注、以单选为主，判断题暂无真题同源；练判断/多选请改选「高频」）
+                        （真题按出处逐题标注、以单选/多选为主；公开真题回忆里没有判断题原题，
+                        故本档判断题恒为 0，练判断请改选「高频」）
                       </span>
                     ) : (
                       <span className="text-muted-foreground/60">

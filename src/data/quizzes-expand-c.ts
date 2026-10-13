@@ -1,0 +1,523 @@
+/**
+ * 题库扩容（第三批）：数通 · 地址转换 / 冗余 / 隧道 / QoS 类考点
+ * 目标：每个考点 单选>=3 / 多选>=4 / 判断>=4。标签口径见 quizzes-expand-a.ts。
+ */
+import type { IQuizQuestion } from './quizzes'
+
+export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
+  // ==================== datacom-nat  NAT网络地址转换 ====================
+  {
+    id: 'ex-dc-097', type: 'multiple', difficulty: 'IP',
+    question: '关于常见 NAT 类型，以下说法正确的有？',
+    options: [
+      '静态 NAT 实现一对一的固定映射',
+      '动态 NAT 从地址池中动态分配公网地址',
+      'NAPT 支持多对一并转换端口号',
+      'Easy IP 直接使用接口的公网地址进行 NAPT',
+    ],
+    answer: [
+      '静态 NAT 实现一对一的固定映射',
+      '动态 NAT 从地址池中动态分配公网地址',
+      'NAPT 支持多对一并转换端口号',
+      'Easy IP 直接使用接口的公网地址进行 NAPT',
+    ],
+    explanation: '四项均正确。Easy IP 是 NAPT 的特例：不单独配置地址池，直接借用出接口地址，常用于拨号或小型出口。',
+    knowledgeId: 'datacom-nat', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-098', type: 'multiple', difficulty: 'IP',
+    question: '在数通设备上部署 NAT Server 时，以下说法正确的有？',
+    options: [
+      '将公网 IP 的指定端口映射到内网服务器',
+      '支持一对一地址映射',
+      '支持端口级映射，不同端口可映射到不同内网服务器',
+      'NAT Server 无需公网地址即可生效',
+    ],
+    answer: [
+      '将公网 IP 的指定端口映射到内网服务器',
+      '支持一对一地址映射',
+      '支持端口级映射，不同端口可映射到不同内网服务器',
+    ],
+    explanation: 'NAT Server 的前提就是拥有可对外发布的公网地址，否则外部流量无从到达，因此第四项错误。',
+    knowledgeId: 'datacom-nat', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-099', type: 'multiple', difficulty: 'IE',
+    question: '关于 NAT 的局限性，以下说法正确的有？',
+    options: [
+      '破坏了端到端的通信模型',
+      '部分应用层协议需要 ALG 配合才能正常穿越',
+      'NAT 之后的主机建立 P2P 连接需要 STUN/TURN 等辅助技术',
+      'NAT 只会修改 IP 首部，绝不会影响应用层载荷的内容',
+    ],
+    answer: [
+      '破坏了端到端的通信模型',
+      '部分应用层协议需要 ALG 配合才能正常穿越',
+      'NAT 之后的主机建立 P2P 连接需要 STUN/TURN 等辅助技术',
+    ],
+    explanation: 'FTP、SIP 等协议会在应用层载荷中携带 IP 与端口信息，NAT 必须借助 ALG 改写这些内容，因此"绝不会影响应用层载荷"的说法错误。',
+    knowledgeId: 'datacom-nat', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-vrrp  VRRP ====================
+  {
+    id: 'ex-dc-100', type: 'multiple', difficulty: 'IP',
+    question: '关于 VRRP 的 Master 选举，以下说法正确的有？',
+    options: [
+      '优先比较优先级，数值大者优先',
+      '优先级默认值为 100',
+      '优先级取值范围为 1~254',
+      '优先级相同时比较接口 IP 地址，数值小者优先',
+    ],
+    answer: [
+      '优先比较优先级，数值大者优先',
+      '优先级默认值为 100',
+      '优先级取值范围为 1~254',
+    ],
+    explanation: '优先级相同时比较接口 IP 地址，**大者**优先，因此第四项方向写反了。优先级 255 为虚拟 IP 拥有者，直接成为 Master。',
+    knowledgeId: 'datacom-vrrp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-101', type: 'multiple', difficulty: 'IP',
+    question: '关于 VRRP 的运行机制，以下说法正确的有？',
+    options: [
+      '虚拟 MAC 地址格式为 00-00-5E-00-01-{VRID}',
+      'Master 周期性地发送 VRRP 通告报文',
+      'Backup 连续若干个通告周期未收到报文即认为 Master 故障',
+      'VRRP 默认开启抢占',
+    ],
+    answer: [
+      '虚拟 MAC 地址格式为 00-00-5E-00-01-{VRID}',
+      'Master 周期性地发送 VRRP 通告报文',
+      'Backup 连续若干个通告周期未收到报文即认为 Master 故障',
+      'VRRP 默认开启抢占',
+    ],
+    explanation: '四项均正确。VRRP 报文使用组播地址 224.0.0.18、协议号 112，默认通告周期 1 秒。',
+    knowledgeId: 'datacom-vrrp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-102', type: 'judge', difficulty: 'IP',
+    question: 'VRRP 通告报文使用组播地址 224.0.0.18，IP 协议号为 112。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'VRRP 是标准的组播协议，组播地址与协议号是识记类考点；报文仅由 Master 周期发出。',
+    knowledgeId: 'datacom-vrrp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-103', type: 'judge', difficulty: 'IP',
+    question: 'VRRP 跟踪接口功能可用于在上行链路故障时降低本机优先级，从而触发主备切换。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '这正是"VRRP 与上行链路联动"的实现方式，避免网关自身正常但上行已断、流量仍被吸引过来的问题。',
+    knowledgeId: 'datacom-vrrp', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-dhcp  DHCP ====================
+  {
+    id: 'ex-dc-104', type: 'multiple', difficulty: 'IA',
+    question: '关于 DHCP 的四步交互过程，以下说法正确的有？',
+    options: [
+      'Discover 由客户端以广播方式发出',
+      'Offer 由服务器发出，提供可用地址',
+      'Request 由客户端发出，用于确认所选地址',
+      'ACK 由服务器发出，最终确认地址分配',
+    ],
+    answer: [
+      'Discover 由客户端以广播方式发出',
+      'Offer 由服务器发出，提供可用地址',
+      'Request 由客户端发出，用于确认所选地址',
+      'ACK 由服务器发出，最终确认地址分配',
+    ],
+    explanation: '四项均正确，即常说的 DORA 流程，是 DHCP 最基础的考点。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-105', type: 'multiple', difficulty: 'IP',
+    question: '关于 DHCP 的租期与续租，以下说法正确的有？',
+    options: [
+      '租期过半（50%）时，客户端以单播方式向原服务器续租',
+      '租期达到 87.5% 时，客户端改为广播方式续租',
+      '续租失败后客户端会重新发起 Discover 流程',
+      'DHCP 基于 TCP 协议，使用 67/68 端口',
+    ],
+    answer: [
+      '租期过半（50%）时，客户端以单播方式向原服务器续租',
+      '租期达到 87.5% 时，客户端改为广播方式续租',
+      '续租失败后客户端会重新发起 Discover 流程',
+    ],
+    explanation: 'DHCP 基于 UDP：服务器 67、客户端 68，因此第四项错误。租期 50%/87.5% 两个时间点是高频考点。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-106', type: 'multiple', difficulty: 'IP',
+    question: '关于 DHCP Snooping 的工作原理与绑定表，以下说法正确的有？',
+    options: [
+      '部署在交换机上，用于防止非法的 DHCP 服务器',
+      '信任端口可以接收 DHCP 服务器响应报文',
+      '非信任端口会丢弃 DHCP Offer 与 ACK 报文',
+      'DHCP Snooping 绑定表可作为 IPSG 与 DAI 的依据',
+    ],
+    answer: [
+      '部署在交换机上，用于防止非法的 DHCP 服务器',
+      '信任端口可以接收 DHCP 服务器响应报文',
+      '非信任端口会丢弃 DHCP Offer 与 ACK 报文',
+      'DHCP Snooping 绑定表可作为 IPSG 与 DAI 的依据',
+    ],
+    explanation: '四项均正确。"Snooping 建表 → IPSG 防 IP 欺骗 → DAI 防 ARP 欺骗"是二层防御的标准组合。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-107', type: 'judge', difficulty: 'IA',
+    question: 'DHCP 客户端使用 UDP 68 端口，服务器使用 UDP 67 端口。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'DHCP 全部基于 UDP：服务器监听 67，客户端监听 68，这是与 TCP 类协议（如 BGP、LDP）的重要区别。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-108', type: 'judge', difficulty: 'IP',
+    question: 'DHCP 中继用于客户端与 DHCP 服务器不在同一网段的场景。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '由于 Discover 是广播，无法跨网段。中继代理将其转为单播转发给远端服务器，从而支持集中式地址分配。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-109', type: 'judge', difficulty: 'IP',
+    question: '在 WLAN 中，Option 43 常用于让 AP 发现 AC 的地址。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'AP 通过 DHCP 获取 IP 时，可从 Option 43 字段中拿到 AC 的 IP 列表，这是跨三层组网下 AP 发现 AC 的常用方式。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-110', type: 'judge', difficulty: 'IP',
+    question: '使用接口地址池时，该接口自身的 IP 地址会被从可分配地址中排除。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '设备会自动排除接口地址、网络地址与广播地址，避免把网关自身地址分配出去造成冲突。',
+    knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-mpls-basic  MPLS基础 ====================
+  {
+    id: 'ex-dc-111', type: 'multiple', difficulty: 'IP',
+    question: '关于 MPLS 标签的结构，以下说法正确的有？',
+    options: ['标签总长度为 32 位', 'Label 字段占 20 位', 'S 位用于标识是否为栈底标签', 'TTL 字段占 8 位'],
+    answer: ['标签总长度为 32 位', 'Label 字段占 20 位', 'S 位用于标识是否为栈底标签', 'TTL 字段占 8 位'],
+    explanation: 'MPLS 标签 = Label(20b) + Exp(3b) + S(1b) + TTL(8b)，四项均正确。Exp 用于承载 QoS 优先级。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-112', type: 'multiple', difficulty: 'IP',
+    question: '关于 MPLS 中的设备角色，以下说法正确的有？',
+    options: [
+      'LER 位于 MPLS 网络边缘，负责压入或弹出标签',
+      'LSR 位于网络内部，基于标签进行交换转发',
+      'Ingress LER 负责为进入的报文压入标签',
+      'Egress LER 在报文进入 MPLS 域的方向弹出标签',
+    ],
+    answer: [
+      'LER 位于 MPLS 网络边缘，负责压入或弹出标签',
+      'LSR 位于网络内部，基于标签进行交换转发',
+      'Ingress LER 负责为进入的报文压入标签',
+    ],
+    explanation: 'Egress LER 是在报文**离开** MPLS 域的方向弹出标签（或由倒数第二跳以 PHP 机制提前弹出），因此第四项方向描述错误。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-113', type: 'multiple', difficulty: 'IP',
+    question: '关于 LDP（标签分发协议），以下说法正确的有？',
+    options: [
+      'LDP 用于在 LSR 之间分发标签、建立 LSP',
+      'LDP 基于 TCP 646 端口',
+      '默认采用下游自主（DU）方式分发标签',
+      '每条路由的标签都必须由管理员手工指定',
+    ],
+    answer: [
+      'LDP 用于在 LSR 之间分发标签、建立 LSP',
+      'LDP 基于 TCP 646 端口',
+      '默认采用下游自主（DU）方式分发标签',
+    ],
+    explanation: '标签由 LDP 自动分配与分发，无需管理员逐条手工指定，因此第四项错误。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-114', type: 'judge', difficulty: 'IP',
+    question: 'MPLS 标签中的 0 和 3 属于保留标签。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '0 为显式空标签（IPv4 显式空）、3 为隐式空标签，两者配合实现 PHP 机制；0~15 均为保留标签。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-115', type: 'judge', difficulty: 'IE',
+    question: 'PHP（倒数第二跳弹出）可以减轻出口设备的处理负担。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '倒数第二跳提前弹出标签，出口设备只需做普通 IP 转发，省去一次标签处理，显著降低 Egress 设备压力。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-116', type: 'judge', difficulty: 'IP',
+    question: 'MPLS 标签栈中 S 位为 1 表示该标签是栈底标签。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'S 位用于标识标签栈的底部，设备据此判断是否还有更内层的标签需要处理，是多层标签转发的关键标志。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-117', type: 'judge', difficulty: 'IP',
+    question: 'LSP（标签交换路径）是双向的，一条 LSP 同时承载两个方向的流量。',
+    options: ['正确', '错误'], answer: '错误',
+    explanation: 'LSP 是**单向**的。双向通信需要两条独立的 LSP，分别由各自的出口节点发起建立，这是常考的细节。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-mpls-vpn  MPLS VPN ====================
+  {
+    id: 'ex-dc-118', type: 'multiple', difficulty: 'IE',
+    question: '关于 BGP/MPLS IP VPN 的角色与隔离，以下说法正确的有？',
+    options: [
+      'CE 是用户侧边缘设备，通常是客户的设备',
+      'PE 是运营商侧边缘设备，直接连接 CE',
+      'P 设备只做 MPLS 转发，不感知 VPN 路由',
+      'PE 上需要为每个 VPN 创建独立的 VRF',
+    ],
+    answer: [
+      'CE 是用户侧边缘设备，通常是客户的设备',
+      'PE 是运营商侧边缘设备，直接连接 CE',
+      'P 设备只做 MPLS 转发，不感知 VPN 路由',
+      'PE 上需要为每个 VPN 创建独立的 VRF',
+    ],
+    explanation: '四项均正确。VRF 是实现 VPN 路由隔离的核心，每个 VPN 在 PE 上对应一个独立的路由转发表。',
+    knowledgeId: 'datacom-mpls-vpn', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-119', type: 'multiple', difficulty: 'IE',
+    question: '关于 RD 与 RT，以下说法正确的有？',
+    options: [
+      'RD 用于区分不同 VPN 中地址重叠的 IPv4 前缀',
+      'RT 是 BGP 的扩展团体属性',
+      'Export RT 在发布路由时被添加到路由上',
+      'Import RT 用于匹配接收到的路由，决定是否导入本 VRF',
+    ],
+    answer: [
+      'RD 用于区分不同 VPN 中地址重叠的 IPv4 前缀',
+      'RT 是 BGP 的扩展团体属性',
+      'Export RT 在发布路由时被添加到路由上',
+      'Import RT 用于匹配接收到的路由，决定是否导入本 VRF',
+    ],
+    explanation: '四项均正确。RD 解决"地址空间冲突"，RT 解决"路由该进哪个 VRF"，两者分工不同、常被混淆。',
+    knowledgeId: 'datacom-mpls-vpn', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-120', type: 'judge', difficulty: 'IE',
+    question: 'MPLS VPN 中，PE 之间需要运行 MP-BGP 来交换 VPN 路由。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'MP-BGP 通过携带 RD 的 VPN-IPv4 地址族来传递各 VPN 的路由，是 MPLS VPN 的控制面核心。',
+    knowledgeId: 'datacom-mpls-vpn', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-121', type: 'judge', difficulty: 'IE',
+    question: 'RT 的主要作用是区分地址空间重叠的不同 VPN 前缀。',
+    options: ['正确', '错误'], answer: '错误',
+    explanation: '区分重叠前缀是 **RD** 的作用；RT 决定路由的导入导出关系（即"路由归属哪个 VPN"），不可混淆。',
+    knowledgeId: 'datacom-mpls-vpn', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-gre-l2tp  GRE与L2TP ====================
+  {
+    id: 'ex-dc-122', type: 'single', difficulty: 'IA',
+    question: 'GRE 隧道的 IP 协议号是多少？',
+    options: ['47', '50', '51', '89'],
+    answer: '47',
+    explanation: 'GRE 协议号为 47；ESP 为 50、AH 为 51（均属 IPSec）、OSPF 为 89。协议号是识记类高频考点。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-123', type: 'multiple', difficulty: 'IP',
+    question: '关于 GRE 的特点，以下说法正确的有？',
+    options: [
+      '可以在任意网络层协议之上承载任意网络层协议',
+      '支持承载组播与广播流量',
+      '本身不提供加密与认证功能',
+      'GRE 隧道接口是一种逻辑接口，需要配置源与目的地址',
+    ],
+    answer: [
+      '可以在任意网络层协议之上承载任意网络层协议',
+      '支持承载组播与广播流量',
+      '本身不提供加密与认证功能',
+      'GRE 隧道接口是一种逻辑接口，需要配置源与目的地址',
+    ],
+    explanation: '四项均正确。GRE 的"支持组播"特性使其特别适合在隧道上运行路由协议。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-124', type: 'multiple', difficulty: 'IP',
+    question: '关于 L2TP，以下说法正确的有？',
+    options: [
+      'L2TP 基于 UDP 1701 端口',
+      'LAC 位于用户侧，LNS 位于企业侧',
+      'L2TP 本身不加密，常与 IPSec 结合使用',
+      '一个 L2TP 隧道可以承载多个用户会话',
+    ],
+    answer: [
+      'L2TP 基于 UDP 1701 端口',
+      'LAC 位于用户侧，LNS 位于企业侧',
+      'L2TP 本身不加密，常与 IPSec 结合使用',
+      '一个 L2TP 隧道可以承载多个用户会话',
+    ],
+    explanation: '四项均正确。L2TP 常与 PPP 认证配合，形成"L2TP over IPSec"的远程接入方案。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-125', type: 'multiple', difficulty: 'IE',
+    question: '关于 GRE 与 IPSec 的配合使用，以下说法正确的有？',
+    options: [
+      'GRE 可承载组播，因此适合在隧道上运行路由协议',
+      'IPSec 不直接支持组播/广播，可用 GRE over IPSec 解决',
+      'GRE over IPSec 即先用 IPSec 保护 GRE 封装的报文',
+      'GRE 隧道本身会自动提供加密保护',
+    ],
+    answer: [
+      'GRE 可承载组播，因此适合在隧道上运行路由协议',
+      'IPSec 不直接支持组播/广播，可用 GRE over IPSec 解决',
+      'GRE over IPSec 即先用 IPSec 保护 GRE 封装的报文',
+    ],
+    explanation: 'GRE 不提供任何加密，必须依赖 IPSec 等机制保护，因此第四项错误。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-126', type: 'judge', difficulty: 'IA',
+    question: 'GRE 本身不提供加密与认证功能。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'GRE 只做封装，明文传输。若需机密性，必须叠加 IPSec 等加密技术，这是 GRE 最大的安全短板。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-127', type: 'judge', difficulty: 'IA',
+    question: 'L2TP 隧道只能承载单个用户会话。',
+    options: ['正确', '错误'], answer: '错误',
+    explanation: '一个 L2TP 隧道可承载多个会话，每个会话对应一个用户连接，这种复用能力提升了隧道利用率。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-128', type: 'judge', difficulty: 'IP',
+    question: 'L2TP over IPSec 可以为远程接入提供安全的传输通道。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'L2TP 负责承载用户会话，IPSec 负责加密与认证，两者结合兼顾了接入灵活性与传输安全性。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-129', type: 'judge', difficulty: 'IA',
+    question: '配置 GRE 隧道时必须指定隧道的源地址与目的地址。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '隧道源/目的地址决定了封装后外层 IP 首部的内容，是隧道能够建立的最基本参数。',
+    knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-qos-basic  QoS基础 ====================
+  {
+    id: 'ex-dc-130', type: 'multiple', difficulty: 'IP',
+    question: '关于 QoS 的三种服务模型，以下说法正确的有？',
+    options: [
+      'Best-Effort 是默认模型，对所有流量不做区分处理',
+      'IntServ 通过 RSVP 信令为业务预留资源',
+      'DiffServ 按类别差异化处理，是现网主流方案',
+      'DiffServ 需要在每个节点为每一条流维护状态信息',
+    ],
+    answer: [
+      'Best-Effort 是默认模型，对所有流量不做区分处理',
+      'IntServ 通过 RSVP 信令为业务预留资源',
+      'DiffServ 按类别差异化处理，是现网主流方案',
+    ],
+    explanation: '需要为每条流维护状态的是 IntServ（可扩展性差，正是它被 DiffServ 取代的原因），因此第四项错误。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-131', type: 'multiple', difficulty: 'IP',
+    question: '关于拥塞管理与拥塞避免，以下说法正确的有？',
+    options: [
+      'WRED 可以根据优先级差异化丢弃报文',
+      '尾部丢弃可能导致 TCP 全局同步现象',
+      'PQ 优先队列可能导致低优先级队列被"饿死"',
+      '流量整形会将超出速率的流量直接丢弃',
+    ],
+    answer: [
+      'WRED 可以根据优先级差异化丢弃报文',
+      '尾部丢弃可能导致 TCP 全局同步现象',
+      'PQ 优先队列可能导致低优先级队列被"饿死"',
+    ],
+    explanation: '流量整形（GTS）会把超出部分缓存并择机发送；"直接丢弃"是流量监管（CAR）的行为，因此第四项错误。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-132', type: 'judge', difficulty: 'IP',
+    question: 'DSCP 字段占 6 位，取值范围为 0~63。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'DSCP 位于 IP 首部的 ToS 字段中占 6 位，可表达 64 个取值，其中 EF(46)、AF、CS 是常见分类。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-133', type: 'judge', difficulty: 'IP',
+    question: '流量监管（CAR）通常部署在入方向，对超出速率的流量可执行丢弃或重标记。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'CAR 用于"限速入口"，超出部分直接被处理掉；而整形通常用于出方向，超出部分进入缓存。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-134', type: 'judge', difficulty: 'IP',
+    question: 'EF（加速转发）适用于对时延和丢包都要求较高的业务。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'EF 用于承载语音等实时业务，典型做法是给予低时延、低抖动、低丢包的转发保证。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
+  },
+
+  // ==================== datacom-tcp-udp  TCP与UDP ====================
+  {
+    id: 'ex-dc-135', type: 'multiple', difficulty: 'IA',
+    question: '关于 TCP 与 UDP 的对比，以下说法正确的有？',
+    options: [
+      'TCP 面向连接，提供可靠传输',
+      'UDP 无连接，开销小、时延低',
+      'TCP 通过滑动窗口实现流量控制',
+      'UDP 提供重传机制以保证可靠交付',
+    ],
+    answer: [
+      'TCP 面向连接，提供可靠传输',
+      'UDP 无连接，开销小、时延低',
+      'TCP 通过滑动窗口实现流量控制',
+    ],
+    explanation: 'UDP 不提供确认与重传，可靠性需由应用层自行保障，因此第四项错误。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-136', type: 'multiple', difficulty: 'IA',
+    question: '关于常见应用协议的端口号，以下说法正确的有？',
+    options: ['HTTPS 使用 TCP 443', 'SSH 使用 TCP 22', 'DNS 使用 UDP/TCP 53', 'SNMP 使用 TCP 161'],
+    answer: ['HTTPS 使用 TCP 443', 'SSH 使用 TCP 22', 'DNS 使用 UDP/TCP 53'],
+    explanation: 'SNMP 使用 UDP 161/162，不是 TCP，因此第四项错误。端口号识记题几乎每场必考。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-137', type: 'multiple', difficulty: 'IP',
+    question: '关于常见协议的 IP 协议号，以下说法正确的有？',
+    options: ['ICMP 协议号为 1', 'TCP 协议号为 6', 'UDP 协议号为 17', 'OSPF 协议号为 89'],
+    answer: ['ICMP 协议号为 1', 'TCP 协议号为 6', 'UDP 协议号为 17', 'OSPF 协议号为 89'],
+    explanation: '四项均正确。IPSec 的 ESP 为 50、AH 为 51、GRE 为 47，常与之一起考查。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-138', type: 'judge', difficulty: 'IA',
+    question: '端口号是传输层的概念，协议号是网络层的概念。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: 'IP 首部中的协议号标识上层承载的是 TCP/UDP/ICMP 等；端口号则位于 TCP/UDP 首部，用于区分应用进程。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-139', type: 'judge', difficulty: 'IA',
+    question: 'TCP 建立连接需要三次握手，断开连接需要四次挥手。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '建立连接三次握手即可确认双方收发能力；断开时因 TCP 全双工需各自关闭一个方向，故为四次挥手。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+  {
+    id: 'ex-dc-140', type: 'judge', difficulty: 'IA',
+    question: 'UDP 由于时延低、开销小，适合承载语音与视频等实时业务。',
+    options: ['正确', '错误'], answer: '正确',
+    explanation: '实时业务对时延敏感而对少量丢包容忍度较高，UDP 的无连接特性恰好与之匹配。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
+  },
+]
