@@ -623,11 +623,9 @@ export default function SettingsPage() {
           </Button>
 
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            手机端更新正确做法：<b className="text-cyan-300">完全关闭页面再打开</b>（第一遍换缓存、第二遍拿到新页面）；
-            装了「添加到主屏幕」的 PWA 则从 App 切换器划掉再打开。
-            最稳的是点上面的按钮 —— 它只清 Service Worker 与缓存，
-            <b className="text-emerald-300">不碰做题数据</b>，
-            和浏览器设置里的「清除 Cookie 和网站数据」（会连做题数据一起删）完全不同。
+            手机端更新：应用会在<b className="text-cyan-300">启动时、以及每次切回前台时自动检查更新</b>，发现新版本立即刷新；做过的题与刷题进度都存在本机，不会丢。
+            若仍显示旧版本（多见于尚未升级到本版的旧安装包），可点上方按钮，或从 App 切换器<b className="text-cyan-300">彻底划掉再打开</b>。
+            该按钮只清 Service Worker 与缓存，<b className="text-emerald-300">不碰做题数据</b>，和浏览器设置里的「清除 Cookie 和网站数据」（会连做题数据一起删）完全不同。
           </p>
         </CardContent>
       </Card>
