@@ -475,8 +475,8 @@ export const EXTRA_QUIZZES_B: IQuizQuestion[] = [
   {
     id: 'dcnx-s021', type: 'single', difficulty: 'IA',
     question: 'VXLAN 相对于传统 VLAN 最主要的优势是？',
-    options: ['配置更简单', '突破 4094 个隔离域限制并支持跨三层大二层', '不需要 IP 网络', '天然提供加密'],
-    answer: '突破 4094 个隔离域限制并支持跨三层大二层',
+    options: ['支持千万级隔离域', '部署与配置更简单', '不需要底层 IP 网络', '天然提供报文加密'],
+    answer: '支持千万级隔离域',
     explanation: 'VLAN ID 仅 12 位（可用 4094 个），无法满足云数据中心海量租户；VXLAN 用 24 位 VNI 支持千万级隔离域，并通过 MAC-in-UDP 实现跨三层网络的大二层，支撑虚拟机跨机房热迁移。VXLAN 本身不加密（需 IPsec 配合），且依赖 Underlay IP 网络。',
     knowledgeId: 'dcn-vxlan-basic', direction: 'dcn',
   },
@@ -531,8 +531,8 @@ export const EXTRA_QUIZZES_B: IQuizQuestion[] = [
   {
     id: 'dcnx-s028', type: 'single', difficulty: 'IE',
     question: 'VXLAN 集中式网关部署的主要缺点是？',
-    options: ['配置过于复杂', '跨子网流量需绕行网关，存在次优路径与性能瓶颈', '不支持三层转发', '无法实现租户隔离'],
-    answer: '跨子网流量需绕行网关，存在次优路径与性能瓶颈',
+    options: ['跨子网流量绕行网关', '部署与配置过于复杂', '无法实现租户间隔离', '不支持三层路由转发'],
+    answer: '跨子网流量绕行网关',
     explanation: '集中式网关下，即使通信双方连接在同一台 Leaf 上，跨子网流量也必须上送到网关设备再折返，形成流量绕行（次优路径），并容易在网关形成性能瓶颈。优点是网关集中、便于统一安全策略与运维。',
     knowledgeId: 'dcn-vxlan-gateway', direction: 'dcn',
   },

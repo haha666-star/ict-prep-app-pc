@@ -359,8 +359,8 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
   {
     id: 'ex-sec-079', type: 'single', difficulty: 'IP',
     question: '华为交换机端口安全的三种违规动作中，哪一种会直接关闭端口？',
-    options: ['protect', 'restrict', 'shutdown（error-down）', 'monitor'],
-    answer: 'shutdown（error-down）',
+    options: ['shutdown', 'restrict', 'protect', 'monitor'],
+    answer: 'shutdown',
     explanation: 'protect 静默丢弃不告警、restrict 丢弃并告警、shutdown 直接关闭端口（error-down）。三者的差异是高频对比考点。',
     knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },

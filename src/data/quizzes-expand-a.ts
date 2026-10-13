@@ -186,8 +186,8 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
   {
     id: 'ex-dc-016', type: 'single', difficulty: 'IA',
     question: 'ARP 请求报文在以太网中的目的 MAC 地址是？',
-    options: ['单播 MAC 地址', '广播 MAC 地址（FF-FF-FF-FF-FF-FF）', '组播 MAC 地址', '发送方自身的 MAC 地址'],
-    answer: '广播 MAC 地址（FF-FF-FF-FF-FF-FF）',
+    options: ['广播 MAC 地址', '组播 MAC 地址', '单播 MAC 地址', '发送方自身的 MAC 地址'],
+    answer: '广播 MAC 地址',
     explanation: 'ARP 请求以广播形式发出，请求"谁拥有该 IP"，目的 MAC 为全 F；收到请求的目标主机以单播方式应答。',
     knowledgeId: 'datacom-arp', direction: 'datacom', tag: 'hot',
   },
@@ -431,8 +431,8 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
   {
     id: 'ex-dc-039', type: 'single', difficulty: 'IA',
     question: '以下哪项是加入同一 Eth-Trunk 的成员接口必须满足的条件？',
-    options: ['仅速率一致即可', '仅双工模式一致即可', '仅 VLAN 配置一致即可', '速率、双工模式、链路类型与 VLAN 配置均一致'],
-    answer: '速率、双工模式、链路类型与 VLAN 配置均一致',
+    options: ['速率、双工、VLAN 一致', '仅需 VLAN 配置一致即可', '仅需速率完全一致即可', '仅需双工模式完全一致即可'],
+    answer: '速率、双工、VLAN 一致',
     explanation: '成员接口的参数必须完全一致（速率、双工、链路类型、VLAN 配置），否则无法成功加入聚合组，这是配置环节最常见的排障点。',
     knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'real',
   },
