@@ -15,11 +15,44 @@ const KEY_FAVORITES = 'favorites';
 // 错题本移出阈值：连续答对 N 次才认为真正掌握
 export const SRS_GRADUATE_STREAK = 2;
 
+// ========== 跨组件存储刷新总线 ==========
+/**
+ * 为什么需要它（2026-10-13 端到端 round-trip 实测发现的问题 N4）：
+ *   本文件里每个 use* hook 都只在**挂载时**读一次 localStorage，全文件没有任何同步机制。
+ *   于是「合并导入」把数据写回 localStorage 后，同一页面上已经挂载的组件不会重读，
+ *   「已做题目 / 错题本」仍显示合并前的旧值 —— 但「合并结果卡片」显示的是新值，两处自相矛盾。
+ *   而「覆盖导入」因为走 window.location.reload() 才掩盖了这个问题，两条导入路径行为不一致。
+ * 方案：写入方调用 notifyStorageChange()，读取方把 useStorageVersion() 的返回值放进 useEffect 依赖。
+ */
+const STORAGE_CHANGE_EVENT = 'ict:storage-change';
+
+/** 数据写入方调用：通知所有已挂载的读取方重新从存储读取 */
+export function notifyStorageChange(): void {
+  try {
+    window.dispatchEvent(new Event(STORAGE_CHANGE_EVENT));
+  } catch {
+    // 非浏览器环境（SSR / 测试）忽略即可
+  }
+}
+
+/** 读取方订阅：返回值每变一次，就把该值放进 useEffect 依赖以触发重读 */
+export function useStorageVersion(): number {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const bump = () => setVersion((n) => n + 1);
+    window.addEventListener(STORAGE_CHANGE_EVENT, bump);
+    return () => window.removeEventListener(STORAGE_CHANGE_EVENT, bump);
+  }, []);
+  return version;
+}
+
 // ========== 知识点掌握状态 ==========
 export type KnowledgeStatusMap = Record<string, KnowledgeStatus>;
 
 export function useKnowledgeStatus() {
   const [statusMap, setStatusMap] = useState<KnowledgeStatusMap>({});
+
+  const storageVersion = useStorageVersion();
 
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_KNOWLEDGE_STATUS);
@@ -30,7 +63,7 @@ export function useKnowledgeStatus() {
         setStatusMap({});
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const setStatus = useCallback((id: string, status: KnowledgeStatus) => {
     setStatusMap((prev) => {
@@ -69,6 +102,8 @@ export interface IStudyPlan {
 export function useStudyPlan() {
   const [plan, setPlan] = useState<IStudyPlan | null>(null);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_STUDY_PLAN);
     if (raw) {
@@ -78,7 +113,7 @@ export function useStudyPlan() {
         setPlan(null);
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const savePlan = useCallback((newPlan: IStudyPlan) => {
     setPlan(newPlan);
@@ -133,6 +168,8 @@ const DEFAULT_QUIZ_RECORDS: IQuizRecords = {
 export function useQuizRecords() {
   const [records, setRecords] = useState<IQuizRecords>(DEFAULT_QUIZ_RECORDS);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_QUIZ_RECORDS);
     if (raw) {
@@ -143,7 +180,7 @@ export function useQuizRecords() {
         setRecords(DEFAULT_QUIZ_RECORDS);
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const saveRecords = useCallback((next: IQuizRecords) => {
     setRecords(next);
@@ -319,6 +356,8 @@ export interface IExamSession {
 export function useExamSessions() {
   const [sessions, setSessions] = useState<IExamSession[]>([]);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_EXAM_SESSIONS);
     if (raw) {
@@ -328,7 +367,7 @@ export function useExamSessions() {
         setSessions([]);
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const addSession = useCallback((s: IExamSession) => {
     setSessions((prev) => {
@@ -350,6 +389,8 @@ export function useExamSessions() {
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>([]);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_FAVORITES);
     if (raw) {
@@ -359,7 +400,7 @@ export function useFavorites() {
         setFavorites([]);
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const toggleFavorite = useCallback((id: string) => {
     setFavorites((prev) => {
@@ -385,6 +426,8 @@ const KEY_QUIZ_NOTES = 'quiz_notes';
 export function useQuizNotes() {
   const [notes, setNotes] = useState<QuizNotesMap>({});
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_QUIZ_NOTES);
     if (raw) {
@@ -394,7 +437,7 @@ export function useQuizNotes() {
         setNotes({});
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const getNote = useCallback(
     (id: string): IQuestionNote | undefined => notes[id],
@@ -426,6 +469,8 @@ export function useQuizNotes() {
 export function useStudyTime() {
   const [studyTime, setStudyTime] = useState<Record<string, number>>({});
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_STUDY_TIME);
     if (raw) {
@@ -435,7 +480,7 @@ export function useStudyTime() {
         setStudyTime({});
       }
     }
-  }, []);
+  }, [storageVersion]);
 
   const addStudyTime = useCallback((dateStr: string, minutes: number) => {
     setStudyTime((prev) => {
@@ -452,6 +497,8 @@ export function useStudyTime() {
 export function useExamDate(defaultDate = '') {
   const [examDate, setExamDateState] = useState<string>(defaultDate);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     const raw = scopedStorage.getItem(KEY_EXAM_DATE);
     if (raw) {
@@ -459,7 +506,7 @@ export function useExamDate(defaultDate = '') {
     } else if (defaultDate) {
       setExamDateState(defaultDate);
     }
-  }, [defaultDate]);
+  }, [defaultDate, storageVersion]);
 
   const setExamDate = useCallback((date: string) => {
     setExamDateState(date);
@@ -700,6 +747,8 @@ export function importBackup(backup: IBackup, mode: 'merge' | 'replace' = 'repla
     const key = BACKUP_KEYS[name];
     if (key) scopedStorage.setItem(key, JSON.stringify(value));
   });
+  // 与「合并导入」保持一致的广播（当前 UI 在此之后会 reload，广播是为「不刷新导入」预留的接线）
+  notifyStorageChange();
 }
 
 /** 从备份中解析出各方向正确率（团队对比用） */
@@ -917,6 +966,9 @@ export async function mergeImportBackups(backups: IBackup[]): Promise<IMergeSumm
     };
   });
 
+  // 数据已写回存储 → 广播一次，让本页已挂载的统计组件立即重读（否则要手动刷新页面才更新）
+  notifyStorageChange();
+
   return {
     sources: fresh.length + 1,
     skipped,
@@ -948,9 +1000,11 @@ export interface ITeamMember {
 export function useTeamMembers() {
   const [members, setMembers] = useState<ITeamMember[]>([]);
 
+  const storageVersion = useStorageVersion();
+
   useEffect(() => {
     setMembers(readJsonKey<ITeamMember[]>(KEY_TEAM_MEMBERS, []).slice(0, 3));
-  }, []);
+  }, [storageVersion]);
 
   const persist = useCallback((next: ITeamMember[]) => {
     const trimmed = next.slice(0, 3);

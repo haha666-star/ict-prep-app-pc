@@ -11,31 +11,200 @@ import type { IQuizQuestion } from '@/data/quizzes';
  * tip / pitfall 只在题目数据显式提供时展示。
  */
 
+export interface IExplainNumberedItem {
+  /** 原文里的编号（原样保留，不重排） */
+  n: number;
+  text: string;
+}
+
+export interface IExplainNumberedList {
+  /** 列表引子，如「OFDMA原理：」；无引子则为空串 */
+  lead: string;
+  items: IExplainNumberedItem[];
+}
+
 export interface IExplainParts {
-  /** 一句话结论（第一句） */
+  /** 一句话结论：仅当解析开头确实是**完整判断句**时才有值 */
   conclusion: string;
-  /** 补充要点（后续句子/分句） */
+  /** 话题引子：解析以「…：」直接进入编号列表时，引子放在这里 —— 它是标题，不是结论 */
+  topic: string;
+  /** 编号列表（可能多组：例如「OFDMA原理 1~5」+「与 MU-MIMO 的区别 1~4」） */
+  lists: IExplainNumberedList[];
+  /** 无编号的补充要点（列表收尾句也归到这里） */
   points: string[];
 }
 
 /** 句末标点（中英文） */
 const SENT_END = /(?<=[。！？；!?;])/;
 
+/** 编号标记：1~2 位数字 + 分隔符（. ． 、 ) ）） */
+const MARKER_RE = /(\d{1,2})([.．、)）])/g;
+
+/**
+ * 扫描解析里的「内联编号」标记。
+ *
+ * ⚠️ 必须写得足够严格，否则会误伤这些完全正常的文本：
+ *   802.11ax / 2.4G / 5G / 10.x / 1024-QAM / 25% / 16x16 / 1.5 倍
+ * 判据（三条同时满足才算编号）：
+ *   ① 标记前一个字符是**边界**（串首 / 空白 / 标点）—— 排除 "802.11ax" 里被切出来的 "02."
+ *   ② 分隔符后紧跟的字符不是**小数点**（排除 "1.2.3" 这种层级）——
+ *   ③ 若分隔符是「.」且后面紧跟数字，则这一串数字必须 **≥3 位**：
+ *      "3.1024-QAM"（1024 是 4 位）算编号；"2.4G"、"5.8GHz"、"1.5 倍"、"802.11" 都不算
+ *      （题面里 2.4G/5.8G 这类频段写法极其常见，第 ③ 条就是为它们定的）
+ *
+ * 背景（2026-10-13 用户反馈的渲染错乱）：题库 964 题里有 256 题（26.6%）解析自带
+ *   「1.xxx 2.xxx 3.xxx」内联编号。旧实现只按句号切句、再给每条加一个「•」，
+ *   于是出现「编号 + 圆点」双重装饰，而且第 1 条被并进首句（若首句是「…关键技术：1.…」
+ *   这种没有句号的写法），造成「结论框里塞了一个要点、要点列表从 2. 开始」的现象。
+ */
+function scanMarkers(t: string): { n: number; start: number; end: number }[] {
+  const out: { n: number; start: number; end: number }[] = [];
+  MARKER_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = MARKER_RE.exec(t)) !== null) {
+    const n = Number(m[1]);
+    const end = m.index + m[0].length;
+    const prev = m.index > 0 ? t[m.index - 1] : '';
+    // ⚠️ 这里必须取一段「窗口」而不是单个字符：判据 ③ 要数分隔符后面连续数字的位数。
+    //   首版写成 t[end]（单字符）→ digitRun 恒为 0/1，"3.1024-QAM" 被误判成非编号。
+    const next = t.slice(end, end + 8);
+    const prevOk = m.index === 0 || /[\s。；;：:，,、（()【】）]/.test(prev);
+    let digitRun = 0;
+    while (digitRun < next.length && /\d/.test(next[digitRun])) digitRun++;
+    const nextOk = next !== '' && (digitRun === 0 || digitRun >= 3);
+    if (prevOk && nextOk && n >= 1 && n <= 50) out.push({ n, start: m.index, end });
+  }
+  return out;
+}
+
+/** 列表项的收尾整理：去掉尾部的句号/分号（编号项目不需要句号收尾），并去掉开头的顿号 */
+function cleanItem(s: string): string {
+  return s.replace(/^[、,，]\s*/, '').replace(/[。；;]\s*$/, '').trim();
+}
+
+/**
+ * 从一段文本尾部剥离「下一组列表的引子」。
+ * 例："…提高资源利用率。OFDMA与MU-MIMO的区别：" → body="…提高资源利用率。" lead="OFDMA与MU-MIMO的区别："
+ * 只认**最短**的、以「：」结尾的尾段，并且要求它是真的一个引子（不带句号、长度有限）。
+ */
+function peelTrailingLead(s: string): { body: string; lead: string } {
+  const idxs: number[] = [];
+  const re = /[。；;！？!?]/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) idxs.push(m.index + 1);
+  idxs.push(0);
+  for (const p of idxs) {
+    const tail = s.slice(p).trim();
+    if (!tail) continue;
+    if (/[：:]$/.test(tail) && tail.length <= 40 && !/[。；;]/.test(tail)) {
+      return { body: s.slice(0, p).trim(), lead: tail };
+    }
+  }
+  return { body: s, lead: '' };
+}
+
+/** 把引子拆成「结论 + 话题」：引子里若有完整句，则句号前的部分是真结论 */
+function splitLead(lead: string): { conclusion: string; topic: string } {
+  const t = lead.trim();
+  if (!t) return { conclusion: '', topic: '' };
+  const idx = t.lastIndexOf('。');
+  if (idx >= 0) {
+    const head = t.slice(0, idx + 1).trim();
+    const tail = t.slice(idx + 1).trim();
+    if (!tail) return { conclusion: head, topic: '' };
+    if (/[：:]$/.test(tail) || tail.length <= 24) return { conclusion: head, topic: tail };
+    return { conclusion: `${head}${tail}`, topic: '' };
+  }
+  // 整段没有一个句号 → 它是标题式的引子，不是结论
+  return { conclusion: '', topic: t };
+}
+
 export function splitExplanation(text: string): IExplainParts {
   const t = (text ?? '').trim();
-  if (!t) return { conclusion: '', points: [] };
+  const empty: IExplainParts = { conclusion: '', topic: '', lists: [], points: [] };
+  if (!t) return empty;
 
-  // 1) 按句末标点切句
-  let sentences = t
+  // ---------- ① 优先按「内联编号」解析（题库里 26.6% 的解析是这种形态）----------
+  const markers = scanMarkers(t);
+  if (markers.length >= 2 && markers[0].n === 1) {
+    // 按「编号递增」切组：+1 视为同组，编号回退（如重新从 1 开始）视为新组
+    // 组内保存的是**扁平标记数组的下标**，这样才能跨组取「下一个标记」——
+    //   ⚠️ 若按组内下标取切片，每组最后一项会一路吃到文末（把后面整组吞掉）。
+    //   实测：wlan-f001 首版即因此把「区别 1-4」整组重复吞进「原理」第 5 项。
+    const groups: number[][] = [];
+    let i = 0;
+    while (i < markers.length) {
+      if (markers[i].n !== 1) {
+        i++; // 非列表起点（例如误命中的 "10.x"）：不建组，其文字保留在上面一项里
+        continue;
+      }
+      const g = [i];
+      let j = i + 1;
+      while (j < markers.length && markers[j].n === markers[j - 1].n + 1) {
+        g.push(j);
+        j++;
+      }
+      groups.push(g);
+      i = j;
+    }
+
+    if (groups.length > 0) {
+      const used = groups.flat();
+      // 某个已被采用的标记，其文本切片到哪里结束 = 下一个「被采用的」标记，都没有则到文末
+      const sliceEndOf = (fi: number): number => {
+        const pos = used.indexOf(fi);
+        const nxt = pos >= 0 && pos + 1 < used.length ? used[pos + 1] : -1;
+        return nxt === -1 ? t.length : markers[nxt].start;
+      };
+      const itemTexts: string[][] = groups.map((g) =>
+        g.map((fi) => t.slice(markers[fi].end, sliceEndOf(fi)).trim())
+      );
+
+      // 引子：第 0 组来自串首（可能同时含真结论 + 话题）；第 k 组藏在上组最后一项的尾部
+      const head = splitLead(t.slice(0, markers[groups[0][0]].start).trim());
+      const leads: string[] = new Array(groups.length).fill('');
+      leads[0] = head.topic;
+      for (let gi = 1; gi < groups.length; gi++) {
+        const prev = itemTexts[gi - 1];
+        const { body, lead } = peelTrailingLead(prev[prev.length - 1]);
+        prev[prev.length - 1] = body;
+        leads[gi] = lead;
+      }
+
+      // 末组最后一项：首句仍属该项，其余句子升格为「无编号补充要点」
+      const points: string[] = [];
+      const lastRaw = itemTexts[itemTexts.length - 1];
+      const cur = lastRaw[lastRaw.length - 1];
+      const sents = cur
+        .split(SENT_END)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (sents.length > 1) {
+        lastRaw[lastRaw.length - 1] = sents[0];
+        sents.slice(1).forEach((s) => points.push(s));
+      }
+
+      const lists: IExplainNumberedList[] = groups.map((g, gi) => ({
+        lead: leads[gi],
+        items: g.map((fi, idx) => ({ n: markers[fi].n, text: cleanItem(itemTexts[gi][idx]) })),
+      }));
+
+      if (lists.some((l) => l.items.length > 0) || head.conclusion || leads[0] || points.length) {
+        return { conclusion: head.conclusion, topic: leads[0], lists, points };
+      }
+    }
+  }
+
+  // ---------- ② 退化：按句末标点切句（原行为）----------
+  const sentences = t
     .split(SENT_END)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 
   if (sentences.length >= 2) {
-    return { conclusion: sentences[0], points: sentences.slice(1) };
+    return { conclusion: sentences[0], topic: '', lists: [], points: sentences.slice(1) };
   }
 
-  // 2) 只有一句：若较长，再按逗号/顿号拆成要点
   if (t.length > 24 && /[，,、]/.test(t)) {
     const clauses = t
       .split(/(?<=[，,、])/)
@@ -44,12 +213,14 @@ export function splitExplanation(text: string): IExplainParts {
     if (clauses.length >= 2) {
       return {
         conclusion: clauses[0].replace(/[，,、]$/, ''),
+        topic: '',
+        lists: [],
         points: clauses.slice(1).map((s) => s.replace(/[，,、]$/, '')),
       };
     }
   }
 
-  return { conclusion: t, points: [] };
+  return { conclusion: t, topic: '', lists: [], points: [] };
 }
 
 // ---------------- 术语高亮 ----------------

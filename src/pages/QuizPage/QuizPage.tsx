@@ -38,7 +38,15 @@ import { MOCK_KNOWLEDGE } from '@/data/knowledge';
 import { useQuizRecords, useQuizNotes, useQuizProgress } from '@/hooks/use-storage';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import { matchTag, countTags, type TagFilter } from '@/lib/tags';
+import {
+  matchTag,
+  effectiveTag,
+  countTags,
+  countTagsByType,
+  buildTagContext,
+  TAG_FILTER_LABELS,
+  type TagFilter,
+} from '@/lib/tags';
 import QuizExplanation from '@/components/QuizExplanation';
 
 type QuizMode = 'select' | 'random' | 'wrong' | null;
@@ -76,8 +84,12 @@ export default function QuizPage() {
   //      已按官方多源通知订正。判断题是「看着会、容易想当然」的高失分题型，必须能专练。
   const [typeFilter, setTypeFilter] = useState<'all' | 'judge' | 'single' | 'multiple'>('all');
   // 真题/高频筛选：冲刺国一的核心——优先刷往年真题与高频考点
-  // likely = 高概率题 = 真题同源(real) ∪ 高频(hot)，共 262 道（占全库 27.2%）
-  //   —— 实测：node ict-audit-v2/tagstats.mjs → 高概率(real∪hot) = 262 (27.2%)
+  // likely = 高概率题 = 真题同源(real) ∪ 高频(hot)
+  //   刷题侧按知识点补齐多选/判断后 = 442 道（占全库 45.9%）
+  //   —— 实测：node ict-audit-v2/diag-plan-quota.mjs → likely = 442 (45.9%)
+  //   ★ 这里的数字必须与 src/lib/tags.ts 的 effectiveTag 保持一致；
+  //     组卷侧（src/lib/exam.ts 的 tagRank / countLikely）仍走严格手标的 262 道窄集，
+  //     两套口径**故意不同**，改动前先读 src/lib/tags.ts 顶部那段说明。
   const [tagFilter, setTagFilter] = useState<TagFilter>('all');
 
   // 从「12 天冲刺计划」一键跳转时携带筛选：/quiz?type=judge&tag=likely&dir=datacom
@@ -219,7 +231,7 @@ export default function QuizPage() {
     }
     // 真题/高频/高概率筛选：仅在题库中保留命中标签的题目（错题本不受影响）
     if (tagFilter !== 'all' && m !== 'wrong') {
-      list = list.filter((q) => matchTag(q.tag, tagFilter));
+      list = list.filter((q) => matchTag(q, tagFilter, tagCtx));
     }
     // 空集保护：三档筛选（方向 × 题型 × 标签）存在组合为 0 的情况，
     // 例如「高概率 × 多选 × DCN」库存为 0（实测：datacom 5 / dcn 0 / security 4 / wlan 2）。
@@ -285,8 +297,16 @@ export default function QuizPage() {
     return map;
   }, [wrongQuestions]);
 
+  // 标签上下文：把「哪些知识点算高频」从逐题标注推导出来（刷题侧会按知识点补齐多选/判断，
+  //   见 src/lib/tags.ts 顶部注释；组卷侧仍用严格手标，两套口径并存）
+  const tagCtx = useMemo(() => buildTagContext(MOCK_QUIZZES), []);
+  // 当前标签档位下的题型分布 —— 直接回答「高频的多选才 1 题」这类疑问
+  const tagTypeCounts = useMemo(
+    () => countTagsByType(MOCK_QUIZZES, tagFilter, tagCtx),
+    [tagFilter, tagCtx]
+  );
   // 真题 / 高频 / 高概率标签计数（冲刺省一核心资源）
-  const tagCounts = useMemo(() => countTags(MOCK_QUIZZES), []);
+  const tagCounts = useMemo(() => countTags(MOCK_QUIZZES, tagCtx), [tagCtx]);
 
   // 当前筛选后实际题量（含方向+题型+标签三重过滤，与 handleStartMode 口径一致）
   const filteredCount = useMemo(() => {
@@ -295,9 +315,9 @@ export default function QuizPage() {
         ? MOCK_QUIZZES
         : MOCK_QUIZZES.filter((q) => q.direction === selectedDirection);
     if (typeFilter !== 'all') list = list.filter((q) => q.type === typeFilter);
-    if (tagFilter !== 'all') list = list.filter((q) => matchTag(q.tag, tagFilter));
+    if (tagFilter !== 'all') list = list.filter((q) => matchTag(q, tagFilter, tagCtx));
     return list.length;
-  }, [selectedDirection, typeFilter, tagFilter]);
+  }, [selectedDirection, typeFilter, tagFilter, tagCtx]);
 
   // 各题型题量（用于题型筛选器展示）
   const typeCounts = useMemo(() => {
@@ -360,8 +380,9 @@ export default function QuizPage() {
           </span>
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <div className="flex items-center gap-1 flex-wrap justify-end">
-              <span title="题型筛选" className="shrink-0 flex items-center">
-                <Filter className="size-3.5 text-muted-foreground" />
+              <span className="shrink-0 flex items-center gap-1 text-[10px] text-muted-foreground/80">
+                <Filter className="size-3.5" />
+                题型
               </span>
               {(
                 [
@@ -395,7 +416,9 @@ export default function QuizPage() {
                 </Button>
               ))}
             </div>
-            <div className="flex items-center gap-1">
+            <span className="hidden sm:block w-px h-5 bg-border/60 mx-0.5" aria-hidden />
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="shrink-0 text-[10px] text-muted-foreground/80">标签</span>
               {(
                 [
                   { key: 'all', label: '全部' },
@@ -423,11 +446,11 @@ export default function QuizPage() {
                   onClick={() => setTagFilter(t.key)}
                   title={
                     t.key === 'likely'
-                      ? `高概率题 = 真题同源 ∪ 高频，共 ${tagCounts.likely} 道（占全库 27.2%），冲刺期优先刷`
+                      ? `高概率题 = 真题同源 ∪ 高频，共 ${tagCounts.likely} 道（占全库 ${((tagCounts.likely / MOCK_QUIZZES.length) * 100).toFixed(1)}%），冲刺期优先刷`
                       : t.key === 'real'
-                      ? `仅刷往年真题/高命中题（${tagCounts.real} 道）`
+                      ? `严格真题同源（${tagCounts.real} 道）——这些题能追溯到真题出处，不按知识点外推`
                       : t.key === 'hot'
-                      ? `仅刷高频核心考点（${tagCounts.hot} 道）`
+                      ? `高频考点（${tagCounts.hot} 道）——含按知识点补齐的多选/判断，保证各题型都有题可刷`
                       : '不限标签'
                   }
                 >
@@ -439,6 +462,39 @@ export default function QuizPage() {
                   )}
                 </Button>
               ))}
+            </div>
+            {/* 口径说明：直接回答「高频的多选怎么才 1 题」这类疑问，避免用户以为筛选坏了。
+                数字全部实时算出来，不写死 —— 标签口径一变，这里跟着变。 */}
+            <div className="basis-full flex items-start gap-1.5 text-[10px] leading-relaxed text-muted-foreground/80">
+              <Target className="size-3 shrink-0 mt-0.5 text-cyan-400/70" />
+              <span>
+                {tagFilter === 'all' ? (
+                  <>不限标签：全库 {MOCK_QUIZZES.length} 题</>
+                ) : (
+                  <>
+                    {TAG_FILTER_LABELS[tagFilter]}口径：判断 {tagTypeCounts.judge ?? 0} · 单选{' '}
+                    {tagTypeCounts.single ?? 0} · 多选 {tagTypeCounts.multiple ?? 0}
+                    {tagFilter === 'real' ? (
+                      <span className="text-muted-foreground/60">
+                        （真题逐题标注、以单选为主，判断题暂无真题同源；练判断/多选请改选「高频」）
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground/60">
+                        （高频按知识点补齐了多选/判断，保证每个题型都有题可刷）
+                      </span>
+                    )}
+                  </>
+                )}
+                {filteredCount > 0 && filteredCount < 5 && (
+                  <span className="text-amber-300">
+                    {' '}
+                    · 当前「方向 × 题型 × 标签」只有 {filteredCount} 题，建议放宽任一筛选
+                  </span>
+                )}
+                {filteredCount === 0 && (
+                  <span className="text-rose-300"> · 当前组合无题目，请放宽方向 / 题型 / 标签任一</span>
+                )}
+              </span>
             </div>
             <Dialog open={showWrongBook} onOpenChange={setShowWrongBook}>
             <DialogTrigger asChild>
@@ -504,16 +560,21 @@ export default function QuizPage() {
                                   >
                                     {DIRECTION_LABELS[q.direction]}
                                   </Badge>
-                                  {q.tag && (
+                                  {effectiveTag(q, tagCtx) && (
                                     <Badge
                                       variant="outline"
+                                      title={
+                                        q.tag
+                                          ? '逐题标注的原始标签'
+                                          : '同考点补充题：该知识点被判为高频，故本题也计入高频（多选/判断按知识点补齐）'
+                                      }
                                       className={
-                                        q.tag === 'real'
+                                        effectiveTag(q, tagCtx) === 'real'
                                           ? 'bg-rose-500/15 text-rose-300 border-transparent'
                                           : 'bg-orange-500/15 text-orange-300 border-transparent'
                                       }
                                     >
-                                      {q.tag === 'real' ? '真题' : '高频'}
+                                      {effectiveTag(q, tagCtx) === 'real' ? '真题' : '高频'}
                                     </Badge>
                                   )}
                                 </div>
@@ -848,17 +909,22 @@ export default function QuizPage() {
                   >
                     {DIRECTION_LABELS[currentQuestion.direction]}
                   </Badge>
-                  {currentQuestion.tag && (
+                  {effectiveTag(currentQuestion, tagCtx) && (
                     <Badge
                       variant="outline"
+                      title={
+                        currentQuestion.tag
+                          ? '逐题标注的原始标签'
+                          : '同考点补充题：该知识点被判为高频，故本题也计入高频（多选/判断按知识点补齐）'
+                      }
                       className={cn(
                         'border-transparent',
-                        currentQuestion.tag === 'real'
+                        effectiveTag(currentQuestion, tagCtx) === 'real'
                           ? 'bg-rose-500/15 text-rose-300'
                           : 'bg-orange-500/15 text-orange-300'
                       )}
                     >
-                      {currentQuestion.tag === 'real' ? '真题' : '高频'}
+                      {effectiveTag(currentQuestion, tagCtx) === 'real' ? '真题' : '高频'}
                     </Badge>
                   )}
                   <span className="ml-auto text-[10px] font-mono-data text-muted-foreground/60">

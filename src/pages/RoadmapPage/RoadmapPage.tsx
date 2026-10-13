@@ -20,7 +20,6 @@ import {
   Filter,
   Info,
   TrendingUp,
-  Users,
 } from 'lucide-react';
 import { MOCK_QUIZZES } from '@/data/quizzes';
 import { useQuizRecords, useExamDate } from '@/hooks/use-storage';
@@ -30,7 +29,6 @@ import {
   SCHOOL_CONTEST_DATE,
   type StageStatus,
 } from '@/data/contest';
-import { SPRINT_TEAM_ROLES } from '@/data/sprint-plan';
 import { cn, DIRECTION_LABELS, DIRECTION_COLORS } from '@/lib/utils';
 
 const STATUS_STYLE: Record<StageStatus, { dot: string; text: string; label: string; border: string }> = {
@@ -87,9 +85,6 @@ export default function RoadmapPage() {
     return { byType, done, total, remain, perDay, pct: total ? Math.round((done / total) * 100) : 0 };
   }, [records.answeredIds, countdown.days]);
 
-  const judgeRate = coverage.byType.judge.total
-    ? Math.round((coverage.byType.judge.done / coverage.byType.judge.total) * 100)
-    : 0;
 
   const handleSaveDate = () => {
     if (!dateInput) return;
@@ -198,15 +193,6 @@ export default function RoadmapPage() {
             })}
           </div>
 
-          <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-2.5 text-[11px] leading-relaxed text-amber-100/90">
-            距校赛还有 <b className="text-amber-300">{countdown.days}</b> 天，还有{' '}
-            <b className="text-amber-300">{coverage.remain}</b> 题没刷过。
-            平均每天刷 <b className="text-amber-300">{coverage.perDay}</b> 题可跑完全库；
-            但优先把
-            <b className="text-amber-300">判断题正确率刷到 90% 以上</b>
-            （当前覆盖 {judgeRate}%）——它是省赛必考、且最容易「想当然」失分的题型。
-          </div>
-
           <div className="flex gap-2">
             <Button
               className="flex-1 h-8 text-xs"
@@ -300,44 +286,6 @@ export default function RoadmapPage() {
         </CardContent>
       </Card>
 
-      {/* ---------- 三人分工 ---------- */}
-      <Card className="border-purple-500/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Users className="size-4 text-purple-400" />
-            三人分工（各守方向，覆盖全库）
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {SPRINT_TEAM_ROLES.map((r) => (
-            <div key={r.role} className="rounded-lg border border-border/40 p-2.5">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-semibold text-purple-300">{r.role}</span>
-                {r.directions.map((d) => (
-                  <Badge
-                    key={d}
-                    className={cn(
-                      'text-[10px] border-transparent',
-                      DIRECTION_COLORS[d]?.bg,
-                      DIRECTION_COLORS[d]?.text
-                    )}
-                  >
-                    {DIRECTION_LABELS[d]}
-                  </Badge>
-                ))}
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{r.why}</p>
-              <p className="text-[10px] text-cyan-300/80 mt-0.5 font-mono-data">{r.dailyQuota}</p>
-            </div>
-          ))}
-          <div className="rounded-lg bg-muted/20 p-2.5 text-[11px] text-muted-foreground leading-relaxed">
-            <b className="text-foreground/80">队友加入</b>：把网址发给他们，
-            <b className="text-emerald-300">打开就能刷，不用注册</b>
-            。各自进度独立互不影响；队长在「设置 → 导入队友备份」汇总全队弱项。
-            12 天 × 3 人 = 36 人天，够跑完全库 964 题（约 27 题/人/天）。
-          </div>
-        </CardContent>
-      </Card>
 
       {/* ---------- 赛制事实 ---------- */}
       <Card className="border-emerald-500/15">
