@@ -32,7 +32,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
     question: '关于华为设备各类路由的默认优先级，以下说法正确的有？',
     options: ['直连路由默认为 0', '静态路由默认为 60', 'OSPF 默认为 10', '优先级数值越大越优先'],
     answer: ['直连路由默认为 0', '静态路由默认为 60', 'OSPF 默认为 10'],
-    explanation: '路由优先级数值越小越优先，因此直连路由最优先被选中，第四项与事实相反。',
+    explanation: '路由优先级数值越小越优先，因此直连路由最优先被选中，「优先级数值越大越优先」这一说法与事实相反。',
     knowledgeId: 'datacom-static-route', direction: 'datacom', tag: 'hot',
   },
   {
@@ -49,7 +49,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '主路由有效时，备用路由不会出现在当前路由表中',
       '主路由失效后，备用路由自动生效',
     ],
-    explanation: '主备两条路由必须指向不同的下一跳或出接口，否则不具备备份意义，因此第四项错误。',
+    explanation: '主备两条路由必须指向不同的下一跳或出接口，否则不具备备份意义，因此「主备两条路由必须指向同一个下一跳才有意义」这一说法错误。',
     knowledgeId: 'datacom-static-route', direction: 'datacom', tag: 'real',
   },
   {
@@ -66,7 +66,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '在广播型网络上通常需要指定下一跳地址',
       '下一跳非直连时，静态路由可以迭代查找到最终下一跳',
     ],
-    explanation: '静态路由与动态路由可以共存，实际网络中常用静态路由做备份或补充，因此第四项错误。',
+    explanation: '静态路由与动态路由可以共存，实际网络中常用静态路由做备份或补充，因此「静态路由无法与动态路由协议共存于同一台设备」这一说法错误。',
     knowledgeId: 'datacom-static-route', direction: 'datacom', tag: 'hot',
   },
   {
@@ -106,7 +106,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       'Level-2 路由器负责区域间路由，构成骨干层',
       'Level-1-2 路由器同时参与 Level-1 与 Level-2',
     ],
-    explanation: 'Level-1 路由器只能与同区域的 Level-1 或 Level-1-2 建立邻居，跨区域必须经 Level-1-2 转发，因此第四项错误。',
+    explanation: 'Level-1 路由器只能与同区域的 Level-1 或 Level-1-2 建立邻居，跨区域必须经 Level-1-2 转发，因此「Level-1 路由器可以直接与区域外的 Level-2 路由器建立邻居」这一说法错误。',
     knowledgeId: 'datacom-isis', direction: 'datacom', tag: 'hot',
   },
   {
@@ -123,7 +123,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       'DIS 优先级默认为 64',
       'DIS 支持抢占，优先级更高的设备加入后会重新选举',
     ],
-    explanation: 'IS-IS 只有 DIS，没有 BDR，且优先级为 0 的设备也参与选举，因此第四项错误。这是与 OSPF 的关键区别。',
+    explanation: 'IS-IS 只有 DIS，没有 BDR，且优先级为 0 的设备也参与选举，因此「IS-IS 与 OSPF 一样，同时存在 DIS 与 BDR」这一说法错误。这是与 OSPF 的关键区别。',
     knowledgeId: 'datacom-isis', direction: 'datacom', tag: 'hot',
   },
   {
@@ -140,7 +140,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       'System ID 长度固定为 6 字节',
       '路由器的 NET 中 NSEL 必须为 00',
     ],
-    explanation: '同一 Level-1 区域内所有路由器的 Area ID 必须相同，否则无法形成同一区域，因此第四项错误。',
+    explanation: '同一 Level-1 区域内所有路由器的 Area ID 必须相同，否则无法形成同一区域，因此「同一个 Level-1 区域内的 Area ID 可以互不相同」这一说法错误。',
     knowledgeId: 'datacom-isis', direction: 'datacom', tag: 'hot',
   },
   {
@@ -248,7 +248,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '可在 import 方向生效',
       '可在 export 方向生效',
     ],
-    explanation: 'Filter-Policy 是通用路由过滤工具，可用于 OSPF、IS-IS、BGP 等多种协议，因此第四项错误。',
+    explanation: 'Filter-Policy 是通用路由过滤工具，可用于 OSPF、IS-IS、BGP 等多种协议，因此「只能用于过滤 OSPF 路由」这一说法错误。',
     knowledgeId: 'datacom-route-policy', direction: 'datacom', tag: 'hot',
   },
   {
@@ -265,7 +265,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '同一节点内多条 if-match 之间是"与"的关系',
       'apply 用于修改匹配到的路由属性',
     ],
-    explanation: '一旦节点匹配成功即执行其动作并退出匹配过程，不再继续匹配后续节点，因此第四项错误。',
+    explanation: '一旦节点匹配成功即执行其动作并退出匹配过程，不再继续匹配后续节点，因此「某个节点匹配成功后，仍会继续匹配后续所有节点」这一说法错误。',
     knowledgeId: 'datacom-route-policy', direction: 'datacom', tag: 'hot',
   },
   {
@@ -282,7 +282,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '双点双向引入可能产生环路与次优路径',
       '引入时通常需要指定度量值等参数',
     ],
-    explanation: '引入后路由会按本协议的外部优先级参与选路（如 OSPF 外部路由与内部路由优先级不同），因此第四项错误。',
+    explanation: '引入后路由会按本协议的外部优先级参与选路（如 OSPF 外部路由与内部路由优先级不同），因此「引入后的路由优先级与原协议保持一致」这一说法错误。',
     knowledgeId: 'datacom-route-policy', direction: 'datacom', tag: 'hot',
   },
   {
@@ -374,7 +374,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '认证依赖 IPv6 的 AH/ESP，而非报文自带的认证字段',
       'Router ID 需手工配置或从 IPv4 地址获取',
     ],
-    explanation: 'OSPFv3 与 OSPFv2 是两个独立的进程，可以在同一台设备上同时运行、互不影响，因此第四项错误。',
+    explanation: 'OSPFv3 与 OSPFv2 是两个独立的进程，可以在同一台设备上同时运行、互不影响，因此「OSPFv3 与 OSPFv2 无法在同一台设备上共存」这一说法错误。',
     knowledgeId: 'datacom-ospfv3', direction: 'datacom', tag: 'hot',
   },
   {
@@ -421,7 +421,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '通过 MP_REACH_NLRI 属性携带 IPv6 可达路由',
       '通过 MP_UNREACH_NLRI 属性撤销 IPv6 路由',
     ],
-    explanation: 'BGP4+ 的邻居可以基于 IPv4 地址建立，同时传递 IPv6 路由（即通常所说的"4 建 6 传"），因此第四项错误。',
+    explanation: 'BGP4+ 的邻居可以基于 IPv4 地址建立，同时传递 IPv6 路由（即通常所说的"4 建 6 传"），因此「BGP4+ 只能使用 IPv6 地址建立邻居」这一说法错误。',
     knowledgeId: 'datacom-bgp4plus', direction: 'datacom', tag: 'hot',
   },
   {
@@ -476,7 +476,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '匹配到第一条命中的规则后立即执行动作，不再继续匹配',
       'ACL 末尾隐含一条拒绝所有的规则',
     ],
-    explanation: '通配符掩码与子网掩码相反：0 表示必须匹配，1 表示忽略，因此第四项错误。',
+    explanation: '通配符掩码与子网掩码相反：0 表示必须匹配，1 表示忽略，因此「通配符掩码中，1 表示该位必须匹配」这一说法错误。',
     knowledgeId: 'datacom-acl', direction: 'datacom', tag: 'hot',
   },
   {

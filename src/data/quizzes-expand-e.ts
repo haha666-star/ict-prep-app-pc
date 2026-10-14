@@ -53,7 +53,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '蠕虫是独立程序，可利用系统漏洞主动传播',
       '木马通常伪装成合法程序，用于窃取信息或远程控制',
     ],
-    explanation: '蠕虫与木马都可独立运行，只有病毒必须依附宿主，因此第四项错误。三者的传播方式差异是高频判断题。',
+    explanation: '蠕虫与木马都可独立运行，只有病毒必须依附宿主，因此「三者都必须依附宿主程序才能运行」这一说法错误。三者的传播方式差异是高频判断题。',
     knowledgeId: 'security-concept', direction: 'security', tag: 'hot',
   },
   {
@@ -107,7 +107,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
     question: '关于华为防火墙的默认安全区域，以下说法正确的有？',
     options: ['Local 区域优先级为 100', 'Trust 区域优先级为 85', 'Untrust 区域优先级为 5', '安全区域优先级数值越小表示越可信'],
     answer: ['Local 区域优先级为 100', 'Trust 区域优先级为 85', 'Untrust 区域优先级为 5'],
-    explanation: '优先级数值越大越可信（Local 100 > Trust 85 > DMZ 50 > Untrust 5），因此第四项方向写反了。',
+    explanation: '优先级数值越大越可信（Local 100 > Trust 85 > DMZ 50 > Untrust 5），因此「安全区域优先级数值越小表示越可信」这一说法方向写反了。',
     knowledgeId: 'security-firewall-basic', direction: 'security', tag: 'hot',
   },
   {
@@ -124,7 +124,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '后续报文可以直接匹配会话来转发',
       '会话表记录了连接的地址与状态信息',
     ],
-    explanation: '状态检测的价值恰恰在于"只查首包、后续查会话"，避免逐包匹配策略带来的性能损耗，因此第四项错误。',
+    explanation: '状态检测的价值恰恰在于"只查首包、后续查会话"，避免逐包匹配策略带来的性能损耗，因此「每一条报文都必须重新逐包执行完整的安全策略匹配」这一说法错误。',
     knowledgeId: 'security-firewall-basic', direction: 'security', tag: 'hot',
   },
 
@@ -143,7 +143,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'No-PAT 不转换端口，一对一占用公网地址',
       'Easy-IP 直接使用出接口地址进行转换',
     ],
-    explanation: 'No-PAT 不转换端口，一个公网地址同时只能服务一个内网用户，不适合"多用户共享少地址"，应选 PAT，因此第四项错误。',
+    explanation: 'No-PAT 不转换端口，一个公网地址同时只能服务一个内网用户，不适合"多用户共享少地址"，应选 PAT，因此「No-PAT 更适合大量内网用户共享少量公网地址的场景」这一说法错误。',
     knowledgeId: 'security-nat', direction: 'security', tag: 'hot',
   },
   {
@@ -156,7 +156,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '命中 NAT Server 的流量可以跳过安全策略检查',
     ],
     answer: ['用于让外网用户访问内网服务器', '支持配置端口映射', 'NAT 不能替代安全策略，流量仍需被安全策略允许'],
-    explanation: 'NAT 只解决地址转换，是否放行仍由安全策略决定。忘记配置放行策略是 NAT Server 不生效的头号原因，因此第四项错误。',
+    explanation: 'NAT 只解决地址转换，是否放行仍由安全策略决定。忘记配置放行策略是 NAT Server 不生效的头号原因，因此「命中 NAT Server 的流量可以跳过安全策略检查」这一说法错误。',
     knowledgeId: 'security-nat', direction: 'security', tag: 'real',
   },
   {
@@ -173,7 +173,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'FTP、SIP 等协议通常需要 ALG 支持',
       'ALG 可帮助这些协议正确穿越 NAT',
     ],
-    explanation: 'ALG（应用层网关）与加密无关，它负责识别并改写应用层载荷中的地址信息，因此第四项属于概念混淆。',
+    explanation: 'ALG（应用层网关）与加密无关，它负责识别并改写应用层载荷中的地址信息，因此「ALG 是一种加密算法」这一说法属于概念混淆。',
     knowledgeId: 'security-nat', direction: 'security', tag: 'hot',
   },
   {
@@ -220,7 +220,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'Smurf 攻击利用广播地址放大 ICMP 流量',
       'Ping of Death 通过超大 ICMP 报文实现',
     ],
-    explanation: 'Teardrop 依赖的是**分片偏移重叠**的异常分片，正常分片不会造成问题，因此第四项错误。',
+    explanation: 'Teardrop 依赖的是**分片偏移重叠**的异常分片，正常分片不会造成问题，因此「Teardrop 攻击通过正常分片即可奏效」这一说法错误。',
     knowledgeId: 'security-attack-defense', direction: 'security', tag: 'hot',
   },
   {
@@ -291,7 +291,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'AH 能够提供数据加密功能',
     ],
     answer: ['AH 提供认证与完整性保护，但不加密', 'ESP 同时提供加密与认证能力', 'AH 的协议号为 51，ESP 为 50'],
-    explanation: 'AH 不提供加密，这让它无法保护数据机密性，因此第四项错误；现网中 ESP 使用更广泛。',
+    explanation: 'AH 不提供加密，这让它无法保护数据机密性，因此「AH 能够提供数据加密功能」这一说法错误；现网中 ESP 使用更广泛。',
     knowledgeId: 'security-ipsec', direction: 'security', tag: 'hot',
   },
   {
@@ -308,7 +308,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '隧道模式会新增一个外层 IP 首部',
       '站点到站点的 VPN 通常使用隧道模式',
     ],
-    explanation: '传输模式复用原 IP 首部、不新增外层头，适合主机到主机；新增外层头是隧道模式的特征，因此第四项错误。',
+    explanation: '传输模式复用原 IP 首部、不新增外层头，适合主机到主机；新增外层头是隧道模式的特征，因此「传输模式必然新增额外的外层 IP 首部」这一说法错误。',
     knowledgeId: 'security-ipsec', direction: 'security', tag: 'hot',
   },
   {
@@ -321,7 +321,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'IKEv1 主模式只需要 3 条消息即可完成',
     ],
     answer: ['IKE 用于自动协商 SA 与密钥', 'IKE 基于 UDP 500 端口', 'NAT-T 场景下改使用 UDP 4500 端口'],
-    explanation: 'IKEv1 主模式需要 6 条消息，3 条消息的是野蛮模式，因此第四项错误。两者在身份保护能力上也有差异。',
+    explanation: 'IKEv1 主模式需要 6 条消息，3 条消息的是野蛮模式，因此「IKEv1 主模式只需要 3 条消息即可完成」这一说法错误。两者在身份保护能力上也有差异。',
     knowledgeId: 'security-ipsec', direction: 'security', tag: 'hot',
   },
   {
@@ -364,7 +364,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '必须先建立站点到站点的 IPsec 隧道才能使用',
     ],
     answer: ['通常无需安装客户端，浏览器即可访问', '基于 443 端口，容易穿越防火墙与 NAT', '支持细粒度的资源访问控制'],
-    explanation: 'SSL VPN 定位于远程用户接入，不依赖 IPsec 站点隧道，因此第四项错误。',
+    explanation: 'SSL VPN 定位于远程用户接入，不依赖 IPsec 站点隧道，因此「必须先建立站点到站点的 IPsec 隧道才能使用」这一说法错误。',
     knowledgeId: 'security-ssl-vpn', direction: 'security', tag: 'hot',
   },
   {
@@ -377,7 +377,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'Web 代理方式可以访问任意 TCP 应用',
     ],
     answer: ['Web 代理方式用于访问 Web 资源', '端口转发方式用于访问 TCP 应用', '网络扩展方式可实现全网络访问'],
-    explanation: 'Web 代理仅能改写并代理 Web 类流量，无法承载任意 TCP 应用，因此第四项错误。',
+    explanation: 'Web 代理仅能改写并代理 Web 类流量，无法承载任意 TCP 应用，因此「Web 代理方式可以访问任意 TCP 应用」这一说法错误。',
     knowledgeId: 'security-ssl-vpn', direction: 'security', tag: 'hot',
   },
   {
@@ -390,7 +390,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'IPSec VPN 完全不需要任何客户端或配置',
     ],
     answer: ['IPSec VPN 更适合站点到站点的互联', 'SSL VPN 更适合远程用户的单点接入', 'SSL VPN 通常基于 443 端口，穿越性好'],
-    explanation: 'IPSec 需要在两端设备上配置策略/模板与感兴趣流，属于"设备间"方案，因此第四项错误。',
+    explanation: 'IPSec 需要在两端设备上配置策略/模板与感兴趣流，属于"设备间"方案，因此「IPSec VPN 完全不需要任何客户端或配置」这一说法错误。',
     knowledgeId: 'security-ssl-vpn', direction: 'security', tag: 'hot',
   },
   {
@@ -419,7 +419,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       'IDS 可以直接丢弃命中的攻击报文',
     ],
     answer: ['IDS 通常旁路部署，只做检测与告警', 'IPS 在线部署，可以主动阻断攻击', 'IPS 可以视为在 IDS 检测能力之上增强了阻断动作'],
-    explanation: '旁路部署的 IDS 不在转发路径上，无法丢包，因此第四项错误。',
+    explanation: '旁路部署的 IDS 不在转发路径上，无法丢包，因此「IDS 可以直接丢弃命中的攻击报文」这一说法错误。',
     knowledgeId: 'security-ips-ids', direction: 'security', tag: 'hot',
   },
   {
@@ -436,7 +436,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '异常检测可以发现未知攻击，但误报率相对较高',
       '协议分析通过解析应用层协议发现异常行为',
     ],
-    explanation: '特征匹配依赖已知攻击签名，对未知攻击天然失效，因此第四项错误。',
+    explanation: '特征匹配依赖已知攻击签名，对未知攻击天然失效，因此「特征匹配可以检测出所有未知攻击」这一说法错误。',
     knowledgeId: 'security-ips-ids', direction: 'security', tag: 'hot',
   },
   {
@@ -444,7 +444,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
     question: '关于 IPS 的响应动作，以下说法正确的有？',
     options: ['告警：仅记录日志', '阻断：丢弃报文或重置连接', '限流：降低攻击流量的处理速率', 'IPS 只能记录日志，无法采取阻断动作'],
     answer: ['告警：仅记录日志', '阻断：丢弃报文或重置连接', '限流：降低攻击流量的处理速率'],
-    explanation: 'IPS 的核心价值就在于"边检测边阻断"，因此第四项与 IPS 的定位矛盾。',
+    explanation: 'IPS 的核心价值就在于"边检测边阻断"，因此「IPS 只能记录日志，无法采取阻断动作」这一说法与 IPS 的定位矛盾。',
     knowledgeId: 'security-ips-ids', direction: 'security', tag: 'hot',
   },
   {
@@ -495,7 +495,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
       '应用识别可以识别并控制特定应用流量',
       'DLP 用于防止敏感数据外泄',
     ],
-    explanation: '文件过滤正是可以按文件类型禁止 exe、bat 等可执行文件传输，因此第四项错误。',
+    explanation: '文件过滤正是可以按文件类型禁止 exe、bat 等可执行文件传输，因此「文件过滤无法阻止可执行文件的传输」这一说法错误。',
     knowledgeId: 'security-antivirus', direction: 'security', tag: 'hot',
   },
   {

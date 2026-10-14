@@ -20,7 +20,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '认证设备（Authenticator）通常是交换机或 AP',
       '认证服务器通常为 RADIUS 服务器',
     ],
-    explanation: 'CA 仅在采用 EAP-TLS 证书认证时才需要，使用 PEAP、EAP-MD5 时不涉及 CA，因此第四项"强制必备"错误。',
+    explanation: 'CA 仅在采用 EAP-TLS 证书认证时才需要，使用 PEAP、EAP-MD5 时不涉及 CA，因此「CA 证书颁发机构是 802.1X 体系的强制必备元素」这一说法"强制必备"错误。',
     knowledgeId: 'security-8021x', direction: 'security', tag: 'hot',
   },
   {
@@ -37,7 +37,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '认证设备与认证服务器之间使用 EAP over RADIUS',
       'EAP 是可扩展认证协议',
     ],
-    explanation: 'EAPoL（EAP over LAN）工作在二层，认证完成前终端尚无网络访问权限，因此不可能依赖 IP 通信，第四项错误。',
+    explanation: 'EAPoL（EAP over LAN）工作在二层，认证完成前终端尚无网络访问权限，因此不可能依赖 IP 通信，「EAPoL 运行在 IP 层之上，需要 IP 地址才能通信」这一说法错误。',
     knowledgeId: 'security-8021x', direction: 'security', tag: 'hot',
   },
   {
@@ -54,7 +54,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'MAC 认证无需客户端，适合打印机等哑终端',
       'Portal 认证通过 Web 页面完成，适合访客接入',
     ],
-    explanation: 'MAC 地址可以被伪造，因此 MAC 认证安全性较低，不可能高于证书认证，第四项错误。',
+    explanation: 'MAC 地址可以被伪造，因此 MAC 认证安全性较低，不可能高于证书认证，「MAC 认证的安全性高于 802.1X 证书认证」这一说法错误。',
     knowledgeId: 'security-8021x', direction: 'security', tag: 'hot',
   },
   {
@@ -83,7 +83,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '双机热备无需同步会话表也能保证切换不中断',
     ],
     answer: ['支持主备备份模式', '支持负载分担模式', '通过 HRP 同步会话表与配置'],
-    explanation: '会话表同步是热备的核心：缺少同步时，切换后已建立的连接会因查无会话而中断，因此第四项错误。',
+    explanation: '会话表同步是热备的核心：缺少同步时，切换后已建立的连接会因查无会话而中断，因此「双机热备无需同步会话表也能保证切换不中断」这一说法错误。',
     knowledgeId: 'security-ha', direction: 'security', tag: 'hot',
   },
   {
@@ -117,7 +117,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '心跳线故障可能导致出现双主',
       '支持配置手动或自动抢占',
     ],
-    explanation: '设备冗余与链路冗余是两个层面，链路本身也需要冗余设计，因此第四项错误。',
+    explanation: '设备冗余与链路冗余是两个层面，链路本身也需要冗余设计，因此「部署双机热备后就不需要再考虑链路冗余」这一说法错误。',
     knowledgeId: 'security-ha', direction: 'security', tag: 'hot',
   },
   {
@@ -176,7 +176,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'CA 使用公钥签发证书、使用私钥验证证书',
     ],
     answer: ['CA 负责签发与管理数字证书', 'RA 负责受理证书申请并进行初审', 'CRL 与 OCSP 用于查询证书吊销状态'],
-    explanation: '签发与验证的方向相反：CA 用**私钥**对证书签名，验证者用 CA 的**公钥**验签，因此第四项错误。',
+    explanation: '签发与验证的方向相反：CA 用**私钥**对证书签名，验证者用 CA 的**公钥**验签，因此「CA 使用公钥签发证书、使用私钥验证证书」这一说法错误。',
     knowledgeId: 'security-pki', direction: 'security', tag: 'hot',
   },
   {
@@ -193,7 +193,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '数字签名由发送方使用私钥生成',
       '数字签名提供完整性、身份认证与不可否认性',
     ],
-    explanation: '签名用私钥、验签用公钥，第四项把方向写反了。这与"公钥加密、私钥解密"的方向恰好相反，最易混淆。',
+    explanation: '签名用私钥、验签用公钥，「数字签名由发送方使用公钥生成、接收方用私钥验证」这一说法把方向写反了。这与"公钥加密、私钥解密"的方向恰好相反，最易混淆。',
     knowledgeId: 'security-pki', direction: 'security', tag: 'real',
   },
   {
@@ -236,7 +236,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'UTM 与传统包过滤防火墙的能力完全相同',
     ],
     answer: ['将防火墙、IPS、AV、URL 过滤等功能集成在一台设备上', '可简化部署与统一管理', '功能叠加可能对设备性能提出更高要求'],
-    explanation: '包过滤防火墙只做端口/地址级过滤，与具备内容检测能力的 UTM 不在同一层级，因此第四项错误。',
+    explanation: '包过滤防火墙只做端口/地址级过滤，与具备内容检测能力的 UTM 不在同一层级，因此「UTM 与传统包过滤防火墙的能力完全相同」这一说法错误。',
     knowledgeId: 'security-utm', direction: 'security', tag: 'hot',
   },
   {
@@ -261,7 +261,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
     question: '以下哪些属于 UTM/NGFW 的典型功能？',
     options: ['应用识别与控制', 'IPS 入侵防御', 'URL 过滤与内容过滤', '仅支持端口级过滤'],
     answer: ['应用识别与控制', 'IPS 入侵防御', 'URL 过滤与内容过滤'],
-    explanation: '仅端口级过滤是传统包过滤防火墙的能力，NGFW 的重点恰恰是突破这一局限，因此第四项错误。',
+    explanation: '仅端口级过滤是传统包过滤防火墙的能力，NGFW 的重点恰恰是突破这一局限，因此「仅支持端口级过滤」这一说法错误。',
     knowledgeId: 'security-utm', direction: 'security', tag: 'hot',
   },
   {
@@ -294,7 +294,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '区分信任端口与非信任端口',
       '非信任端口收到的 DHCP Offer/ACK 报文会被丢弃',
     ],
-    explanation: '信任端口连接合法服务器或上行链路，正常放行报文，因此第四项错误。该机制用于阻挡私接的 DHCP 服务器。',
+    explanation: '信任端口连接合法服务器或上行链路，正常放行报文，因此「信任端口收到的 DHCP 请求报文会被丢弃」这一说法错误。该机制用于阻挡私接的 DHCP 服务器。',
     knowledgeId: 'security-dhcp-snooping', direction: 'security', tag: 'hot',
   },
   {
@@ -307,7 +307,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'IPSG 只能校验报文的目的 IP 地址',
     ],
     answer: ['基于绑定表校验报文的源 IP 与源 MAC', '非法报文会被直接丢弃', '可以防止终端盗用他人 IP 地址'],
-    explanation: 'IPSG 校验的是**源**信息（源 IP/MAC），目的是防止地址仿冒，因此第四项错误。',
+    explanation: 'IPSG 校验的是**源**信息（源 IP/MAC），目的是防止地址仿冒，因此「IPSG 只能校验报文的目的 IP 地址」这一说法错误。',
     knowledgeId: 'security-dhcp-snooping', direction: 'security', tag: 'hot',
   },
   {
@@ -320,7 +320,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'DAI 与 IPSG 的功能完全相同',
     ],
     answer: ['基于绑定表校验 ARP 报文', '可防止 ARP 欺骗', '依赖 DHCP Snooping 建立绑定表'],
-    explanation: 'IPSG 校验数据报文的 IP/MAC，DAI 校验 ARP 报文，防护对象不同，因此第四项错误。',
+    explanation: 'IPSG 校验数据报文的 IP/MAC，DAI 校验 ARP 报文，防护对象不同，因此「DAI 与 IPSG 的功能完全相同」这一说法错误。',
     knowledgeId: 'security-dhcp-snooping', direction: 'security', tag: 'hot',
   },
   {
@@ -337,7 +337,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'IPSG 负责防止 IP 地址欺骗',
       'DAI 负责防止 ARP 欺骗',
     ],
-    explanation: 'IPSG 与 DAI 的校验都依赖绑定表，没有绑定表就无从判断合法性，因此第四项错误。',
+    explanation: 'IPSG 与 DAI 的校验都依赖绑定表，没有绑定表就无从判断合法性，因此「三者相互独立，没有绑定表也能正常工作」这一说法错误。',
     knowledgeId: 'security-dhcp-snooping', direction: 'security', tag: 'hot',
   },
   {
@@ -386,7 +386,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '支持绑定合法 MAC（含 sticky 方式）',
       '超阈时可配置 protect、restrict 或 error-down 动作',
     ],
-    explanation: '限制 MAC 数量正是端口安全最基本的能力，第四项与事实相反。',
+    explanation: '限制 MAC 数量正是端口安全最基本的能力，「端口安全无法限制 MAC 地址数量」这一说法与事实相反。',
     knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },
   {
@@ -399,7 +399,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '三种动作的实际效果完全相同',
     ],
     answer: ['protect：静默丢弃，不上报告警', 'restrict：丢弃并产生告警', 'error-down：直接关闭端口'],
-    explanation: '三者的处置力度依次递增，从"静默丢弃"到"关闭端口"，需按现场管理需求选择，因此第四项错误。',
+    explanation: '三者的处置力度依次递增，从"静默丢弃"到"关闭端口"，需按现场管理需求选择，因此「三种动作的实际效果完全相同」这一说法错误。',
     knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },
   {
@@ -416,7 +416,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '端口隔离可使同一隔离组内的端口二层不互通',
       '端口隔离可以减少 VLAN 的划分数量',
     ],
-    explanation: '端口隔离的目的就是让同一 VLAN 内的端口二层互相不可见，因此第四项与功能描述矛盾。',
+    explanation: '端口隔离的目的就是让同一 VLAN 内的端口二层互相不可见，因此「配置端口隔离后，隔离组内的端口仍可二层互通」这一说法与功能描述矛盾。',
     knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },
   {
@@ -429,7 +429,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'MACsec 是一种应用层加密技术',
     ],
     answer: ['基于 IEEE 802.1AE 标准', '提供链路层的加密与完整性保护', '适用于点对点链路'],
-    explanation: 'MACsec 工作在数据链路层，与 TLS 等应用层加密处于完全不同的层次，因此第四项错误。',
+    explanation: 'MACsec 工作在数据链路层，与 TLS 等应用层加密处于完全不同的层次，因此「MACsec 是一种应用层加密技术」这一说法错误。',
     knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },
   {
@@ -465,7 +465,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'Portal 认证必须安装客户端软件',
     ],
     answer: ['用户先免认证访问 Portal 页面', '输入账号密码后完成上线', '通常与 RADIUS 服务器配合使用'],
-    explanation: 'Portal 的最大卖点就是"零客户端"，通过浏览器即可完成认证，因此第四项错误。',
+    explanation: 'Portal 的最大卖点就是"零客户端"，通过浏览器即可完成认证，因此「Portal 认证必须安装客户端软件」这一说法错误。',
     knowledgeId: 'security-portal', direction: 'security', tag: 'hot',
   },
   {
@@ -478,7 +478,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       'Portal 的安全性高于 802.1X',
     ],
     answer: ['Portal 无需客户端，用户体验更友好', '802.1X 的安全性通常更高', 'Portal 更适合访客接入场景'],
-    explanation: 'Portal 的认证发生在取得网络访问能力之后（先通再认证），安全性弱于在接入前完成认证的 802.1X，因此第四项错误。',
+    explanation: 'Portal 的认证发生在取得网络访问能力之后（先通再认证），安全性弱于在接入前完成认证的 802.1X，因此「Portal 的安全性高于 802.1X」这一说法错误。',
     knowledgeId: 'security-portal', direction: 'security', tag: 'hot',
   },
   {
@@ -495,7 +495,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '可以按终端类型或场景选择不同的认证方式',
       '802.1X 认证失败后可降级为 Portal 认证',
     ],
-    explanation: '统一准入控制正是要把多种认证方式编排组合，覆盖员工、哑终端、访客等不同人群，因此第四项错误。',
+    explanation: '统一准入控制正是要把多种认证方式编排组合，覆盖员工、哑终端、访客等不同人群，因此「三种认证方式无法在同一网络中同时部署」这一说法错误。',
     knowledgeId: 'security-portal', direction: 'security', tag: 'hot',
   },
   {
@@ -535,7 +535,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '各 Vsys 之间资源与配置相互隔离',
       '根系统负责向各 Vsys 分配资源',
     ],
-    explanation: 'Vsys 是"防火墙虚拟化"（含策略、路由、用户等完整能力），VRF 只是"路由表虚拟化"，二者层次不同，因此第四项错误。',
+    explanation: 'Vsys 是"防火墙虚拟化"（含策略、路由、用户等完整能力），VRF 只是"路由表虚拟化"，二者层次不同，因此「Vsys 与路由器的 VRF 是同一个概念」这一说法错误。',
     knowledgeId: 'security-fw-advance', direction: 'security', tag: 'hot',
   },
   {
@@ -552,7 +552,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '可以自动选择质量最优的出口链路',
       '支持多条链路之间的负载分担',
     ],
-    explanation: '智能选路的决策依据正是实时链路质量探测结果，没有探测数据就失去了"智能"的基础，因此第四项错误。',
+    explanation: '智能选路的决策依据正是实时链路质量探测结果，没有探测数据就失去了"智能"的基础，因此「智能选路不依赖任何链路质量探测数据」这一说法错误。',
     knowledgeId: 'security-fw-advance', direction: 'security', tag: 'hot',
   },
   {
@@ -569,7 +569,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '支持对特定流量做限速',
       '支持对关键业务做带宽保障',
     ],
-    explanation: '现代防火墙的流量管理可按应用与用户粒度区分对待，因此第四项错误。',
+    explanation: '现代防火墙的流量管理可按应用与用户粒度区分对待，因此「流量管理只能做整体限速，无法按应用区分」这一说法错误。',
     knowledgeId: 'security-fw-advance', direction: 'security', tag: 'hot',
   },
   {

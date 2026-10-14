@@ -38,7 +38,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       '支持一对一地址映射',
       '支持端口级映射，不同端口可映射到不同内网服务器',
     ],
-    explanation: 'NAT Server 的前提就是拥有可对外发布的公网地址，否则外部流量无从到达，因此第四项错误。',
+    explanation: 'NAT Server 的前提就是拥有可对外发布的公网地址，否则外部流量无从到达，因此「NAT Server 无需公网地址即可生效」这一说法错误。',
     knowledgeId: 'datacom-nat', direction: 'datacom', tag: 'hot',
   },
   {
@@ -74,7 +74,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       '优先级默认值为 100',
       '优先级取值范围为 1~254',
     ],
-    explanation: '优先级相同时比较接口 IP 地址，**大者**优先，因此第四项方向写反了。优先级 255 为虚拟 IP 拥有者，直接成为 Master。',
+    explanation: '优先级相同时比较接口 IP 地址，**大者**优先，因此「优先级相同时比较接口 IP 地址，数值小者优先」这一说法方向写反了。优先级 255 为虚拟 IP 拥有者，直接成为 Master。',
     knowledgeId: 'datacom-vrrp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -143,7 +143,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       '租期达到 87.5% 时，客户端改为广播方式续租',
       '续租失败后客户端会重新发起 Discover 流程',
     ],
-    explanation: 'DHCP 基于 UDP：服务器 67、客户端 68，因此第四项错误。租期 50%/87.5% 两个时间点是高频考点。',
+    explanation: 'DHCP 基于 UDP：服务器 67、客户端 68，因此「DHCP 基于 TCP 协议，使用 67/68 端口」这一说法错误。租期 50%/87.5% 两个时间点是高频考点。',
     knowledgeId: 'datacom-dhcp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -216,7 +216,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       'LSR 位于网络内部，基于标签进行交换转发',
       'Ingress LER 负责为进入的报文压入标签',
     ],
-    explanation: 'Egress LER 是在报文**离开** MPLS 域的方向弹出标签（或由倒数第二跳以 PHP 机制提前弹出），因此第四项方向描述错误。',
+    explanation: 'Egress LER 是在报文**离开** MPLS 域的方向弹出标签（或由倒数第二跳以 PHP 机制提前弹出），因此「Egress LER 在报文进入 MPLS 域的方向弹出标签」这一说法方向描述错误。',
     knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
   },
   {
@@ -233,7 +233,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       'LDP 基于 TCP 646 端口',
       '默认采用下游自主（DU）方式分发标签',
     ],
-    explanation: '标签由 LDP 自动分配与分发，无需管理员逐条手工指定，因此第四项错误。',
+    explanation: '标签由 LDP 自动分配与分发，无需管理员逐条手工指定，因此「每条路由的标签都必须由管理员手工指定」这一说法错误。',
     knowledgeId: 'datacom-mpls-basic', direction: 'datacom', tag: 'hot',
   },
   {
@@ -376,7 +376,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       'IPSec 不直接支持组播/广播，可用 GRE over IPSec 解决',
       'GRE over IPSec 即先用 IPSec 保护 GRE 封装的报文',
     ],
-    explanation: 'GRE 不提供任何加密，必须依赖 IPSec 等机制保护，因此第四项错误。',
+    explanation: 'GRE 不提供任何加密，必须依赖 IPSec 等机制保护，因此「GRE 隧道本身会自动提供加密保护」这一说法错误。',
     knowledgeId: 'datacom-gre-l2tp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -423,7 +423,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       'IntServ 通过 RSVP 信令为业务预留资源',
       'DiffServ 按类别差异化处理，是现网主流方案',
     ],
-    explanation: '需要为每条流维护状态的是 IntServ（可扩展性差，正是它被 DiffServ 取代的原因），因此第四项错误。',
+    explanation: '需要为每条流维护状态的是 IntServ（可扩展性差，正是它被 DiffServ 取代的原因），因此「DiffServ 需要在每个节点为每一条流维护状态信息」这一说法错误。',
     knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
   },
   {
@@ -440,7 +440,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       '尾部丢弃可能导致 TCP 全局同步现象',
       'PQ 优先队列可能导致低优先级队列被"饿死"',
     ],
-    explanation: '流量整形（GTS）会把超出部分缓存并择机发送；"直接丢弃"是流量监管（CAR）的行为，因此第四项错误。',
+    explanation: '流量整形（GTS）会把超出部分缓存并择机发送；"直接丢弃"是流量监管（CAR）的行为，因此「流量整形会将超出速率的流量直接丢弃」这一说法错误。',
     knowledgeId: 'datacom-qos-basic', direction: 'datacom', tag: 'hot',
   },
   {
@@ -480,7 +480,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
       'UDP 无连接，开销小、时延低',
       'TCP 通过滑动窗口实现流量控制',
     ],
-    explanation: 'UDP 不提供确认与重传，可靠性需由应用层自行保障，因此第四项错误。',
+    explanation: 'UDP 不提供确认与重传，可靠性需由应用层自行保障，因此「UDP 提供重传机制以保证可靠交付」这一说法错误。',
     knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -488,7 +488,7 @@ export const EXTRA_QUIZZES_EXPAND_C: IQuizQuestion[] = [
     question: '关于常见应用协议的端口号，以下说法正确的有？',
     options: ['HTTPS 使用 TCP 443', 'SSH 使用 TCP 22', 'DNS 使用 UDP/TCP 53', 'SNMP 使用 TCP 161'],
     answer: ['HTTPS 使用 TCP 443', 'SSH 使用 TCP 22', 'DNS 使用 UDP/TCP 53'],
-    explanation: 'SNMP 使用 UDP 161/162，不是 TCP，因此第四项错误。端口号识记题几乎每场必考。',
+    explanation: 'SNMP 使用 UDP 161/162，不是 TCP，因此「SNMP 使用 TCP 161」这一说法错误。端口号识记题几乎每场必考。',
     knowledgeId: 'datacom-tcp-udp', direction: 'datacom', tag: 'hot',
   },
   {

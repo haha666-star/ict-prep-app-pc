@@ -1561,7 +1561,7 @@ const RAW_QUIZZES: IQuizQuestion[] = [
     question: 'VRRP中，以下哪种情况会导致Backup路由器抢占成为Master？',
     options: ['Backup优先级高于Master且抢占模式开启', 'Master发送通告报文', 'Backup收到更低优先级的通告', 'Master上行接口故障且配置了跟踪'],
     answer: 'Backup优先级高于Master且抢占模式开启',
-    explanation: 'VRRP抢占（Preemption）：默认开启抢占模式。当Backup路由器收到Master的通告报文，发现自己的优先级高于Master时，会抢占成为新的Master（发送更高优先级的通告，原Master收到后降级为Backup）。抢占的条件：1.Backup优先级 > Master优先级2.抢占模式开启（默认开启，可配置preempt disable关闭）3.可配置抢占延迟（preempt delay），避免频繁切换。选项D（Master上行接口故障且配置了跟踪）会导致Master优先级降低，当降低后低于Backup时，Backup会抢占，但直接原因是优先级变化，不是跟踪本身。选项C（收到更低优先级的通告）是正常情况，Backup不会抢占（Master优先级更低说明自己应该是Master，但通常是因为自己优先级更高才会收到更低的，这时候会抢占）。最准确的答案是A。',
+    explanation: 'VRRP抢占（Preemption）：默认开启抢占模式。当Backup路由器收到Master的通告报文，发现自己的优先级高于Master时，会抢占成为新的Master（发送更高优先级的通告，原Master收到后降级为Backup）。抢占的条件：1.Backup优先级 > Master优先级2.抢占模式开启（默认开启，可配置preempt disable关闭）3.可配置抢占延迟（preempt delay），避免频繁切换。「Master上行接口故障且配置了跟踪」会导致Master优先级降低，当降低后低于Backup时，Backup会抢占，但直接原因是优先级变化，不是跟踪本身。「Backup收到更低优先级的通告」是正常情况，Backup不会抢占（Master优先级更低说明自己应该是Master，但通常是因为自己优先级更高才会收到更低的，这时候会抢占）。最准确的答案是「Backup优先级高于Master且抢占模式开启」。',
     knowledgeId: 'datacom-vrrp', direction: 'datacom', difficulty: 'IA',
   },
   {

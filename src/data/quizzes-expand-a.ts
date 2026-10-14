@@ -14,7 +14,11 @@
  *
  * 出题纪律：
  *   1) answer 存**选项文本**，不是下标（stableShuffleOptions 会打乱选项）
- *   2) 解析中**不引用「选项A/B/C/D」**，否则该题会被判定为顺序敏感而跳过打乱
+ *   2) 解析中**不引用选项位置**——既不能写「选项A/B/C/D」，也不能写「第 N 项」。
+ *      选项顺序在渲染时会被打乱，任何位置引用都会与实际显示序号错位，
+ *      使用者看到「显示第 4 项是正确项、解析却说第四项错」会误判成"答案错了"。
+ *      正确写法：把被否定的选项原文直接写进解析，如「…… 」这一说法错误。
+ *      （由 ict-audit-v2/verify-expand.mjs 的断言 ⑫ 兜底检查）
  *   3) 判断题 options 恒为 ['正确','错误']
  */
 import type { IQuizQuestion } from './quizzes'
@@ -43,7 +47,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       'OSI 的物理层与数据链路层在 TCP/IP 模型中合并为网络接口层',
       'TCP/IP 的网际层对应 OSI 的网络层',
     ],
-    explanation: 'TCP/IP 四层自上而下为应用层、传输层、网际层、网络接口层。其传输层与 OSI 传输层一一对应，并非没有对应层次，因此第四项错误。',
+    explanation: 'TCP/IP 四层自上而下为应用层、传输层、网际层、网络接口层。其传输层与 OSI 传输层一一对应，并非没有对应层次，因此「OSI 的传输层在 TCP/IP 模型中没有对应层次」这一说法错误。',
     knowledgeId: 'datacom-osi-tcpip', direction: 'datacom', tag: 'hot',
   },
   {
@@ -205,7 +209,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       'ARP 缓存表项有老化时间，超时后需重新解析',
       '免费 ARP 可用于检测 IP 地址冲突',
     ],
-    explanation: 'ARP 应答是单播，目的 IP 为请求方地址，只有请求方会处理，因此第四项错误。',
+    explanation: 'ARP 应答是单播，目的 IP 为请求方地址，只有请求方会处理，因此「ARP 应答报文以广播方式发送」这一说法错误。',
     knowledgeId: 'datacom-arp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -222,7 +226,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '可用于主机子网掩码配置错误但需跨网段通信的场景',
       '可减少广播域之间的 ARP 泛洪',
     ],
-    explanation: '代理 ARP 的典型价值正是跨广播域代答，使请求方误以为目标在同一网段，因此第四项说法与事实相反。',
+    explanation: '代理 ARP 的典型价值正是跨广播域代答，使请求方误以为目标在同一网段，因此「代理 ARP 只能在同一广播域内生效」这一说法与事实相反。',
     knowledgeId: 'datacom-arp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -296,7 +300,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '收到未知单播帧时，向除入端口外的所有端口泛洪',
       '收到已知单播帧时，从对应出端口精确转发',
     ],
-    explanation: '交换机会过滤掉从入端口回发的帧（分裂地平线原则），否则会造成不必要的环路与资源浪费，故第四项错误。',
+    explanation: '交换机会过滤掉从入端口回发的帧（分裂地平线原则），否则会造成不必要的环路与资源浪费，故「交换机可能将帧从接收该帧的入端口再发回去」这一说法错误。',
     knowledgeId: 'datacom-ethernet', direction: 'datacom', tag: 'hot',
   },
   {
@@ -313,7 +317,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       'Trunk 端口可以允许多个 VLAN 通过',
       'Hybrid 端口可灵活指定哪些 VLAN 带标签发送、哪些不带',
     ],
-    explanation: 'Access 端口面向终端，发送时剥离 802.1Q 标签，因此第四项错误。Hybrid 是华为设备独有的端口模式。',
+    explanation: 'Access 端口面向终端，发送时剥离 802.1Q 标签，因此「Access 端口发送帧时会保留 802.1Q 标签」这一说法错误。Hybrid 是华为设备独有的端口模式。',
     knowledgeId: 'datacom-ethernet', direction: 'datacom', tag: 'hot',
   },
   {
@@ -391,7 +395,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '桥优先级默认为 32768',
       '根端口是通往根桥路径开销最小的端口',
     ],
-    explanation: '每台非根交换机有且仅有一个根端口（通往根桥开销最小的端口），因此第四项错误。这是 STP 的最高频判断点之一。',
+    explanation: '每台非根交换机有且仅有一个根端口（通往根桥开销最小的端口），因此「一台非根交换机上可以存在多个根端口」这一说法错误。这是 STP 的最高频判断点之一。',
     knowledgeId: 'datacom-stp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -450,7 +454,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       'LACP 模式通过 LACPDU 协商确定活动链路',
       'LACP 模式可配置活动接口数的上限与下限',
     ],
-    explanation: 'LACP 模式下的备用链路处于非活动状态，不转发数据，只有活动链路故障时才被顶上，因此第四项错误。',
+    explanation: 'LACP 模式下的备用链路处于非活动状态，不转发数据，只有活动链路故障时才被顶上，因此「LACP 模式下备用链路也会参与数据转发」这一说法错误。',
     knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'hot',
   },
   {
@@ -467,7 +471,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '接口优先级数值小的接口优先成为活动接口',
       '系统优先级由优先级值与系统 MAC 共同构成',
     ],
-    explanation: '两端都会参与优先级比较，用于确定主动端与最终的活动接口集合，因此第四项错误。',
+    explanation: '两端都会参与优先级比较，用于确定主动端与最终的活动接口集合，因此「接口优先级仅在被被动端生效，主动端不参与比较」这一说法错误。',
     knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'hot',
   },
   {
@@ -484,7 +488,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '可基于源 IP 或目的 IP 进行哈希分担',
       '可基于源端口或目的端口进行哈希分担',
     ],
-    explanation: '为避免报文乱序，同一条数据流的报文通常被哈希到同一条成员链路，因此第四项错误。',
+    explanation: '为避免报文乱序，同一条数据流的报文通常被哈希到同一条成员链路，因此「同一条数据流的报文会被分散到不同成员链路上转发」这一说法错误。',
     knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'hot',
   },
   {
@@ -525,7 +529,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '支持跨设备链路聚合，提升链路可靠性',
       '扩展端口密度，提升接入能力',
     ],
-    explanation: '堆叠后整个系统对外表现为一台设备，只需一个管理 IP，因此第四项错误。',
+    explanation: '堆叠后整个系统对外表现为一台设备，只需一个管理 IP，因此「堆叠后各成员设备仍需要各自独立的管理 IP」这一说法错误。',
     knowledgeId: 'datacom-stack', direction: 'datacom', tag: 'hot',
   },
   {
@@ -560,7 +564,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '分裂后可能出现双主，引发网络异常',
       'MAD 用于检测并处理堆叠分裂',
     ],
-    explanation: '分裂后两条"半堆叠"各自独立运行，都会认为自己是主，必须依赖 MAD 机制检测并关闭其中一侧的业务口，因此第四项错误。',
+    explanation: '分裂后两条"半堆叠"各自独立运行，都会认为自己是主，必须依赖 MAD 机制检测并关闭其中一侧的业务口，因此「堆叠分裂后无需任何处理，成员设备会自动恢复为原堆叠」这一说法错误。',
     knowledgeId: 'datacom-stack', direction: 'datacom', tag: 'hot',
   },
   {

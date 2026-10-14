@@ -35,7 +35,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '数据中心东西向流量大时，传统架构容易出现瓶颈',
       'Spine-Leaf 更适合作为数据中心主流架构',
     ],
-    explanation: 'Spine-Leaf 中 Leaf 之间不直接互联，必须经 Spine 转发（即"任意 Leaf 间一跳 Spine"），因此第四项错误。',
+    explanation: 'Spine-Leaf 中 Leaf 之间不直接互联，必须经 Spine 转发（即"任意 Leaf 间一跳 Spine"），因此「Spine-Leaf 中 Leaf 之间需要直连以保证互通」这一说法错误。',
     knowledgeId: 'dcn-arch', direction: 'dcn', tag: 'hot',
   },
   {
@@ -52,7 +52,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'EoR 指列末集中接入',
       'iSCSI 是在 IP 网络上承载 SCSI 的存储方案',
     ],
-    explanation: 'NAS 是通过以太网与 NFS/CIFS 等文件协议提供存储，与 FC 网络无关，因此第四项错误。',
+    explanation: 'NAS 是通过以太网与 NFS/CIFS 等文件协议提供存储，与 FC 网络无关，因此「NAS 只能通过 FC 网络对外提供存储」这一说法错误。',
     knowledgeId: 'dcn-arch', direction: 'dcn', tag: 'hot',
   },
   {
@@ -92,7 +92,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '支持 ARP 抑制/代理，抑制广播风暴',
       '支持分布式网关与多活网关',
     ],
-    explanation: 'EVPN 是 VXLAN 的**控制面**（用 BGP 分发 MAC/IP 与路由信息），数据面封装由 VXLAN 完成，因此第四项把角色说反了。',
+    explanation: 'EVPN 是 VXLAN 的**控制面**（用 BGP 分发 MAC/IP 与路由信息），数据面封装由 VXLAN 完成，因此「EVPN 只能作为数据面封装协议使用」这一说法把角色说反了。',
     knowledgeId: 'dcn-evpn', direction: 'dcn', tag: 'hot',
   },
   {
@@ -109,7 +109,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'Type3 用于 VTEP 发现并形成头端复制列表',
       'Type5 用于通告 IP 前缀路由',
     ],
-    explanation: 'DF（指定转发者）选举使用的是 Type4 路由，因此第四项错误。五种路由类型的职责是 EVPN 的核心考点。',
+    explanation: 'DF（指定转发者）选举使用的是 Type4 路由，因此「Type2 用于以太网段 DF 选举」这一说法错误。五种路由类型的职责是 EVPN 的核心考点。',
     knowledgeId: 'dcn-evpn', direction: 'dcn', tag: 'hot',
   },
   {
@@ -126,7 +126,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '通过 Type3 路由发现其他 VTEP 并建立隧道',
       '主机上线后通过 Type2 路由通告其 MAC/IP',
     ],
-    explanation: '"控制面学习"正是 EVPN 的核心价值，它取代了传统 VXLAN 依赖数据面泛洪的学习方式，因此第四项错误。',
+    explanation: '"控制面学习"正是 EVPN 的核心价值，它取代了传统 VXLAN 依赖数据面泛洪的学习方式，因此「EVPN 依赖数据面泛洪来学习远端 MAC」这一说法错误。',
     knowledgeId: 'dcn-evpn', direction: 'dcn', tag: 'hot',
   },
   {
@@ -162,7 +162,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '由数据平面负责复杂的路由决策',
     ],
     answer: ['控制平面与转发平面分离', '采用集中式控制，掌握全局视图', '提供开放可编程接口'],
-    explanation: '复杂决策被上移到控制平面，数据平面只负责按流表转发，因此第四项与本末倒置。',
+    explanation: '复杂决策被上移到控制平面，数据平面只负责按流表转发，因此「由数据平面负责复杂的路由决策」这一说法恰好本末倒置。',
     knowledgeId: 'dcn-sdn-basic', direction: 'dcn', tag: 'hot',
   },
   {
@@ -179,7 +179,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '控制器通过下发流表来指导转发',
       '流表包含匹配字段、动作与计数器',
     ],
-    explanation: '连接控制器与设备的属于**南向**接口；北向接口连接控制器与上层应用，因此第四项错误。',
+    explanation: '连接控制器与设备的属于**南向**接口；北向接口连接控制器与上层应用，因此「OpenFlow 属于北向接口」这一说法错误。',
     knowledgeId: 'dcn-sdn-basic', direction: 'dcn', tag: 'hot',
   },
   {
@@ -192,7 +192,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'SDN 架构不存在任何安全或可靠性风险',
     ],
     answer: ['集中式控制器可能成为性能瓶颈', '控制器容易成为安全攻击的重点目标', '需要与现有网络长期兼容演进'],
-    explanation: '"集中"本身就是一把双刃剑：带来全局视图的同时也带来了单点风险，因此第四项错误。',
+    explanation: '"集中"本身就是一把双刃剑：带来全局视图的同时也带来了单点风险，因此「SDN 架构不存在任何安全或可靠性风险」这一说法错误。',
     knowledgeId: 'dcn-sdn-basic', direction: 'dcn', tag: 'hot',
   },
   {
@@ -232,7 +232,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '集中式网关可能存在流量绕行与性能瓶颈',
       '分布式网关下沉到 Leaf，实现就近转发',
     ],
-    explanation: '分布式网关的代价正是配置更复杂、安全策略分散在各 Leaf 上，因此第四项描述与事实相反。',
+    explanation: '分布式网关的代价正是配置更复杂、安全策略分散在各 Leaf 上，因此「分布式网关配置更简单、安全策略更集中」这一说法描述与事实相反。',
     knowledgeId: 'dcn-vxlan-gateway', direction: 'dcn', tag: 'hot',
   },
   {
@@ -249,7 +249,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '主机无论接入哪台 Leaf，看到的网关都相同',
       '通常需配合主机路由（/32）保证流量路径对称',
     ],
-    explanation: 'Anycast 的意义就在于"处处相同"，虚拟机迁移后无需更换网关，因此第四项与设计目的矛盾。',
+    explanation: 'Anycast 的意义就在于"处处相同"，虚拟机迁移后无需更换网关，因此「Anycast 网关要求每台 Leaf 使用互不相同的网关 IP」这一说法与设计目的矛盾。',
     knowledgeId: 'dcn-vxlan-gateway', direction: 'dcn', tag: 'hot',
   },
   {
@@ -289,7 +289,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '任意两台 Leaf 之间的流量经过一跳 Spine',
       '带宽利用率高，易于横向扩展',
     ],
-    explanation: 'Leaf 之间不直接互连，所有跨 Leaf 流量都经 Spine 转发，这正是该架构"时延可预测"的原因，因此第四项错误。',
+    explanation: 'Leaf 之间不直接互连，所有跨 Leaf 流量都经 Spine 转发，这正是该架构"时延可预测"的原因，因此「Leaf 之间需要互连以承载东西向流量」这一说法错误。',
     knowledgeId: 'dcn-clos', direction: 'dcn', tag: 'hot',
   },
   {
@@ -319,7 +319,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'Clos 架构只能支持两级交换',
     ],
     answer: ['Clos 是一种多级交换架构', 'Spine-Leaf 是三级 Clos 的典型形态', '严格无阻塞是 Clos 的设计目标之一'],
-    explanation: 'Clos 可扩展到更多级以支撑超大规模数据中心，并非只能两级，因此第四项错误。',
+    explanation: 'Clos 可扩展到更多级以支撑超大规模数据中心，并非只能两级，因此「Clos 架构只能支持两级交换」这一说法错误。',
     knowledgeId: 'dcn-clos', direction: 'dcn', tag: 'hot',
   },
   {
@@ -336,7 +336,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'Leaf 通常承担 Overlay 边缘相关职能',
       'Spine 主要承担高速转发',
     ],
-    explanation: 'Spine-Leaf 的互联是规则的全连结构，配合 ECMP 做多路径负载分担，并不依赖 STP，因此第四项错误。',
+    explanation: 'Spine-Leaf 的互联是规则的全连结构，配合 ECMP 做多路径负载分担，并不依赖 STP，因此「Leaf 之间必须依靠 STP 阻塞环路」这一说法错误。',
     knowledgeId: 'dcn-clos', direction: 'dcn', tag: 'hot',
   },
   {
@@ -372,7 +372,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '单机部署即可完全避免单点故障',
     ],
     answer: ['负责网络自动化与策略下发', '华为 iMaster NCE 属于此类产品', '可提供网络可视化能力'],
-    explanation: '单机部署反而制造单点故障，实际工程中常通过控制器集群提升可靠性，因此第四项错误。',
+    explanation: '单机部署反而制造单点故障，实际工程中常通过控制器集群提升可靠性，因此「单机部署即可完全避免单点故障」这一说法错误。',
     knowledgeId: 'dcn-sdn-controller', direction: 'dcn', tag: 'hot',
   },
   {
@@ -389,7 +389,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       '北向接口通常以 RESTful API 形式提供',
       '南向接口连接控制器与转发设备',
     ],
-    explanation: '北向接口连接的是控制器与上层应用/编排系统，因此第四项错误。"南向对设备、北向对应用"是必背结论。',
+    explanation: '北向接口连接的是控制器与上层应用/编排系统，因此「北向接口连接控制器与转发设备」这一说法错误。"南向对设备、北向对应用"是必背结论。',
     knowledgeId: 'dcn-sdn-controller', direction: 'dcn', tag: 'hot',
   },
   {
@@ -402,7 +402,7 @@ export const EXTRA_QUIZZES_EXPAND_H: IQuizQuestion[] = [
       'Overlay 与 Underlay 完全无关、互不影响',
     ],
     answer: ['Underlay 提供基础的 IP 互通', 'Overlay 提供租户的二层/三层网络', 'Overlay 可基于 VXLAN/EVPN 构建'],
-    explanation: 'Overlay 的报文要依赖 Underlay 转发，其可靠性与带宽直接决定 Overlay 的表现，因此第四项错误。',
+    explanation: 'Overlay 的报文要依赖 Underlay 转发，其可靠性与带宽直接决定 Overlay 的表现，因此「Overlay 与 Underlay 完全无关、互不影响」这一说法错误。',
     knowledgeId: 'dcn-sdn-controller', direction: 'dcn', tag: 'hot',
   },
   {

@@ -22,7 +22,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '2.4GHz 干扰较多，非重叠信道只有 1/6/11 三个',
       '5GHz 信道资源丰富，干扰相对较少',
     ],
-    explanation: '频率越高，穿透与绕射能力越弱，因此 5GHz 的覆盖能力弱于 2.4GHz，第四项错误。这是射频部分最基础的对比。',
+    explanation: '频率越高，穿透与绕射能力越弱，因此 5GHz 的覆盖能力弱于 2.4GHz，「5GHz 的穿透与绕射能力强于 2.4GHz」这一说法错误。这是射频部分最基础的对比。',
     knowledgeId: 'wlan-standard', direction: 'wlan', tag: 'hot',
   },
   {
@@ -39,7 +39,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '支持上下行 MU-MIMO',
       '1024-QAM 相比 256-QAM 提升约 25% 的单流速率',
     ],
-    explanation: 'Wi-Fi 6 同时支持 2.4GHz 与 5GHz（Wi-Fi 6E 进一步扩展到 6GHz），因此第四项错误。',
+    explanation: 'Wi-Fi 6 同时支持 2.4GHz 与 5GHz（Wi-Fi 6E 进一步扩展到 6GHz），因此「Wi-Fi 6 仅支持 2.4GHz 单一频段」这一说法错误。',
     knowledgeId: 'wlan-standard', direction: 'wlan', tag: 'hot',
   },
   {
@@ -52,7 +52,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'AP 发射功率越大越好，无需做任何限制',
     ],
     answer: ['中国 2.4GHz 可用信道为 1~13', '5GHz 部分信道需要启用 DFS 雷达检测', '信道带宽越大速率越高，但更易受到干扰'],
-    explanation: '功率过大会加剧同频干扰并造成漫游粘滞，必须结合覆盖需求做规划，因此第四项错误。',
+    explanation: '功率过大会加剧同频干扰并造成漫游粘滞，必须结合覆盖需求做规划，因此「AP 发射功率越大越好，无需做任何限制」这一说法错误。',
     knowledgeId: 'wlan-standard', direction: 'wlan', tag: 'hot',
   },
   {
@@ -88,7 +88,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'SSID 就是 AP 的 MAC 地址（BSSID）',
     ],
     answer: ['SSID 是无线网络名称，最多 32 个字符', 'SSID 严格区分大小写', '隐藏 SSID 后，终端需手工输入网络名才能连接'],
-    explanation: 'BSSID 是 AP 的 MAC 地址，用于唯一标识一个基本服务集，与 SSID 是不同层面的标识，因此第四项错误。',
+    explanation: 'BSSID 是 AP 的 MAC 地址，用于唯一标识一个基本服务集，与 SSID 是不同层面的标识，因此「SSID 就是 AP 的 MAC 地址（BSSID）」这一说法错误。',
     knowledgeId: 'wlan-vap', direction: 'wlan', tag: 'hot',
   },
   {
@@ -101,7 +101,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '一个物理 AP 只能创建一个 VAP',
     ],
     answer: ['一个物理 AP 可以创建多个 VAP', '每个 VAP 可以拥有独立的 SSID', '每个 VAP 可以配置独立的安全策略与业务 VLAN'],
-    explanation: 'VAP 的意义正是"一机多业务"：员工、访客、物联等不同 SSID 可共用同一台 AP 而彼此隔离，因此第四项错误。',
+    explanation: 'VAP 的意义正是"一机多业务"：员工、访客、物联等不同 SSID 可共用同一台 AP 而彼此隔离，因此「一个物理 AP 只能创建一个 VAP」这一说法错误。',
     knowledgeId: 'wlan-vap', direction: 'wlan', tag: 'hot',
   },
   {
@@ -114,7 +114,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '每台 AP 都必须单独配置，无法批量下发',
     ],
     answer: ['AP 组可将配置相同的 AP 统一管理', 'VAP 模板可以批量下发到 AP 组', '射频模板用于配置信道、功率等参数'],
-    explanation: '模板化 + AP 组正是 AC 集中管理的核心价值所在，批量下发是基本能力，因此第四项错误。',
+    explanation: '模板化 + AP 组正是 AC 集中管理的核心价值所在，批量下发是基本能力，因此「每台 AP 都必须单独配置，无法批量下发」这一说法错误。',
     knowledgeId: 'wlan-vap', direction: 'wlan', tag: 'hot',
   },
   {
@@ -131,7 +131,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '用户隔离可阻止同一 SSID 下用户之间的互访',
       '最大用户数限制可防止单个 AP 过载',
     ],
-    explanation: '用户隔离的目的就是切断同 SSID 用户间的二层互访，常用于公共区域防范相互攻击，因此第四项错误。',
+    explanation: '用户隔离的目的就是切断同 SSID 用户间的二层互访，常用于公共区域防范相互攻击，因此「开启用户隔离后，同一 SSID 下用户之间仍可自由互访」这一说法错误。',
     knowledgeId: 'wlan-vap', direction: 'wlan', tag: 'hot',
   },
   {
@@ -196,7 +196,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '企业版基于 802.1X 与 RADIUS 服务器',
       '企业版可为每个用户分配独立账号',
     ],
-    explanation: 'PSK 模式下密钥一旦泄露即全网失守，安全性低于可逐用户审计的企业版，因此第四项错误。',
+    explanation: 'PSK 模式下密钥一旦泄露即全网失守，安全性低于可逐用户审计的企业版，因此「个人版的安全性高于企业版」这一说法错误。',
     knowledgeId: 'wlan-security', direction: 'wlan', tag: 'hot',
   },
   {
@@ -209,7 +209,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'WPA3 并不要求支持 PMF',
     ],
     answer: ['PMF 对应 IEEE 802.11w 标准', '用于保护管理帧的完整性', '可防止伪造的解除认证攻击'],
-    explanation: 'PMF 是 WPA3 的强制要求，用于解决"伪造管理帧强制终端掉线"这一长期漏洞，因此第四项错误。',
+    explanation: 'PMF 是 WPA3 的强制要求，用于解决"伪造管理帧强制终端掉线"这一长期漏洞，因此「WPA3 并不要求支持 PMF」这一说法错误。',
     knowledgeId: 'wlan-security', direction: 'wlan', tag: 'hot',
   },
   {
@@ -222,7 +222,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'MAC 认证的安全性高于 802.1X 证书认证',
     ],
     answer: ['非法 AP（钓鱼 AP）是常见的安全威胁', 'WIDS/WIPS 可以检测并反制无线攻击', 'AC 可通过 AP 的空口扫描发现非法 AP'],
-    explanation: 'MAC 地址可被轻易伪造，因此 MAC 认证的安全性远低于基于证书的 802.1X，第四项错误。',
+    explanation: 'MAC 地址可被轻易伪造，因此 MAC 认证的安全性远低于基于证书的 802.1X，「MAC 认证的安全性高于 802.1X 证书认证」这一说法错误。',
     knowledgeId: 'wlan-security', direction: 'wlan', tag: 'hot',
   },
   {
@@ -265,7 +265,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '相邻 AP 必须使用完全不同的 SSID 才能漫游',
     ],
     answer: ['相邻 AP 使用相同的 SSID', '相邻 AP 的安全策略保持一致', '相邻 AP 的覆盖区域需要有一定重叠'],
-    explanation: '相同 SSID 与安全策略是终端认为"这是同一个网络"的前提，覆盖重叠则是漫游能发生的基础，第四项与前提矛盾。',
+    explanation: '相同 SSID 与安全策略是终端认为"这是同一个网络"的前提，覆盖重叠则是漫游能发生的基础，「相邻 AP 必须使用完全不同的 SSID 才能漫游」这一说法与前提矛盾。',
     knowledgeId: 'wlan-roaming', direction: 'wlan', tag: 'hot',
   },
   {
@@ -295,7 +295,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '802.11k 提供邻居 AP 信息，帮助终端更快扫描',
       '802.11v 支持由网络侧引导终端漫游',
     ],
-    explanation: '802.11 系列均为无线局域网标准，802.11r 用于快速 BSS 切换，与有线网络无关，第四项错误。',
+    explanation: '802.11 系列均为无线局域网标准，802.11r 用于快速 BSS 切换，与有线网络无关，「802.11r 只能应用于有线网络」这一说法错误。',
     knowledgeId: 'wlan-roaming', direction: 'wlan', tag: 'hot',
   },
   {
@@ -324,7 +324,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'AC_BK（背景）的优先级最高',
     ],
     answer: ['WMM 基于 IEEE 802.11e 标准', '将业务流量划分为四个接入类别（AC）', 'AC_VO（语音）的优先级最高'],
-    explanation: '四个接入类别优先级由高到低为 VO > VI > BE > BK，背景类优先级最低，因此第四项错误。',
+    explanation: '四个接入类别优先级由高到低为 VO > VI > BE > BK，背景类优先级最低，因此「AC_BK（背景）的优先级最高」这一说法错误。',
     knowledgeId: 'wlan-qos', direction: 'wlan', tag: 'hot',
   },
   {
@@ -341,7 +341,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'ECW 越大，竞争窗口越大，冲突概率越高',
       'TXOP 允许高优先级业务连续发送多个帧',
     ],
-    explanation: 'AIFS 越小意味着等待越短、越容易抢到信道，因此优先级越高，第四项方向写反了。',
+    explanation: 'AIFS 越小意味着等待越短、越容易抢到信道，因此优先级越高，「AIFS 越小，优先级越低」这一说法方向写反了。',
     knowledgeId: 'wlan-qos', direction: 'wlan', tag: 'hot',
   },
   {
@@ -358,7 +358,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '用户限速可防止个别用户占用过多带宽',
       '无线侧的用户优先级可与有线侧的 DSCP 做映射',
     ],
-    explanation: '空口上组播以最低速率发送且不重传，转为单播逐用户发送可提升可靠性，因此第四项与事实相反。',
+    explanation: '空口上组播以最低速率发送且不重传，转为单播逐用户发送可提升可靠性，因此「组播转单播会降低组播传输的可靠性」这一说法与事实相反。',
     knowledgeId: 'wlan-qos', direction: 'wlan', tag: 'hot',
   },
   {
@@ -380,7 +380,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '天线增益越高，覆盖范围一定越大',
     ],
     answer: ['全向天线适合开阔区域的覆盖', '定向天线适合走廊、隧道等狭长场景', '天线增益越高，方向性越强'],
-    explanation: '增益是通过压缩波束宽度把能量"集中"到特定方向换来的，因此高增益≠覆盖更广，第四项错误。',
+    explanation: '增益是通过压缩波束宽度把能量"集中"到特定方向换来的，因此高增益≠覆盖更广，「天线增益越高，覆盖范围一定越大」这一说法错误。',
     knowledgeId: 'wlan-rf', direction: 'wlan', tag: 'hot',
   },
   {
@@ -388,7 +388,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
     question: '以下哪些属于无线射频优化手段？',
     options: ['信道规划', '功率调整', '频谱导航（频段引导）', '一味提高 AP 功率'],
     answer: ['信道规划', '功率调整', '频谱导航（频段引导）'],
-    explanation: '功率并非越大越好，过大反而加剧同频干扰与漫游粘滞，因此第四项不是优化手段而是常见误区。',
+    explanation: '功率并非越大越好，过大反而加剧同频干扰与漫游粘滞，因此「一味提高 AP 功率」这一说法不是优化手段而是常见误区。',
     knowledgeId: 'wlan-rf', direction: 'wlan', tag: 'hot',
   },
   {
@@ -428,7 +428,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'TWT 会显著增加终端功耗',
     ],
     answer: ['TWT 是目标唤醒时间机制', '终端可按约定时间唤醒，其余时间休眠', '对电池供电的 IoT 类终端尤其有意义'],
-    explanation: 'TWT 的初衷正是**降低**功耗，而非增加，因此第四项与机制目的相反。',
+    explanation: 'TWT 的初衷正是**降低**功耗，而非增加，因此「TWT 会显著增加终端功耗」这一说法与机制目的相反。',
     knowledgeId: 'wlan-wifi6', direction: 'wlan', tag: 'hot',
   },
   {
@@ -445,7 +445,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'MU-MIMO 主要解决多用户空间流并行的问题',
       '两者可以在同一设备上同时使用',
     ],
-    explanation: '一个在频域切分子载波、一个在空间域并行空间流，机制完全不同且互补，因此第四项错误。这也是最高频的易混点。',
+    explanation: '一个在频域切分子载波、一个在空间域并行空间流，机制完全不同且互补，因此「两者是同一技术的不同叫法」这一说法错误。这也是最高频的易混点。',
     knowledgeId: 'wlan-wifi6', direction: 'wlan', tag: 'hot',
   },
   {
@@ -481,7 +481,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'CAPWAP 基于 TCP 协议承载',
     ],
     answer: ['控制隧道使用 UDP 5246 端口', '数据隧道使用 UDP 5247 端口', '控制隧道与数据隧道相互分离'],
-    explanation: 'CAPWAP 基于 UDP（5246/5247），因此第四项错误。两个端口的对应关系是必背考点。',
+    explanation: 'CAPWAP 基于 UDP（5246/5247），因此「CAPWAP 基于 TCP 协议承载」这一说法错误。两个端口的对应关系是必背考点。',
     knowledgeId: 'wlan-sta-online', direction: 'wlan', tag: 'hot',
   },
   {
@@ -502,7 +502,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       'AP 无需获取 IP 地址即可与 AC 建立隧道',
     ],
     answer: ['AP 首先需要获取 IP 地址', '随后通过多种方式发现 AC', '与 AC 建立 CAPWAP 隧道后下载配置'],
-    explanation: 'CAPWAP 基于 UDP/IP，因此 AP 必须先有可达的 IP 地址，否则无法与 AC 通信，第四项错误。',
+    explanation: 'CAPWAP 基于 UDP/IP，因此 AP 必须先有可达的 IP 地址，否则无法与 AC 通信，「AP 无需获取 IP 地址即可与 AC 建立隧道」这一说法错误。',
     knowledgeId: 'wlan-sta-online', direction: 'wlan', tag: 'hot',
   },
   {
@@ -519,7 +519,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '隧道转发时，用户数据经 CAPWAP 数据隧道送至 AC',
       '直接转发模式下转发性能通常更好',
     ],
-    explanation: '隧道转发把用户流量集中到 AC，容易形成性能瓶颈，因此其转发效率低于直接转发，第四项错误。',
+    explanation: '隧道转发把用户流量集中到 AC，容易形成性能瓶颈，因此其转发效率低于直接转发，「隧道转发模式的转发性能优于直接转发」这一说法错误。',
     knowledgeId: 'wlan-sta-online', direction: 'wlan', tag: 'hot',
   },
   {
@@ -559,7 +559,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '5GHz 可自动或手动选择干扰较小的信道',
       '信道规划的核心目标是降低同频干扰',
     ],
-    explanation: '相邻 AP 使用相同信道会显著加剧同频干扰，正确做法是交错分配互不重叠的信道，因此第四项错误。',
+    explanation: '相邻 AP 使用相同信道会显著加剧同频干扰，正确做法是交错分配互不重叠的信道，因此「相邻 AP 应尽量使用相同信道以增强覆盖」这一说法错误。',
     knowledgeId: 'wlan-planning', direction: 'wlan', tag: 'hot',
   },
   {
@@ -572,7 +572,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '功率越大，覆盖效果就一定越好',
     ],
     answer: ['功率过大会加剧同频干扰', '功率过大可能导致漫游粘滞', '功率过小会产生覆盖盲区'],
-    explanation: '功率过剩会让终端"宁可贴着远端的 AP 也不切换"，造成速率与体验下降，因此第四项错误。',
+    explanation: '功率过剩会让终端"宁可贴着远端的 AP 也不切换"，造成速率与体验下降，因此「功率越大，覆盖效果就一定越好」这一说法错误。',
     knowledgeId: 'wlan-planning', direction: 'wlan', tag: 'hot',
   },
   {
@@ -589,7 +589,7 @@ export const EXTRA_QUIZZES_EXPAND_G: IQuizQuestion[] = [
       '可降低功率、缩小单个蜂窝的覆盖范围',
       '可启用负载均衡以分散用户',
     ],
-    explanation: '高密场景的核心矛盾是"用户多、空间少"，靠提高功率只会加剧干扰，因此第四项错误。',
+    explanation: '高密场景的核心矛盾是"用户多、空间少"，靠提高功率只会加剧干扰，因此「应尽量提高功率以覆盖更多用户」这一说法错误。',
     knowledgeId: 'wlan-planning', direction: 'wlan', tag: 'hot',
   },
   {

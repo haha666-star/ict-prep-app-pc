@@ -16,7 +16,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'HTTPS 无法防范中间人攻击',
     ],
     answer: ['HTTP 默认使用 80 端口', 'HTTPS 默认使用 443 端口', 'HTTPS 本质上是在 HTTP 之下叠加了 TLS'],
-    explanation: 'HTTPS 依靠证书验证服务端身份，只要客户端正确校验证书，即可有效识别并阻断中间人攻击，因此第四项错误。',
+    explanation: 'HTTPS 依靠证书验证服务端身份，只要客户端正确校验证书，即可有效识别并阻断中间人攻击，因此「HTTPS 无法防范中间人攻击」这一说法错误。',
     knowledgeId: 'datacom-application-layer', direction: 'datacom', tag: 'hot',
   },
   {
@@ -29,7 +29,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'CNAME 记录用于指定接收邮件的服务器',
     ],
     answer: ['默认使用 53 端口', '支持递归查询与迭代查询两种方式', 'A 记录用于将域名映射为 IPv4 地址'],
-    explanation: 'CNAME 是别名记录（把一个域名指向另一个域名）；指定邮件服务器的是 MX 记录，因此第四项错误。',
+    explanation: 'CNAME 是别名记录（把一个域名指向另一个域名）；指定邮件服务器的是 MX 记录，因此「CNAME 记录用于指定接收邮件的服务器」这一说法错误。',
     knowledgeId: 'datacom-application-layer', direction: 'datacom', tag: 'hot',
   },
   {
@@ -42,7 +42,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '被动模式下不需要建立数据连接',
     ],
     answer: ['控制连接使用 21 端口', '主动模式下数据连接使用 20 端口', 'FTP 的账号与密码默认以明文传输'],
-    explanation: 'FTP 的控制连接与数据连接相互独立，被动模式同样需要数据连接，只是由服务器等待客户端发起，因此第四项错误。',
+    explanation: 'FTP 的控制连接与数据连接相互独立，被动模式同样需要数据连接，只是由服务器等待客户端发起，因此「被动模式下不需要建立数据连接」这一说法错误。',
     knowledgeId: 'datacom-application-layer', direction: 'datacom', tag: 'hot',
   },
   {
@@ -98,7 +98,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '最大有效跳数为 15',
       '支持触发更新以加快收敛速度',
     ],
-    explanation: '依赖链路状态数据库与 SPF 算法的是 OSPF/IS-IS，RIP 是距离矢量协议，因此第四项张冠李戴。',
+    explanation: '依赖链路状态数据库与 SPF 算法的是 OSPF/IS-IS，RIP 是距离矢量协议，因此「依靠链路状态数据库计算最短路径」这一说法张冠李戴。',
     knowledgeId: 'datacom-rip', direction: 'datacom', tag: 'hot',
   },
   {
@@ -154,7 +154,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '能够提供毫秒级的故障感知能力',
       '只负责故障检测，不参与路由计算',
     ],
-    explanation: 'BFD 的定位是"检测器"而非"决策者"，选路仍由路由协议完成，因此第四项错误。这是 BFD 最常考的定位判断题。',
+    explanation: 'BFD 的定位是"检测器"而非"决策者"，选路仍由路由协议完成，因此「BFD 会取代路由协议完成选路功能」这一说法错误。这是 BFD 最常考的定位判断题。',
     knowledgeId: 'datacom-bfd', direction: 'datacom', tag: 'hot',
   },
   {
@@ -167,7 +167,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'BFD 的默认检测间隔固定为 10 秒且不可调整',
     ],
     answer: ['可配置最小发送间隔', '可配置最小接收间隔', '可配置检测倍数'],
-    explanation: 'BFD 的检测时间 = 接收间隔 × 检测倍数，均可按需调整到毫秒级，因此第四项错误。',
+    explanation: 'BFD 的检测时间 = 接收间隔 × 检测倍数，均可按需调整到毫秒级，因此「BFD 的默认检测间隔固定为 10 秒且不可调整」这一说法错误。',
     knowledgeId: 'datacom-bfd', direction: 'datacom', tag: 'hot',
   },
   {
@@ -207,7 +207,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '既提升带宽又提供冗余保护',
       '成员端口的速率、双工模式与 VLAN 配置必须一致',
     ],
-    explanation: '聚合带宽由多条链路按流分担，单条数据流受哈希限制无法跨越所有成员链路，因此第四项错误。',
+    explanation: '聚合带宽由多条链路按流分担，单条数据流受哈希限制无法跨越所有成员链路，因此「聚合后的总带宽一定能被单条数据流完全占用」这一说法错误。',
     knowledgeId: 'datacom-link-aggregation', direction: 'datacom', tag: 'hot',
   },
   {
@@ -220,7 +220,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'LACP 模式下所有成员端口必然都处于转发状态',
     ],
     answer: ['通过 LACPDU 报文进行协商', '会选举出主动端', '可以配置活动链路的数量上限'],
-    explanation: '当成员数超过活动上限时，多余链路处于备用状态不转发，因此第四项错误。',
+    explanation: '当成员数超过活动上限时，多余链路处于备用状态不转发，因此「LACP 模式下所有成员端口必然都处于转发状态」这一说法错误。',
     knowledgeId: 'datacom-link-aggregation', direction: 'datacom', tag: 'hot',
   },
   {
@@ -233,7 +233,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '跨设备聚合要求所有成员端口必须位于同一台设备上',
     ],
     answer: ['可通过堆叠/CSS 实现', '可通过 M-LAG 实现', '可提升服务器多归接入的可靠性'],
-    explanation: '跨设备聚合的意义恰恰在于成员端口分布在不同设备上，从而实现设备级冗余，因此第四项与事实相反。',
+    explanation: '跨设备聚合的意义恰恰在于成员端口分布在不同设备上，从而实现设备级冗余，因此「跨设备聚合要求所有成员端口必须位于同一台设备上」这一说法与事实相反。',
     knowledgeId: 'datacom-link-aggregation', direction: 'datacom', tag: 'hot',
   },
   {
@@ -269,7 +269,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'MSTP 只能运行单一生成树，无法实现负载分担',
     ],
     answer: ['MSTP 对应 IEEE 802.1s 标准', '引入了实例（Instance）的概念', '不同 VLAN 可以映射到不同的生成树实例'],
-    explanation: '多实例正是 MSTP 相对 STP/RSTP 的核心增强，可让不同 VLAN 走不同转发路径，因此第四项错误。',
+    explanation: '多实例正是 MSTP 相对 STP/RSTP 的核心增强，可让不同 VLAN 走不同转发路径，因此「MSTP 只能运行单一生成树，无法实现负载分担」这一说法错误。',
     knowledgeId: 'datacom-mstp', direction: 'datacom', tag: 'hot',
   },
   {
@@ -302,7 +302,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'stp region-configuration 用于进入域配置视图',
       'instance vlan 用于配置实例与 VLAN 的映射',
     ],
-    explanation: '域配置修改后需要执行 active region-configuration 显式激活，否则配置处于未生效状态，因此第四项错误。',
+    explanation: '域配置修改后需要执行 active region-configuration 显式激活，否则配置处于未生效状态，因此「MSTP 域配置完成后无需执行激活命令即可自动生效」这一说法错误。',
     knowledgeId: 'datacom-mstp', direction: 'datacom', tag: 'real',
   },
   {
@@ -366,7 +366,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'Super-VLAN 下可以直接加入物理端口',
     ],
     answer: ['用一个三层接口为多个 Sub-VLAN 提供网关', '能够节省 IP 地址', 'Sub-VLAN 之间保持二层隔离'],
-    explanation: 'Super-VLAN 自身不能包含物理端口，端口只能加入其下属的 Sub-VLAN，因此第四项错误。',
+    explanation: 'Super-VLAN 自身不能包含物理端口，端口只能加入其下属的 Sub-VLAN，因此「Super-VLAN 下可以直接加入物理端口」这一说法错误。',
     knowledgeId: 'datacom-vlan-aggregate', direction: 'datacom', tag: 'hot',
   },
   {
@@ -379,7 +379,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'Sub-VLAN 之间无需任何额外配置即可三层互通',
     ],
     answer: ['Sub-VLAN 之间在二层相互隔离', '物理端口只能加入 Sub-VLAN', '多个 Sub-VLAN 共享 Super-VLAN 的三层网关'],
-    explanation: 'Sub-VLAN 之间必须依赖 Super-VLAN 网关上的 VLAN 间 ARP 代理才能三层互通，因此第四项错误。',
+    explanation: 'Sub-VLAN 之间必须依赖 Super-VLAN 网关上的 VLAN 间 ARP 代理才能三层互通，因此「Sub-VLAN 之间无需任何额外配置即可三层互通」这一说法错误。',
     knowledgeId: 'datacom-vlan-aggregate', direction: 'datacom', tag: 'hot',
   },
   {
@@ -396,7 +396,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '可节省网关 IP 地址',
       '可简化网关接口的数量与配置',
     ],
-    explanation: 'VLAN 聚合本身就是为"隔离但要省地址"设计的，若需要大量广播互通，普通 VLAN 划分更合适，因此第四项错误。',
+    explanation: 'VLAN 聚合本身就是为"隔离但要省地址"设计的，若需要大量广播互通，普通 VLAN 划分更合适，因此「适合需要大量广播互通的场景」这一说法错误。',
     knowledgeId: 'datacom-vlan-aggregate', direction: 'datacom', tag: 'hot',
   },
   {
@@ -466,7 +466,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '转发决策的优先级高于普通路由表',
       '可用于引流与负载分担',
     ],
-    explanation: 'PBR 绕开路由表做决策，但不会修改路由表本身，"修改路由表"是 route-policy 的能力，因此第四项错误。',
+    explanation: 'PBR 绕开路由表做决策，但不会修改路由表本身，"修改路由表"是 route-policy 的能力，因此「PBR 会直接修改设备的路由表内容」这一说法错误。',
     knowledgeId: 'datacom-policy-route', direction: 'datacom', tag: 'hot',
   },
   {
@@ -483,7 +483,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       '通过流行为（traffic behavior）定义动作',
       '通过流策略（traffic policy）把分类与行为关联起来',
     ],
-    explanation: '除本机流量外，接口 PBR 还可以作用于过境流量，因此第四项错误。',
+    explanation: '除本机流量外，接口 PBR 还可以作用于过境流量，因此「PBR 只能作用于本机发出的报文」这一说法错误。',
     knowledgeId: 'datacom-policy-route', direction: 'datacom', tag: 'hot',
   },
   {
@@ -540,7 +540,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'SNMP v2c 已经原生支持加密传输',
     ],
     answer: ['v1/v2c 基于团体字认证，报文为明文', 'v3 支持认证与加密', 'Agent 使用 161/162 端口'],
-    explanation: 'SNMP v2c 仍为明文团体字认证，只有 v3 才提供真正的认证与加密，因此第四项错误。',
+    explanation: 'SNMP v2c 仍为明文团体字认证，只有 v3 才提供真正的认证与加密，因此「SNMP v2c 已经原生支持加密传输」这一说法错误。',
     knowledgeId: 'datacom-nms', direction: 'datacom', tag: 'hot',
   },
   {
@@ -553,7 +553,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'LLDP 主要用于计算三层路由',
     ],
     answer: ['用于发现二层邻居设备的信息', '与厂商无关，属于标准协议', '可以获取邻居的设备名、端口与管理地址'],
-    explanation: 'LLDP 是链路层发现协议，只做邻居信息收集，不参与路由计算，因此第四项错误。',
+    explanation: 'LLDP 是链路层发现协议，只做邻居信息收集，不参与路由计算，因此「LLDP 主要用于计算三层路由」这一说法错误。',
     knowledgeId: 'datacom-nms', direction: 'datacom', tag: 'hot',
   },
   {
@@ -583,7 +583,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'Telemetry 比传统 SNMP 轮询更实时',
       'Telemetry 由设备主动向采集器推送数据',
     ],
-    explanation: 'Telemetry 是独立于 SNMP 的新一代采集方式，采用推送模式，因此第四项错误。',
+    explanation: 'Telemetry 是独立于 SNMP 的新一代采集方式，采用推送模式，因此「Telemetry 只能通过 SNMP 协议实现」这一说法错误。',
     knowledgeId: 'datacom-nms', direction: 'datacom', tag: 'hot',
   },
   {
