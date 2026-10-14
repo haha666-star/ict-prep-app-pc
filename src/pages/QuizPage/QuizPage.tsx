@@ -132,6 +132,12 @@ export default function QuizPage() {
   // 两套口径没有必然联系：位置是 restoreSession **推断**出来的，
   // 可能停在从没刷过的区域，于是出现「顶部 225/225 + 已完成」而「已刷 197」的矛盾。
   // 现在「进度 / 完成」统一以**已答集合**为唯一真值。
+  //
+  // ⚠️ 由此带来一个必须同时满足的前提：**进入练习时不能把使用者丢在一道已答过的题上**。
+  //    否则重复作答不会改变「已刷 N」，使用者看到的是「进度条完全不动」
+  //    （2026-10-14 反馈：「上面的进度条都不会动了」）。
+  //    该前提由 src/lib/quiz-progress.ts 的「已答位置校正」保证（规则①②③），
+  //    本页只负责按已答集合渲染，不再自行推断位置。
   const answeredInPool = useMemo(
     () => countAnsweredIn(questions, records.perQuestion),
     [questions, records.perQuestion]

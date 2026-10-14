@@ -14,23 +14,32 @@
  * 而「做题数据」（answeredIds / perQuestion / wrongIds）存在**另一把 key**里，
  * 按题目 id 记录，不受题池增删影响 —— 这正是「数据还在、记忆没了」的成因。
  *
- * ==================== 位置口径（2026-10-14 修订：未答优先）====================
+ * ==================== 位置口径（2026-10-14 二次修订：已答位置校正）====================
  * 旧口径按 `perQuestion.lastAt` 找「最后作答的那道题」，续到它的下一题。
  * 缺陷：它只保证「从最后作答处继续」，**从不保证中间的题都答过**。
  * 若最后作答的题恰在池末，`lastIdx + 1` 会被 clamp 回末位 →
  * 指针锁死在最后一题，前面没刷的题永远跨不过去；该位置还会被回写成存档，
  * 此后每次进都走 exact，把错误位置固化下来。
  *
- * 用户侧表现（2026-10-14 反馈）：
- *   顶部「PROGRESS: 225/225 + 已完成本模式」，卡片却是「已刷 197」
- *   —— 两处口径不同，且「已完成」是假的（还有 28 题没答）。
+ * 2026-10-14 第一次修订引入「未答优先」，但只覆盖了 pruned / relocated /
+ * 「位置落在池末」三种情形，**漏掉了最常见的一种**：
  *
- * 新口径：**未答优先**。位置推断统一走 `locateFirstUnanswered`：
- *   从「最后作答位置的下一题」往后找第一道没答过的题；往后找不到就从头找；
- *   只有全部答过时才回落到原行为。
- * 另在 exact / expanded 恢复之后追加一次**末尾校正**：位置落在池末而仍有未答题时，
- * 说明这是历史推断写入的位置（末尾没有「下一题」，用户无法继续），
- * 校正到第一道未答题。
+ *   无存档（换筛选组合 / 存档被清 / 换设备导入数据）时直接 `index = 0`，
+ *   而该组前 71 题早已答过 → 使用者一进来就在答第 1 题这种「早就答过的题」，
+ *   每答一次 `countAnsweredIn` 都不变，顶部进度**完全不动**，
+ *   必须连点 71 次「下一题」才看得到变化。
+ *   用户侧表现（2026-10-14 反馈）：「上面的进度条都不会动了」。
+ *
+ * 新口径（统一规则）：**位置的唯一作用是回答「下一道该答哪题」**。
+ * 已答过的题不承担这个作用（那属于「回顾」，可用「上一题」翻回去）。因此：
+ *   ① 存档位置可信（在范围内、且那题还没答过）→ 原样使用（尊重「我记得我在哪」）
+ *   ② 存档位置上的题已经答过 → 从该位置往后（含回环）找第一道未答题
+ *   ③ 位置越界（历史脏数据）→ 从头找第一道未答题
+ *   ④ 全部答过 → 保留原位置，不再挪动（此时任何位置都只是「回顾」）
+ *   ⑤ 例外：用户主动点过「从头开始」（resetByUser）→ 尊重，回到位置 0
+ *
+ * 规则 ② 附带一个**好的**副作用：连续刷题时，若退出前停在某题但还没作答，
+ * 下次回来正好停在「你还没来得及答的那道题」，比旧行为（把那题再显示一遍）更准。
  *
  * ============================ 策略说明 ============================
  * 以题目 **id** 为准，题池增删都不再让位置作废：
@@ -161,13 +170,23 @@ export function restoreSession<T extends IQuestionLike>(
   if (!list.length) {
     return { order: [], index: 0, strategy: 'fresh', note: '当前筛选无题目' };
   }
-  const fresh: IRestoreResult<T> = {
-    order: [...list],
-    index: 0,
-    strategy: 'fresh',
-    note: '新会话，从第 1 题开始',
-  };
-  if (!prog || !Array.isArray(prog.ids) || prog.ids.length === 0) return fresh;
+
+  // ---------- 无存档：全新会话 ----------
+  // 关键：**不能无条件从第 1 题开始**。若本组已有作答记录（换筛选组合、
+  // 存档被清、换设备导入数据都会落到这里），从第 1 题开始意味着先把答过的题
+  // 再答一遍，而顶部「已刷 N」在重复作答时不会变化 → 使用者看到「进度完全不动」。
+  if (!prog || !Array.isArray(prog.ids) || prog.ids.length === 0) {
+    const answered = countAnsweredIn(list, perQuestion);
+    const un = locateFirstUnanswered(list, perQuestion, 0);
+    const index = un >= 0 ? un : 0;
+    const note =
+      answered === 0
+        ? '新会话，从第 1 题开始'
+        : un < 0
+          ? `本组 ${list.length} 题已全部刷过，可从第 1 题回顾`
+          : `本组还有 ${list.length - answered} 题没刷过，已从第 ${index + 1} 题继续`;
+    return { order: [...list], index, strategy: 'fresh', note };
+  }
 
   // 按存档顺序取出「仍在本池中」的题（去重，防存档里混入重复 id）
   const byId = new Map(list.map((q) => [q.id, q] as const));
@@ -191,45 +210,46 @@ export function restoreSession<T extends IQuestionLike>(
   const prefixStable = kept.every((q, i) => list[i]?.id === q.id);
 
   let strategy: RestoreStrategy;
-  let index: number;
-
   if (allSavedAlive && noAdded && sameSize) {
-    // 题池一字不差（含随机模式：此时按存档顺序还原，保证顺序稳定）
     strategy = 'exact';
-    index = clampIndex(prog.index ?? 0, order.length);
   } else if (allSavedAlive && !noAdded && prefixStable) {
-    // 纯扩容：旧题前缀未动，位置语义可沿用
     strategy = 'expanded';
-    index = clampIndex(prog.index ?? 0, order.length);
   } else {
-    // 有题被删/被替换：只能靠作答记录推断，且**未答优先**
+    // 有题被删/被替换：存档顺序已不可信，只能按作答记录推断（本身就是未答优先）
     strategy = 'pruned';
-    index = inferResumeIndex(order, perQuestion);
   }
 
-  // 位置失效重建：index=0 但池里已答过不少题，且不是用户主动重置
-  if (strategy !== 'pruned' && index === 0 && !prog.resetByUser) {
-    const answered = countAnsweredIn(order, perQuestion);
-    if (answered >= MIN_ANSWERED_FOR_RELOCATE) {
-      strategy = 'relocated';
-      index = inferResumeIndex(order, perQuestion);
-    }
-  }
-
-  // ---- 末尾校正：位置落在池末，但池中还有没答过的题 ----
-  // 这类位置几乎都是历史推断写入的（旧版 lastIdx+1 被 clamp 回末位）。
-  // 末尾没有「下一题」可点，使用者会以为已经刷完、实际却卡住，
-  // 因此这里主动把位置带到第一道未答题。
+  const answeredCount = countAnsweredIn(order, perQuestion);
+  const raw = prog.index ?? 0;
+  const inRange = Number.isInteger(raw) && raw >= 0 && raw < order.length;
+  let index: number;
   let noteOverride: string | null = null;
-  if (strategy === 'exact' || strategy === 'expanded') {
-    const answered = countAnsweredIn(order, perQuestion);
-    const allDone = answered >= order.length;
-    if (!allDone && index >= order.length - 1) {
-      const un = locateFirstUnanswered(order, perQuestion, 0);
-      if (un >= 0 && un !== index) {
-        index = un;
-        noteOverride = `还有 ${order.length - answered} 题没刷过，已跳到第 ${index + 1} 题`;
-      }
+
+  if (strategy === 'pruned') {
+    index = inferResumeIndex(order, perQuestion);
+  } else if (prog.resetByUser) {
+    // 规则 ⑤：用户主动点过「从头开始」，一律尊重，不做任何位置重建
+    index = clampIndex(raw, order.length);
+  } else if (inRange && !isAnswered(order[raw], perQuestion)) {
+    // 规则 ①：存档位置上的题还没答过 → 原样使用
+    index = raw;
+  } else if (inRange) {
+    // 规则 ②：位置上的题已经答过 → 往后（含回环）找第一道未答题
+    const un = locateFirstUnanswered(order, perQuestion, raw);
+    if (un >= 0) {
+      index = un;
+      noteOverride = `本组还有 ${order.length - answeredCount} 题没刷过，已从第 ${index + 1} 题继续`;
+      if (answeredCount >= MIN_ANSWERED_FOR_RELOCATE) strategy = 'relocated';
+    } else {
+      index = raw; // 规则 ④：全部答过，保留原位置
+    }
+  } else {
+    // 规则 ③：位置越界（历史脏数据）→ 从头找第一道未答题；全答过则钳制到末位
+    const un = locateFirstUnanswered(order, perQuestion, 0);
+    index = un >= 0 ? un : clampIndex(raw, order.length);
+    if (un >= 0 && answeredCount > 0) {
+      noteOverride = `本组还有 ${order.length - answeredCount} 题没刷过，已从第 ${index + 1} 题继续`;
+      if (answeredCount >= MIN_ANSWERED_FOR_RELOCATE) strategy = 'relocated';
     }
   }
 
@@ -237,15 +257,16 @@ export function restoreSession<T extends IQuestionLike>(
     noteOverride ??
     (strategy === 'relocated'
       ? `已按作答记录续到第 ${index + 1}/${order.length} 题`
-      : strategy === 'expanded'
-        ? `题库已扩充至 ${order.length} 题，已保留原进度：第 ${index + 1} 题`
-        : strategy === 'pruned'
-          ? `题库有变动，已按作答记录定位到第 ${index + 1}/${order.length} 题`
-          : `已恢复上次进度：第 ${index + 1}/${order.length} 题`);
+      : prog.resetByUser && index === 0
+        ? '已按「从头开始」从第 1 题开始'
+        : strategy === 'expanded'
+          ? `题库已扩充至 ${order.length} 题，已保留原进度：第 ${index + 1} 题`
+          : strategy === 'pruned'
+            ? `题库有变动，已按作答记录定位到第 ${index + 1}/${order.length} 题`
+            : `已恢复上次进度：第 ${index + 1}/${order.length} 题`);
 
   return { order, index, strategy, note };
 }
-
 /**
  * 是否应保留「用户已主动重置」标记。
  * 重置后 index 一旦被推到 0 以上，标记自然失效；仍是 0 则继续保留，
