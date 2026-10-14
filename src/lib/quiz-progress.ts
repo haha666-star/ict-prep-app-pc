@@ -14,24 +14,38 @@
  * 而「做题数据」（answeredIds / perQuestion / wrongIds）存在**另一把 key**里，
  * 按题目 id 记录，不受题池增删影响 —— 这正是「数据还在、记忆没了」的成因。
  *
- * ============================ 新口径 ============================
+ * ==================== 位置口径（2026-10-14 修订：未答优先）====================
+ * 旧口径按 `perQuestion.lastAt` 找「最后作答的那道题」，续到它的下一题。
+ * 缺陷：它只保证「从最后作答处继续」，**从不保证中间的题都答过**。
+ * 若最后作答的题恰在池末，`lastIdx + 1` 会被 clamp 回末位 →
+ * 指针锁死在最后一题，前面没刷的题永远跨不过去；该位置还会被回写成存档，
+ * 此后每次进都走 exact，把错误位置固化下来。
+ *
+ * 用户侧表现（2026-10-14 反馈）：
+ *   顶部「PROGRESS: 225/225 + 已完成本模式」，卡片却是「已刷 197」
+ *   —— 两处口径不同，且「已完成」是假的（还有 28 题没答）。
+ *
+ * 新口径：**未答优先**。位置推断统一走 `locateFirstUnanswered`：
+ *   从「最后作答位置的下一题」往后找第一道没答过的题；往后找不到就从头找；
+ *   只有全部答过时才回落到原行为。
+ * 另在 exact / expanded 恢复之后追加一次**末尾校正**：位置落在池末而仍有未答题时，
+ * 说明这是历史推断写入的位置（末尾没有「下一题」，用户无法继续），
+ * 校正到第一道未答题。
+ *
+ * ============================ 策略说明 ============================
  * 以题目 **id** 为准，题池增删都不再让位置作废：
  *
  *   1. `exact`    存档题池与当前池完全一致（含随机模式的自定义顺序）→ 原样恢复。
  *   2. `expanded` 存档题全在当前池中、且前缀顺序未变（纯扩容）→ 旧题保持原顺序在前、
  *                 新增题追加到末尾，`index` 语义不变（前缀仍是同一批同序的题）。
  *   3. `pruned`   池中有题被删除/替换 → 只保留仍在池中的题（保持存档顺序），
- *                 位置按 `perQuestion.lastAt` 推断。
+ *                 位置按「未答优先」推断。
  *   4. `relocated` 存档 `index` 已失效（= 0 但该池已有 ≥ MIN_ANSWERED_FOR_RELOCATE
- *                 道作答记录）→ 按 `lastAt` 重建位置。
- *                 这一条专门用来救「已被旧版覆盖成 0」的存档。
+ *                 道作答记录）→ 按「未答优先」重建位置。
  *   5. `fresh`    无存档 → 全新开始。
  *
  * 用户主动点「从头开始」时写入 `resetByUser: true`，明确不做位置重建 ——
  * 否则重置后一刷新又被推回旧位置。
- *
- * 注意：`relocated` 是**推断**而非精确恢复（存档里的位置早已被覆盖丢失），
- * 依据是「最后一次作答的题」→ 续到它的下一题。顺序刷题时与真实位置一致。
  */
 
 /** 池中已有这么多作答记录、而存档 index 却是 0 → 判定位置已失效（旧版覆盖所致） */
@@ -72,13 +86,17 @@ export interface IRestoreResult<T extends IQuestionLike> {
 
 const clampIndex = (i: number, len: number) => Math.max(0, Math.min(i, Math.max(0, len - 1)));
 
+/** 该题是否「答过至少一次」—— 全模块统一的作答判据 */
+const isAnswered = <T extends IQuestionLike>(q: T, perQuestion: Record<string, IStatLike>) =>
+  (perQuestion[q.id]?.attempts ?? 0) > 0;
+
 /** 该池中「答过至少一次」的题数 */
 export function countAnsweredIn<T extends IQuestionLike>(
   order: T[],
   perQuestion: Record<string, IStatLike> = {}
 ): number {
   let n = 0;
-  for (const q of order) if ((perQuestion[q.id]?.attempts ?? 0) > 0) n += 1;
+  for (const q of order) if (isAnswered(q, perQuestion)) n += 1;
   return n;
 }
 
@@ -97,6 +115,42 @@ export function locateByLastAt<T extends IQuestionLike>(
     }
   });
   return bestIdx;
+}
+
+/**
+ * 该池中「第一道还没答过的题」的下标 —— **未答优先**的核心。
+ *
+ * 查找顺序：先扫 [fromIdx, end)，再回头扫 [0, fromIdx)。
+ * 这样连续刷题的用户位置基本不变（下一题本来就没答过），
+ * 而跳着刷 / 位置被错误推断到末尾的用户，会自动被带到真正没刷的地方。
+ *
+ * @returns 下标；若该池已全部答过则返回 -1。
+ */
+export function locateFirstUnanswered<T extends IQuestionLike>(
+  order: T[],
+  perQuestion: Record<string, IStatLike> = {},
+  fromIdx = 0
+): number {
+  if (!order.length) return -1;
+  const start = Math.max(0, Math.min(fromIdx, order.length - 1));
+  for (let i = start; i < order.length; i++) if (!isAnswered(order[i], perQuestion)) return i;
+  for (let i = 0; i < start; i++) if (!isAnswered(order[i], perQuestion)) return i;
+  return -1;
+}
+
+/**
+ * 推断「该从哪里继续刷」：优先未答题，全答过才回落到「最后作答题的下一题」。
+ */
+function inferResumeIndex<T extends IQuestionLike>(
+  order: T[],
+  perQuestion: Record<string, IStatLike>
+): number {
+  const lastIdx = locateByLastAt(order, perQuestion);
+  const fromIdx = lastIdx >= 0 ? lastIdx + 1 : 0;
+  const un = locateFirstUnanswered(order, perQuestion, fromIdx);
+  if (un >= 0) return un;
+  // 全部答过：回到最后作答题的下一题（clamp 到末位）
+  return lastIdx >= 0 ? clampIndex(lastIdx + 1, order.length) : 0;
 }
 
 export function restoreSession<T extends IQuestionLike>(
@@ -148,32 +202,46 @@ export function restoreSession<T extends IQuestionLike>(
     strategy = 'expanded';
     index = clampIndex(prog.index ?? 0, order.length);
   } else {
-    // 有题被删/被替换：只能靠作答时间推断
+    // 有题被删/被替换：只能靠作答记录推断，且**未答优先**
     strategy = 'pruned';
-    const lastIdx = locateByLastAt(order, perQuestion);
-    index = lastIdx >= 0 ? clampIndex(lastIdx + 1, order.length) : 0;
+    index = inferResumeIndex(order, perQuestion);
   }
 
   // 位置失效重建：index=0 但池里已答过不少题，且不是用户主动重置
   if (strategy !== 'pruned' && index === 0 && !prog.resetByUser) {
     const answered = countAnsweredIn(order, perQuestion);
     if (answered >= MIN_ANSWERED_FOR_RELOCATE) {
-      const lastIdx = locateByLastAt(order, perQuestion);
-      if (lastIdx >= 0) {
-        strategy = 'relocated';
-        index = clampIndex(lastIdx + 1, order.length);
+      strategy = 'relocated';
+      index = inferResumeIndex(order, perQuestion);
+    }
+  }
+
+  // ---- 末尾校正：位置落在池末，但池中还有没答过的题 ----
+  // 这类位置几乎都是历史推断写入的（旧版 lastIdx+1 被 clamp 回末位）。
+  // 末尾没有「下一题」可点，使用者会以为已经刷完、实际却卡住，
+  // 因此这里主动把位置带到第一道未答题。
+  let noteOverride: string | null = null;
+  if (strategy === 'exact' || strategy === 'expanded') {
+    const answered = countAnsweredIn(order, perQuestion);
+    const allDone = answered >= order.length;
+    if (!allDone && index >= order.length - 1) {
+      const un = locateFirstUnanswered(order, perQuestion, 0);
+      if (un >= 0 && un !== index) {
+        index = un;
+        noteOverride = `还有 ${order.length - answered} 题没刷过，已跳到第 ${index + 1} 题`;
       }
     }
   }
 
   const note =
-    strategy === 'relocated'
-      ? `已按作答记录续刷到第 ${index + 1}/${order.length} 题`
+    noteOverride ??
+    (strategy === 'relocated'
+      ? `已按作答记录续到第 ${index + 1}/${order.length} 题`
       : strategy === 'expanded'
         ? `题库已扩充至 ${order.length} 题，已保留原进度：第 ${index + 1} 题`
         : strategy === 'pruned'
           ? `题库有变动，已按作答记录定位到第 ${index + 1}/${order.length} 题`
-          : `已恢复上次进度：第 ${index + 1}/${order.length} 题`;
+          : `已恢复上次进度：第 ${index + 1}/${order.length} 题`);
 
   return { order, index, strategy, note };
 }

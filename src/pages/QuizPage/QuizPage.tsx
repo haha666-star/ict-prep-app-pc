@@ -36,7 +36,7 @@ import {
 import { MOCK_QUIZZES, type IQuizQuestion } from '@/data/quizzes';
 import { MOCK_KNOWLEDGE } from '@/data/knowledge';
 import { useQuizRecords, useQuizNotes, useQuizProgress } from '@/hooks/use-storage';
-import { restoreSession } from '@/lib/quiz-progress';
+import { countAnsweredIn, locateFirstUnanswered, restoreSession } from '@/lib/quiz-progress';
 import { DIRECTION_LABELS, DIRECTION_COLORS, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import {
@@ -126,6 +126,21 @@ export default function QuizPage() {
   // （修复：原先错题重做到最后一题答对被移出后 currentIndex 越界白屏）
   const safeIndex = Math.min(currentIndex, Math.max(0, questions.length - 1));
   const currentQuestion = questions[safeIndex];
+
+  // ---- 进度口径（2026-10-14 修订）----
+  // 旧版顶部显示 `currentIndex + 1`（指针位置），卡片显示「已刷 N」（已答集合）。
+  // 两套口径没有必然联系：位置是 restoreSession **推断**出来的，
+  // 可能停在从没刷过的区域，于是出现「顶部 225/225 + 已完成」而「已刷 197」的矛盾。
+  // 现在「进度 / 完成」统一以**已答集合**为唯一真值。
+  const answeredInPool = useMemo(
+    () => countAnsweredIn(questions, records.perQuestion),
+    [questions, records.perQuestion]
+  );
+  const allAnswered = questions.length > 0 && answeredInPool >= questions.length;
+  const firstUnanswered = useMemo(
+    () => (allAnswered ? -1 : locateFirstUnanswered(questions, records.perQuestion, 0)),
+    [questions, records.perQuestion, allAnswered]
+  );
   const isSubmitted = currentQuestion
     ? submittedMap[currentQuestion.id]
     : false;
@@ -859,7 +874,7 @@ export default function QuizPage() {
         <div className="flex-1">
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-muted-foreground font-mono-data">
-              PROGRESS: {currentIndex + 1} / {questions.length}
+              已刷 {answeredInPool} / {questions.length}
             </span>
             <span className="text-cyan-400 font-medium">
               {mode === 'random'
@@ -884,7 +899,7 @@ export default function QuizPage() {
           <div className="relative h-1.5 rounded-full bg-muted/40 overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 rounded-full flow-gradient transition-all duration-300"
-              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+              style={{ width: `${(answeredInPool / questions.length) * 100}%` }}
             />
           </div>
         </div>
@@ -1101,11 +1116,31 @@ export default function QuizPage() {
                           下一题
                           <ChevronRight className="size-4 ml-1" />
                         </Button>
-                      ) : (
+                      ) : allAnswered ? (
                         <Badge className="text-sm px-3 py-1 bg-emerald-500/20 text-emerald-400 border-transparent">
                           <CheckCircle2 className="size-3.5 mr-1" />
                           已完成本模式
                         </Badge>
+                      ) : (
+                        // 末尾但仍有没刷过的题：绝不能显示「已完成」。
+                        // 旧版只看指针到没到末尾，使用者会被误导成「已经刷完」，实际却卡在末题、无处可去。
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-amber-400 font-medium">
+                            还有 {questions.length - answeredInPool} 题没刷过
+                          </span>
+                          <Button
+                            onClick={() => {
+                              if (firstUnanswered >= 0) {
+                                setCurrentIndex(firstUnanswered);
+                                persistIndex(firstUnanswered);
+                              }
+                            }}
+                            className="shadow-[0_0_16px_rgba(0_229_255_0.25)]"
+                          >
+                            去刷未答的题
+                            <ChevronRight className="size-4 ml-1" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </motion.div>
