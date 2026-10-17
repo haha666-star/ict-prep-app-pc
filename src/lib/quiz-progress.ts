@@ -55,6 +55,19 @@
  *
  * 用户主动点「从头开始」时写入 `resetByUser: true`，明确不做位置重建 ——
  * 否则重置后一刷新又被推回旧位置。
+ *
+ * ======================== 文案口径（2026-10-17 修订）========================
+ * 「位置」与「已刷」是两个不同指标：
+ *   位置 = 返回结果里的 `index`（当前停在第几题，指向一道**还没答过**的题）
+ *   已刷 = `countAnsweredIn(list, perQuestion)`（一共答过多少道题）
+ * 两者通常不相等：跨筛选组合作答、跳着刷、题库增删都会让已答集合散开，
+ * 于完全可能出现「已刷 225 道，但停在只排到第 223 题的位置上」。
+ *
+ * 因此提示文案**禁止**用 `第 X / Y 题` 这种分式 —— 它与顶部「已刷 X / Y」同形不同义，
+ * 使用者必然读成"自相矛盾"（2026-10-17 实发）。正确写法：
+ *   · 位置只说 `第 N 题`，不带总数；
+ *   · 同时补 `本组还有 M 题没刷过`，使 已刷 + 没刷 = 总数 在界面上可自行核对。
+ * 该约束由 `probe-progress.mjs` 的「提示文案不得含位置分式」断言兜底。
  */
 
 /** 池中已有这么多作答记录、而存档 index 却是 0 → 判定位置已失效（旧版覆盖所致） */
@@ -220,6 +233,9 @@ export function restoreSession<T extends IQuestionLike>(
   }
 
   const answeredCount = countAnsweredIn(order, perQuestion);
+  /** 还没刷过的题数：让提示里的数字能与顶部「已刷 N / M」自洽核对（N + M = 总数） */
+  const leftCount = order.length - answeredCount;
+  const leftTail = leftCount > 0 ? `，本组还有 ${leftCount} 题没刷过` : '';
   const raw = prog.index ?? 0;
   const inRange = Number.isInteger(raw) && raw >= 0 && raw < order.length;
   let index: number;
@@ -253,17 +269,18 @@ export function restoreSession<T extends IQuestionLike>(
     }
   }
 
+  // 位置类提示一律不带 `/ 总数`：顶部「已刷 X / Y」已占用该形态（见文件头「文案口径」）。
   const note =
     noteOverride ??
     (strategy === 'relocated'
-      ? `已按作答记录续到第 ${index + 1}/${order.length} 题`
+      ? `已按作答记录续到第 ${index + 1} 题${leftTail}`
       : prog.resetByUser && index === 0
         ? '已按「从头开始」从第 1 题开始'
         : strategy === 'expanded'
-          ? `题库已扩充至 ${order.length} 题，已保留原进度：第 ${index + 1} 题`
+          ? `题库已扩充至 ${order.length} 题，已保留原位置：第 ${index + 1} 题${leftTail}`
           : strategy === 'pruned'
-            ? `题库有变动，已按作答记录定位到第 ${index + 1}/${order.length} 题`
-            : `已恢复上次进度：第 ${index + 1}/${order.length} 题`);
+            ? `题库有变动，已按作答记录定位到第 ${index + 1} 题${leftTail}`
+            : `已回到上次停下的第 ${index + 1} 题${leftTail}`);
 
   return { order, index, strategy, note };
 }
