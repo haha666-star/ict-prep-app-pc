@@ -1,4 +1,6 @@
 // 自动生成：华为ICT大赛网络赛道题库扩充（第十届/实践赛，对齐官方考纲权重）
+// 2026-11-07 口径修正：本文件题目为按考纲原创编写（非真题），原 42 处 tag:'real' 已改为 tag:'hot'。
+//       原因：real 是「真题档」筛选口径，只给可追溯出处的题；原创题标 hot（高频考点）才诚实。
 // 由 scripts/gen_questions.py 离线生成，请勿手工编辑
 import type { IQuizQuestion } from './quizzes'
 
@@ -61,7 +63,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: 'display ospf peer',
     explanation: 'display ospf peer 查看邻居及状态（Full/2-Way 等）；interface 看接口成本，lsdb 看链路状态库。',
     knowledgeId: 'datacom-ospf',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-007',
@@ -131,7 +133,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: 'NDP（邻居发现协议）',
     explanation: 'SLAAC 通过 RA（路由器通告）携带前缀，主机据此生成地址；NDP 取代 IPv4 的 ARP，提供地址解析与邻居发现。',
     knowledgeId: 'datacom-ipv6-basic',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-014',
@@ -331,7 +333,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '桥 ID（优先级+MAC）最小',
     explanation: '桥 ID = 桥优先级（默认 32768）+ MAC；越小越优，优先选举为根桥。',
     knowledgeId: 'datacom-stp',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-034',
@@ -351,7 +353,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: 'MSTP 域配置视图',
     explanation: 'MSTP 域配置视图下用 instance <id> vlan <list> 映射 VLAN 到实例，三要素（域名/修订级/映射）一致才同域。',
     knowledgeId: 'datacom-mstp',
-    direction: 'datacom', difficulty: 'IP', tag: 'real',
+    direction: 'datacom', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx-dc-036',
@@ -401,7 +403,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '192.168.10.0',
     explanation: '子网 192.168.10.0/24 按 /26 划分：块大小=2^(32-26)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-041',
@@ -411,7 +413,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '192.168.10.63',
     explanation: '子网 192.168.10.0/24 按 /26 划分：块大小=2^(32-26)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-042',
@@ -421,7 +423,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '62',
     explanation: '子网 192.168.10.0/24 按 /26 划分：块大小=2^(32-26)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-043',
@@ -431,7 +433,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '4',
     explanation: '子网 192.168.10.0/24 按 /26 划分：块大小=2^(32-26)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-044',
@@ -441,7 +443,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '256',
     explanation: '子网 10.0.0.0/16 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-045',
@@ -451,7 +453,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '254',
     explanation: '子网 10.0.0.0/16 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-046',
@@ -461,7 +463,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '16',
     explanation: '子网 172.16.0.0/20 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-047',
@@ -471,7 +473,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '254',
     explanation: '子网 172.16.0.0/20 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-048',
@@ -481,7 +483,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '2',
     explanation: '子网 192.168.1.0/24 按 /30 划分：块大小=2^(32-30)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-049',
@@ -491,7 +493,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '64',
     explanation: '子网 192.168.1.0/24 按 /30 划分：块大小=2^(32-30)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-050',
@@ -501,7 +503,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '14',
     explanation: '子网 192.168.1.0/24 按 /28 划分：块大小=2^(32-28)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-051',
@@ -511,7 +513,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '16',
     explanation: '子网 192.168.1.0/24 按 /28 划分：块大小=2^(32-28)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-052',
@@ -521,7 +523,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '4',
     explanation: '子网 10.10.0.0/22 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-053',
@@ -531,7 +533,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '254',
     explanation: '子网 10.10.0.0/22 按 /24 划分：块大小=2^(32-24)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-054',
@@ -541,7 +543,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '8',
     explanation: '子网 200.1.1.0/24 按 /27 划分：块大小=2^(32-27)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-055',
@@ -551,7 +553,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '30',
     explanation: '子网 200.1.1.0/24 按 /27 划分：块大小=2^(32-27)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-056',
@@ -561,7 +563,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '192.168.100.0',
     explanation: '子网 192.168.100.0/24 按 /25 划分：块大小=2^(32-25)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-057',
@@ -571,7 +573,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '192.168.100.127',
     explanation: '子网 192.168.100.0/24 按 /25 划分：块大小=2^(32-25)，可用主机=块-2，子网数=原块/新块。',
     knowledgeId: 'datacom-ip-subnet',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-058',
@@ -641,7 +643,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '按规则 ID 从小到大',
     explanation: '华为 ACL 缺省按规则 ID 升序匹配，命中即执行；ACL 本身不生效，须被 traffic-filter/route-policy 等调用。',
     knowledgeId: 'datacom-acl',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-064',
@@ -721,7 +723,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: 'SNMP=161/TCP',
     explanation: 'SNMP Agent 用 UDP 161（Trap 用 UDP 162），不是 TCP。',
     knowledgeId: 'datacom-application-layer',
-    direction: 'datacom', difficulty: 'IA', tag: 'real',
+    direction: 'datacom', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-dc-072',
@@ -791,7 +793,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '192.168.0.1/24',
     explanation: '华为防火墙出厂 G0/0/0 管理口默认 IP 192.168.0.1/24，用于首次 Web/SSH 登录管理。',
     knowledgeId: 'security-firewall-basic',
-    direction: 'security', difficulty: 'IA', tag: 'real',
+    direction: 'security', difficulty: 'IA', tag: 'hot',
   },
   {
     id: 'nx-se-008',
@@ -841,7 +843,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '50',
     explanation: 'ESP 协议号 50，AH 协议号 51；GRE 47，OSPF 89。',
     knowledgeId: 'security-ipsec',
-    direction: 'security', difficulty: 'IP', tag: 'real',
+    direction: 'security', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx-se-013',
@@ -881,7 +883,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: 'UDP 1812/1813（认证/计费）',
     explanation: 'RADIUS 基于 UDP，认证 1812、计费 1813（旧 1645/1646）；与 TACACS+（TCP 49）不同。',
     knowledgeId: 'security-auth',
-    direction: 'security', difficulty: 'IP', tag: 'real',
+    direction: 'security', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx-se-017',
@@ -1081,7 +1083,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '信任端口（trusted）',
     explanation: '信任端口放行的 DHCP Offer/Ack 来自合法服务器；非信任端口的服务器响应被丢弃，防私接 DHCP。',
     knowledgeId: 'security-dhcp-snooping',
-    direction: 'security', difficulty: 'IP', tag: 'real',
+    direction: 'security', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx-se-037',
@@ -1201,7 +1203,7 @@ export const EXTRA_QUIZZES_D: IQuizQuestion[] = [
     answer: '静态路由指向 AC',
     explanation: 'AP 发现 AC：二层广播、三层单播、DHCP Option 43、DNS 域名；静态路由不是发现机制。',
     knowledgeId: 'wlan-sta-online',
-    direction: 'wlan', difficulty: 'IP', tag: 'real',
+    direction: 'wlan', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx-wl-008',

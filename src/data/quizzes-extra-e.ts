@@ -1,4 +1,6 @@
 // 自动生成：华为ICT大赛网络赛道题库 v7 扩充（冲刺国家一等奖，补 WLAN/安全/数通 IE 深度）
+// 2026-11-07 口径修正：本文件题目为按考纲原创编写（非真题），原 42 处 tag:'real' 已改为 tag:'hot'。
+//       原因：real 是「真题档」筛选口径，只给可追溯出处的题；原创题标 hot（高频考点）才诚实。
 // 由 scripts/gen_questions_v7.py 离线生成，请勿手工编辑
 import type { IQuizQuestion } from './quizzes'
 
@@ -31,7 +33,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '10bit/符号，速率提升约 25%',
     explanation: '1024-QAM 每符号 10bit，256-QAM 为 8bit；同条件下速率提升约 25%，但需更好的信噪比。',
     knowledgeId: 'wlan-wifi6',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-004',
@@ -81,7 +83,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '1、6、11',
     explanation: '2.4GHz 每信道 20MHz，1/6/11 互不重叠（信道中心频率间隔 25MHz）；14 信道仅日本可用。',
     knowledgeId: 'wlan-standard',
-    direction: 'wlan', difficulty: 'IP', tag: 'real',
+    direction: 'wlan', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx7-wl-009',
@@ -91,7 +93,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '52~64',
     explanation: '5G 中 52/56/60/64（以及 100~144）为 DFS 信道，需动态频率选择避让雷达；36~48、149~165 为非 DFS。',
     knowledgeId: 'wlan-standard',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-010',
@@ -151,7 +153,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '控制 UDP 5246、数据 UDP 5247',
     explanation: 'CAPWAP 控制隧道用 UDP 5246 承载配置/管理，数据隧道用 UDP 5247 承载用户数据（隧道转发模式）。',
     knowledgeId: 'wlan-sta-online',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-016',
@@ -171,7 +173,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: 'Option 43',
     explanation: 'Option 43 在 DHCP 应答中携带 AC 的 IP 列表供 AP 发现 AC（Option 82 用于中继信息）。',
     knowledgeId: 'wlan-sta-online',
-    direction: 'wlan', difficulty: 'IP', tag: 'real',
+    direction: 'wlan', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx7-wl-018',
@@ -351,7 +353,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: 'Personal 用 PSK，Enterprise 用 802.1X 集中认证',
     explanation: 'WPA2-Personal 使用 PSK 简单但密钥共享；Enterprise 通过 802.1X+EAP+RADIUS 实现每用户独立认证与密钥。',
     knowledgeId: 'wlan-security',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-036',
@@ -471,7 +473,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '管理帧',
     explanation: '802.11 帧分管理帧（关联/认证/Beacon/探测）、控制帧（RTS/CTS/ACK）、数据帧（承载上层数据）。',
     knowledgeId: 'wlan-standard',
-    direction: 'wlan', difficulty: 'IP', tag: 'real',
+    direction: 'wlan', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx7-wl-048',
@@ -501,7 +503,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '扫描 → 认证 → 关联 → 密钥协商 → 接入',
     explanation: '终端先扫描发现 SSID，进行链路认证(开放/共享)、关联，再做安全认证与密钥协商后接入。',
     knowledgeId: 'wlan-sta-online',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-051',
@@ -611,7 +613,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '客户端(Supplicant)、认证设备、认证服务器',
     explanation: '802.1X 三要素：终端客户端、认证设备(AP/交换机)、认证服务器(RADIUS)，AP 作为认证设备转发 EAP 报文。',
     knowledgeId: 'wlan-security',
-    direction: 'wlan', difficulty: 'IE', tag: 'real',
+    direction: 'wlan', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-wl-062',
@@ -831,7 +833,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: 'IPSec 站点到站点',
     explanation: 'SSL VPN 接入方式：Web（无客户端）、网络扩展（需客户端，全网络访问）、端口转发；站点到站点属 IPSec VPN。',
     knowledgeId: 'security-ssl-vpn',
-    direction: 'security', difficulty: 'IE', tag: 'real',
+    direction: 'security', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-se-011',
@@ -871,7 +873,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '交换机或 AP',
     explanation: '802.1X 三要素：Supplicant(终端)、Authenticator(交换机/AP)、Authentication Server(RADIUS)。',
     knowledgeId: 'security-8021x',
-    direction: 'security', difficulty: 'IE', tag: 'real',
+    direction: 'security', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-se-015',
@@ -911,7 +913,7 @@ export const EXTRA_QUIZZES_E: IQuizQuestion[] = [
     answer: '完整性与不可否认性',
     explanation: '数字签名用私钥签名、公钥验证，保证完整性与不可否认；机密性由加密保证。',
     knowledgeId: 'security-pki',
-    direction: 'security', difficulty: 'IE', tag: 'real',
+    direction: 'security', difficulty: 'IE', tag: 'hot',
   },
   {
     id: 'nx7-se-019',

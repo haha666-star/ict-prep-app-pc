@@ -2,6 +2,8 @@
 """
 华为ICT大赛 网络赛道 题库扩充生成器（第十届/实践赛，对齐官方考纲权重）
 - 输入：手工编写的"事实库"（题目文本由人把关，保证准确性）
+- 标签口径（2026-11-07 修正）：本文件产出的题均为按考纲原创编写，一律 tag='hot'（高频考点）；
+  tag='real' 只给有可追溯出处的真题，绝不用于原创题。
 - 输出：src/data/quizzes-extra-d.ts （标准 IQuizQuestion[]）
 - 校验：所有 knowledgeId 必须存在于 knowledge.ts / knowledge-extra.ts
 - 去重：题干完全相同的只保留一条
@@ -96,7 +98,7 @@ add('single', 'OSPF 中，ABR（区域边界路由器）是指？', ['连接 OSP
 add('single', 'OSPF 网络中，DR（指定路由器）的作用是？', ['减少广播型链路上邻接关系数量与 LSA 泛洪', '加快链路故障检测', '负责区域间路由计算', '分配 IP 地址'],
     '减少广播型链路上邻接关系数量与 LSA 泛洪', '广播/NBMA 网段选举 DR/BDR，其他路由器只与 DR/BDR 建立全邻接，降低邻接数与 LSA 泛洪。', 'datacom-ospf', 'IA', 'hot')
 add('single', '在华为设备上查看 OSPF 邻居状态的命令是？', ['display ospf peer', 'display ospf interface', 'display ip routing-table', 'display ospf lsdb'],
-    'display ospf peer', 'display ospf peer 查看邻居及状态（Full/2-Way 等）；interface 看接口成本，lsdb 看链路状态库。', 'datacom-ospf', 'IA', 'real')
+    'display ospf peer', 'display ospf peer 查看邻居及状态（Full/2-Way 等）；interface 看接口成本，lsdb 看链路状态库。', 'datacom-ospf', 'IA', 'hot')
 add('single', 'OSPF 邻接关系建立到 Full 状态，表示？', ['邻居发现完成', '数据库同步完成，可计算路由', '仅完成 DR 选举', '链路连通但无路由'],
     '数据库同步完成，可计算路由', 'OSPF 状态机：Down→Init→2-Way→ExStart→Exchange→Loading→Full；Full 表示 LSDB 同步完成。', 'datacom-ospf', 'IP')
 add('judge', 'OSPF 属于距离矢量路由协议，依靠跳数作为度量值。', False,
@@ -117,7 +119,7 @@ add('single', 'OSPFv3 用于 IPv6，与 OSPFv2 相比，其主要区别不包括
 add('single', 'IPv6 链路本地地址的前缀是？', ['FE80::/10', 'FC00::/7', '2001::/16', 'FF00::/8'], 'FE80::/10',
     '链路本地地址 FE80::/10，仅在本地链路有效，用于邻居发现与路由协议邻居建立；FC00::/7 为唯一本地地址 ULA。', 'datacom-ipv6-basic', 'IA', 'hot')
 add('single', 'IPv6 无状态地址自动配置（SLAAC）依赖的协议是？', ['DHCPv6', 'NDP（邻居发现协议）', 'ARP', 'ICMPv4'], 'NDP（邻居发现协议）',
-    'SLAAC 通过 RA（路由器通告）携带前缀，主机据此生成地址；NDP 取代 IPv4 的 ARP，提供地址解析与邻居发现。', 'datacom-ipv6-basic', 'IA', 'real')
+    'SLAAC 通过 RA（路由器通告）携带前缀，主机据此生成地址；NDP 取代 IPv4 的 ARP，提供地址解析与邻居发现。', 'datacom-ipv6-basic', 'IA', 'hot')
 add('judge', 'IPv6 仍使用 ARP 协议进行 IP 到 MAC 的地址解析。', False,
     'IPv6 用 NDP（邻居发现协议）的 NS/NA 报文取代 ARP；IPv4 才用 ARP。', 'datacom-ipv6-basic', 'IA')
 add('single', 'IPv6 地址 2001:0DB8:0000:0000:0000:0000:0000:0001 压缩后正确的是？',
@@ -166,12 +168,12 @@ add('single', 'VLAN 的 12bit VLAN ID 可用的 VLAN 号范围是？', ['0-4095�
 add('single', '生成树协议中，处于阻塞（Blocking/Discarding）状态的端口？', ['不转发数据但接收 BPDU', '转发数据', '学习 MAC 地址', '发送 BPDU'],
     '不转发数据但接收 BPDU', '阻塞端口接收并处理 BPDU 以维护拓扑，但不转发用户数据、不学习 MAC（Discarding 状态）。', 'datacom-stp', 'IA', 'hot')
 add('single', 'STP 的根桥选举依据是？', ['桥 ID（优先级+MAC）最小', '端口 ID 最小', 'IP 地址最小', '随机'],
-    '桥 ID（优先级+MAC）最小', '桥 ID = 桥优先级（默认 32768）+ MAC；越小越优，优先选举为根桥。', 'datacom-stp', 'IA', 'real')
+    '桥 ID（优先级+MAC）最小', '桥 ID = 桥优先级（默认 32768）+ MAC；越小越优，优先选举为根桥。', 'datacom-stp', 'IA', 'hot')
 add('judge', 'RSTP 中，Alternate 端口是根端口的备份，Backup 端口是指定端口的备份。', True,
     'RSTP 引入角色：Alternate 备份到根路径（根端口备选），Backup 备份到网段（指定端口备选），加快收敛。', 'datacom-stp', 'IP')
 add('single', 'MSTP 要将多个 VLAN 映射到同一生成树实例，应在哪个视图下配置？',
     ['stp region-configuration', 'vlan batch', 'interface', 'ospf'], 'stp region-configuration',
-    'MSTP 域配置视图下用 instance <id> vlan <list> 映射 VLAN 到实例，三要素（域名/修订级/映射）一致才同域。', 'datacom-mstp', 'IP', 'real')
+    'MSTP 域配置视图下用 instance <id> vlan <list> 映射 VLAN 到实例，三要素（域名/修订级/映射）一致才同域。', 'datacom-mstp', 'IP', 'hot')
 add('judge', 'Super-VLAN（VLAN 聚合）的 Sub-VLAN 之间二层互通，无需任何配置。', False,
     'Sub-VLAN 间二层隔离，需开启 VLAN 间 ARP 代理（arp-proxy intra-sub-vlan-proxy）才能经 Super-VLAN 三层互通。', 'datacom-vlan-aggregate', 'IP', 'hot')
 
@@ -238,7 +240,7 @@ SUB_NETS = [
 ]
 for (nw, p, hp, a) in SUB_NETS:
     q, opts, ans = subnet_q(nw, p, hp, a)
-    add('single', q, opts, ans, f"子网 {nw}/{p} 按 /{hp} 划分：块大小=2^(32-{hp})，可用主机=块-2，子网数=原块/新块。", 'datacom-ip-subnet', 'IA', 'real')
+    add('single', q, opts, ans, f"子网 {nw}/{p} 按 /{hp} 划分：块大小=2^(32-{hp})，可用主机=块-2，子网数=原块/新块。", 'datacom-ip-subnet', 'IA', 'hot')
 
 # --- NAT ---
 add('single', '华为设备上，将私网地址转换为公网地址出 Internet，应配置？', ['NAT Outbound（Easy-IP 或地址池）', 'NAT Server', '静态 NAT 一对一', 'NAT ALG'],
@@ -259,7 +261,7 @@ add('judge', 'DHCP Snooping 信任端口应当指向合法 DHCP 服务器方向�
 add('single', '华为基本 ACL（2000-2999）只能匹配？', ['源 IP 地址', '源和目的 IP', 'TCP/UDP 端口号', '协议号'], '源 IP 地址',
     '基本 ACL 编号 2000-2999 仅匹配源 IP；高级 ACL 3000-3999 可匹配源/目的 IP、协议、端口等。', 'datacom-acl', 'IA', 'hot')
 add('single', 'ACL 规则匹配顺序是？', ['按规则 ID 从小到大', '按配置先后', '随机', '按动作 deny 优先'], '按规则 ID 从小到大',
-    '华为 ACL 缺省按规则 ID 升序匹配，命中即执行；ACL 本身不生效，须被 traffic-filter/route-policy 等调用。', 'datacom-acl', 'IA', 'real')
+    '华为 ACL 缺省按规则 ID 升序匹配，命中即执行；ACL 本身不生效，须被 traffic-filter/route-policy 等调用。', 'datacom-acl', 'IA', 'hot')
 
 # --- 链路聚合 / 堆叠 ---
 add('single', '华为链路聚合 LACP 模式下，主动端由什么决定？', ['系统优先级最小且 MAC 最小', '端口号最小', 'IP 地址', '随机'],
@@ -285,7 +287,7 @@ add('single', 'NQA（网络质量分析）常被用来？', ['探测链路时延
 add('single', 'DNS 协议使用的端口与传输层协议是？', ['53/UDP+TCP', '53/UDP 仅', '443/TCP', '67/UDP'], '53/UDP+TCP',
     'DNS 查询多用 UDP 53，区域传送与超大响应用 TCP 53。', 'datacom-application-layer', 'IA', 'hot')
 add('single', '下列端口对应错误的是？', ['HTTPS=443/TCP', 'SSH=22/TCP', 'Telnet=23/TCP', 'SNMP=161/TCP'], 'SNMP=161/TCP',
-    'SNMP Agent 用 UDP 161（Trap 用 UDP 162），不是 TCP。', 'datacom-application-layer', 'IA', 'real')
+    'SNMP Agent 用 UDP 161（Trap 用 UDP 162），不是 TCP。', 'datacom-application-layer', 'IA', 'hot')
 add('judge', 'IP 协议号 89 用于 OSPF，协议号 6 用于 TCP，协议号 17 用于 UDP。', True,
     '常见协议号：ICMP=1、TCP=6、UDP=17、OSPF=89、GRE=47、ESP=50、AH=51。', 'datacom-application-layer', 'IA', 'hot')
 
@@ -305,7 +307,7 @@ add('single', '华为防火墙的安全策略匹配顺序是？', ['按规则 ID
 add('single', '防火墙缺省对未匹配任何安全策略的跨域报文处理是？', ['拒绝（default deny）', '允许', '记录日志后放行', '重定向'],
     '拒绝（default deny）', '防火墙遵循"缺省拒绝"原则，未命中允许策略的跨域报文被丢弃，符合最小权限安全模型。', 'security-firewall-basic', 'IA')
 add('single', '华为防火墙缺省管理接口 G0/0/0 的 IP 地址通常是？', ['192.168.0.1/24', '10.0.0.1/24', '172.16.0.1/24', '192.168.1.1/24'],
-    '192.168.0.1/24', '华为防火墙出厂 G0/0/0 管理口默认 IP 192.168.0.1/24，用于首次 Web/SSH 登录管理。', 'security-firewall-basic', 'IA', 'real')
+    '192.168.0.1/24', '华为防火墙出厂 G0/0/0 管理口默认 IP 192.168.0.1/24，用于首次 Web/SSH 登录管理。', 'security-firewall-basic', 'IA', 'hot')
 
 # --- IPSec VPN ---
 add('single', 'IPSec 用于加密保护 IP 层通信，其中只提供认证与完整性、不加密载荷的协议是？', ['AH（51）', 'ESP（50）', 'IKE', 'GRE'],
@@ -317,7 +319,7 @@ add('judge', 'IPSec 隧道模式会在原始 IP 报文外再封装一个新的 I
 add('single', 'IKEv1 阶段 1 的"主模式（Main Mode）"共交换几条消息？', ['6 条', '3 条', '2 条', '9 条'],
     '6 条', '主模式 6 条消息（3 次交互）完成身份保护下的 SA 协商；野蛮模式（Aggressive）仅 3 条，身份明文暴露。', 'security-ipsec', 'IE')
 add('single', 'IPSec 的 ESP 协议号是？', ['50', '51', '47', '89'], '50',
-    'ESP 协议号 50，AH 协议号 51；GRE 47，OSPF 89。', 'security-ipsec', 'IP', 'real')
+    'ESP 协议号 50，AH 协议号 51；GRE 47，OSPF 89。', 'security-ipsec', 'IP', 'hot')
 
 # --- SSL VPN ---
 add('single', 'SSL VPN 相较于 IPSec VPN 的突出优点是？', ['基于 HTTPS（TCP 443），无需安装专用客户端', '加密强度更高', '必须专线', '只能用于站点到站点'],
@@ -329,7 +331,7 @@ add('judge', 'SSL VPN 只能提供 Web 代理一种资源访问方式。', False
 add('single', '802.1X 认证的三元组（架构角色）不包括？', ['认证客户端（Supplicant）', '认证者（Authenticator，如交换机）', '认证服务器（如 RADIUS）', '防火墙'],
     '防火墙', '802.1X 三元组：客户端、认证者（接入设备）、认证服务器（RADIUS/AAA）；防火墙不是 802.1X 角色。', 'security-8021x', 'IP', 'hot')
 add('single', 'RADIUS 协议使用的传输层协议与端口是？', ['UDP 1812/1813（认证/计费）', 'TCP 1812', 'UDP 1645/1646', 'TCP 53'],
-    'UDP 1812/1813（认证/计费）', 'RADIUS 基于 UDP，认证 1812、计费 1813（旧 1645/1646）；与 TACACS+（TCP 49）不同。', 'security-auth', 'IP', 'real')
+    'UDP 1812/1813（认证/计费）', 'RADIUS 基于 UDP，认证 1812、计费 1813（旧 1645/1646）；与 TACACS+（TCP 49）不同。', 'security-auth', 'IP', 'hot')
 add('single', '802.1X 端口的"强制授权（authorized）"状态表示？', ['端口无条件放行，无需认证', '端口拒绝所有', '仅放行访客 VLAN', '端口关闭'],
     '端口无条件放行，无需认证', '端口授权状态：auto（按认证结果）、force-authorized（强制放行）、force-unauthorized（强制拒绝）。', 'security-8021x', 'IP')
 add('judge', 'MAC 地址认证无需客户端软件，设备根据终端 MAC 地址到 RADIUS 认证。', True,
@@ -379,7 +381,7 @@ add('single', 'IP Source Guard（IPSG）依赖什么表项来校验 IP+MAC 合�
 add('judge', '动态 ARP 检测（DAI）基于 DHCP Snooping 绑定表校验 ARP 报文，可防范 ARP 欺骗。', True,
     'DAI 在 VLAN 内检查 ARP 请求/应答的 IP-MAC 绑定是否与 Snooping 表一致，阻断伪造 ARP，防中间人。', 'security-dhcp-snooping', 'IP', 'hot')
 add('single', '部署 DHCP Snooping 时，连接合法 DHCP 服务器的端口应当配置为？', ['信任端口（trusted）', '非信任端口', '关闭端口', '镜像端口'],
-    '信任端口（trusted）', '信任端口放行的 DHCP Offer/Ack 来自合法服务器；非信任端口的服务器响应被丢弃，防私接 DHCP。', 'security-dhcp-snooping', 'IP', 'real')
+    '信任端口（trusted）', '信任端口放行的 DHCP Offer/Ack 来自合法服务器；非信任端口的服务器响应被丢弃，防私接 DHCP。', 'security-dhcp-snooping', 'IP', 'hot')
 
 # --- 防火墙高级 ---
 add('single', '华为防火墙虚拟系统（Vsys）的主要作用是？', ['一台物理防火墙虚拟为多台逻辑防火墙，资源与配置隔离', '替代路由表', '做负载均衡', '加密磁盘'],
@@ -417,7 +419,7 @@ add('judge', 'Wi-Fi 6 的 TWT（目标唤醒时间）可让终端按需唤醒，
 add('single', 'FIT AP 与 AC 之间建立 CAPWAP 隧道，控制报文使用的 UDP 端口是？', ['5246', '5247', '1812', '443'], '5246',
     'CAPWAP 控制隧道 UDP 5246，数据隧道 UDP 5247；二者分离，控制负责管理、数据负责用户流量。', 'wlan-sta-online', 'IP', 'hot')
 add('single', 'FIT AP 发现 AC 的方式不包括？', ['静态路由指向 AC', '二层广播发现', '三层单播发现', 'DHCP Option 43 / DNS 域名'],
-    '静态路由指向 AC', 'AP 发现 AC：二层广播、三层单播、DHCP Option 43、DNS 域名；静态路由不是发现机制。', 'wlan-sta-online', 'IP', 'real')
+    '静态路由指向 AC', 'AP 发现 AC：二层广播、三层单播、DHCP Option 43、DNS 域名；静态路由不是发现机制。', 'wlan-sta-online', 'IP', 'hot')
 add('judge', 'FAT AP 可独立工作、自带配置与转发，无需 AC 管理；FIT AP 需受 AC 集中管理。', True,
     'FAT（自治型）AP 独立运行；FIT（瘦）AP 由 AC 统一下发配置与转发决策，便于大规模运维。', 'wlan-arch', 'IA', 'hot')
 add('single', 'STA（终端）接入 WLAN 的典型流程顺序是？', ['扫描→认证→关联→DHCP 获取 IP→上网', '关联→扫描→认证→DHCP', '认证→DHCP→扫描→关联', 'DHCP→扫描→关联→认证'],

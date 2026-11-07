@@ -1,4 +1,6 @@
 // 自动生成：华为ICT大赛网络赛道题库 v7b 扩充（DCN 省赛专项，补齐省赛 20% 权重）
+// 2026-11-07 口径修正：本文件题目为按考纲原创编写（非真题），原 42 处 tag:'real' 已改为 tag:'hot'。
+//       原因：real 是「真题档」筛选口径，只给可追溯出处的题；原创题标 hot（高频考点）才诚实。
 // 由 scripts/gen_questions_v7b.py 离线生成，请勿手工编辑
 import type { IQuizQuestion } from './quizzes'
 
@@ -181,7 +183,7 @@ export const EXTRA_QUIZZES_F: IQuizQuestion[] = [
     answer: '4789',
     explanation: 'VXLAN 默认 UDP 目的端口 4789（IANA 分配），部分实现可自定义。',
     knowledgeId: 'dcn-vxlan-basic',
-    direction: 'dcn', difficulty: 'IP', tag: 'real',
+    direction: 'dcn', difficulty: 'IP', tag: 'hot',
   },
   {
     id: 'nx8-dn-019',

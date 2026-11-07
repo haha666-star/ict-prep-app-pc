@@ -19,6 +19,7 @@ import { EXTRA_QUIZZES_EXPAND_G } from './quizzes-expand-g'
 import { EXTRA_QUIZZES_EXPAND_H } from './quizzes-expand-h'
 import { EXTRA_QUIZZES_CLOUD_A } from './quizzes-cloud-a'
 import { EXTRA_QUIZZES_CLOUD_B } from './quizzes-cloud-b'
+import { EXTRA_QUIZZES_REAL_2024_MULTI } from './quizzes-real-2024-multi'
 import { QUIZ_MNEMONIC } from './quiz-mnemonics'
 import { stableShuffleOptions } from '../lib/options'
 
@@ -3689,6 +3690,9 @@ const RAW_QUIZZES: IQuizQuestion[] = [
   // ==================== 云/算力/园区网叶子知识点三题型补齐（2026-11-07，全部为原创练习题，tag: hot） ====================
   ...EXTRA_QUIZZES_CLOUD_A,
   ...EXTRA_QUIZZES_CLOUD_B,
+
+  // ==================== 2026-11-07 省赛真题补充批次（33 道，第三方公开整理、可追溯出处） ====================
+  ...EXTRA_QUIZZES_REAL_2024_MULTI,
 ];
 
 // 选项顺序稳定打乱：消除"正确答案集中在 A/B"的位置偏斜（按题号定种子，顺序稳定）

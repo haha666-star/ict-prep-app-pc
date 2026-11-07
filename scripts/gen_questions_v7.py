@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 华为ICT大赛 网络赛道 题库 v7 扩充生成器（冲刺国家一等奖）
-- 重点：补齐国赛 25% 的 WLAN 权重缺口 + 提升 IE 层深度 + 高命中（真题/高频）标注
+- 重点：补齐国赛 25% 的 WLAN 权重缺口 + 提升 IE 层深度 + 高频考点标注
 - 输出：src/data/quizzes-extra-e.ts
 - 全局去重：与已验证题库(quizzes*.ts)题干比对，重复的不写入
 - 校验：knowledgeId 必须存在；答案必须在选项中
@@ -87,7 +87,7 @@ add('single', '802.11be（Wi-Fi 7）相比 Wi-Fi 6 的关键增强不包括？',
     '引入 OFDMA', 'OFDMA 是 Wi-Fi 6（802.11ax）引入的；Wi-Fi 7 在 OFDMA 基础上新增 MLO、320MHz、4096-QAM、Multi-RU 等。', 'wlan-standard', 'IE', 'hot')
 add('single', 'Wi-Fi 6 的 1024-QAM 相比 Wi-Fi 5 的 256-QAM，单符号承载位数与速率提升约为？',
     ['10bit/符号，速率提升约 25%', '8bit/符号，速率提升约 10%', '12bit/符号，速率提升约 50%', '与 256-QAM 相同'],
-    '10bit/符号，速率提升约 25%', '1024-QAM 每符号 10bit，256-QAM 为 8bit；同条件下速率提升约 25%，但需更好的信噪比。', 'wlan-wifi6', 'IE', 'real')
+    '10bit/符号，速率提升约 25%', '1024-QAM 每符号 10bit，256-QAM 为 8bit；同条件下速率提升约 25%，但需更好的信噪比。', 'wlan-wifi6', 'IE', 'hot')
 add('single', 'Wi-Fi 6 中 OFDMA 技术的核心作用是？', ['将信道划分为多个资源单元(RU)，多用户并行传输降低时延', '提升单用户峰值速率', '扩大覆盖范围', '加密用户数据'],
     '将信道划分为多个资源单元(RU)，多用户并行传输降低时延', 'OFDMA 把信道细分为 RU 分配给不同用户，实现多用户并行，显著改善多用户场景时延与效率。', 'wlan-wifi6', 'IE', 'hot')
 add('single', '802.11ax 中 MU-MIMO 与 Wi-Fi 5 的差别是？', ['Wi-Fi 6 支持上下行 MU-MIMO', '仅支持下行', '仅支持上行', '不支持下行的 MIMO'],
@@ -97,9 +97,9 @@ add('single', 'BSS Coloring（BSS 着色）技术的主要作用是？', ['为�
 add('single', 'TWT（Target Wake Time，目标唤醒时间）的主要作用是？', ['终端与 AP 协商唤醒时间，降低功耗延长电池寿命', '提升峰值速率', '扩大覆盖', '增加信道带宽'],
     '终端与 AP 协商唤醒时间，降低功耗延长电池寿命', 'TWT 让终端与 AP 约定唤醒/休眠周期，减少空口竞争与监听时间，是 IoT/低功耗场景的关键节能机制。', 'wlan-wifi6', 'IE')
 add('single', '在中国，2.4GHz 频段可用的三个完全不重叠信道是？', ['1、6、11', '1、5、9', '1、6、11、14', '2、7、12'], '1、6、11',
-    '2.4GHz 每信道 20MHz，1/6/11 互不重叠（信道中心频率间隔 25MHz）；14 信道仅日本可用。', 'wlan-standard', 'IP', 'real')
+    '2.4GHz 每信道 20MHz，1/6/11 互不重叠（信道中心频率间隔 25MHz）；14 信道仅日本可用。', 'wlan-standard', 'IP', 'hot')
 add('single', '在中国，5GHz 频段中属于 DFS（需避让雷达）的信道是？', ['52~64', '36~48', '149~165', '所有 5G 信道'],
-    '52~64', '5G 中 52/56/60/64（以及 100~144）为 DFS 信道，需动态频率选择避让雷达；36~48、149~165 为非 DFS。', 'wlan-standard', 'IE', 'real')
+    '52~64', '5G 中 52/56/60/64（以及 100~144）为 DFS 信道，需动态频率选择避让雷达；36~48、149~165 为非 DFS。', 'wlan-standard', 'IE', 'hot')
 add('single', '关于 dBm 与功率换算，下列正确的是？', ['0dBm=1mW，30dBm=1W', '0dBm=0mW', '20dBm=1W', '10dBm=100mW'],
     '0dBm=1mW，30dBm=1W', 'dBm 是以 1mW 为基准的对数单位：0dBm=1mW，10dBm=10mW，20dBm=100mW，30dBm=1000mW=1W。', 'wlan-rf', 'IE', 'hot')
 add('single', 'AP 的 EIRP（等效全向辐射功率）等于？', ['发射功率 + 天线增益 - 馈线损耗', '发射功率 - 天线增益', '发射功率 × 天线增益', '仅等于发射功率'],
@@ -113,11 +113,11 @@ add('single', 'WLAN 中，2.4GHz 邻频干扰严重的主要原因是？', ['信
 
 # --- WLAN 架构 / CAPWAP / STA 上线 ---
 add('single', 'CAPWAP 协议中，控制隧道与数据隧道分别使用的端口是？', ['控制 UDP 5246、数据 UDP 5247', '控制 TCP 5246、数据 TCP 5247', '均使用 UDP 5246', '控制 UDP 5247、数据 UDP 5246'],
-    '控制 UDP 5246、数据 UDP 5247', 'CAPWAP 控制隧道用 UDP 5246 承载配置/管理，数据隧道用 UDP 5247 承载用户数据（隧道转发模式）。', 'wlan-sta-online', 'IE', 'real')
+    '控制 UDP 5246、数据 UDP 5247', 'CAPWAP 控制隧道用 UDP 5246 承载配置/管理，数据隧道用 UDP 5247 承载用户数据（隧道转发模式）。', 'wlan-sta-online', 'IE', 'hot')
 add('single', 'FIT AP 上线流程的正确顺序是？', ['获取 IP → 发现 AC → CAPWAP 建链 → 版本同步 → 配置下发 → 上线', '发现 AC → 获取 IP → 上线 → 配置下发', '获取 IP → 上线 → 版本同步', 'CAPWAP 建链 → 获取 IP → 上线'],
     '获取 IP → 发现 AC → CAPWAP 建链 → 版本同步 → 配置下发 → 上线', 'AP 先通过 DHCP 获取 IP，再以静态/广播/DHCP Option43/DNS 发现 AC，建立 CAPWAP 隧道，同步版本后获取配置并上线。', 'wlan-sta-online', 'IE', 'hot')
 add('single', 'AP 通过 DHCP 发现 AC 地址常用的 Option 是？', ['Option 43', 'Option 82', 'Option 60', 'Option 150'], 'Option 43',
-    'Option 43 在 DHCP 应答中携带 AC 的 IP 列表供 AP 发现 AC（Option 82 用于中继信息）。', 'wlan-sta-online', 'IP', 'real')
+    'Option 43 在 DHCP 应答中携带 AC 的 IP 列表供 AP 发现 AC（Option 82 用于中继信息）。', 'wlan-sta-online', 'IP', 'hot')
 add('single', 'AP 与 AC 跨三层组网时，AP 上线必须具备的条件是？', ['AP 与 AC 三层路由可达且能互通 CAPWAP 端口', '必须在同一广播域', '必须直连', '无需路由'],
     'AP 与 AC 三层路由可达且能互通 CAPWAP 端口', '三层组网下 AP 与 AC 在不同网段，需路由可达，且中间设备放行 CAPWAP 的 UDP 5246/5247。', 'wlan-arch', 'IE', 'hot')
 add('single', '隧道转发与本地转发（直接转发）的核心区别是？', ['本地转发下用户数据由 AP 直接转发、不经 CAPWAP 数据隧道', '本地转发不经 AC 管理', '隧道转发不经 AC', '两者无区别'],
@@ -159,7 +159,7 @@ add('judge', 'WLAN 中，提升发射功率一定能提升系统容量。', Fals
 add('single', 'WPA3 相比 WPA2-PSK 的关键改进是？', ['采用 SAE（对等同时认证）替代 PSK，抗离线字典攻击', '取消加密', '仅支持企业认证', '降低密钥长度'],
     '采用 SAE（对等同时认证）替代 PSK，抗离线字典攻击', 'WPA3-Personal 用 SAE（Dragonfly 握手）实现前向保密，抵御离线字典攻击；WPA2-PSK 的四次握手易被离线破解。', 'wlan-security', 'IE', 'hot')
 add('single', 'WPA2-Personal 与 WPA2-Enterprise 的核心区别是？', ['Personal 用预共享密钥(PSK)，Enterprise 用 802.1X/EAP 由 RADIUS 认证', 'Enterprise 不加密', 'Personal 更安全', '两者加密算法不同'],
-    'Personal 用预共享密钥(PSK)，Enterprise 用 802.1X/EAP 由 RADIUS 认证', 'WPA2-Personal 使用 PSK 简单但密钥共享；Enterprise 通过 802.1X+EAP+RADIUS 实现每用户独立认证与密钥。', 'wlan-security', 'IE', 'real')
+    'Personal 用预共享密钥(PSK)，Enterprise 用 802.1X/EAP 由 RADIUS 认证', 'WPA2-Personal 使用 PSK 简单但密钥共享；Enterprise 通过 802.1X+EAP+RADIUS 实现每用户独立认证与密钥。', 'wlan-security', 'IE', 'hot')
 add('single', 'WPA/WPA2 四次握手（4-Way Handshake）的主要目的是？', ['协商并确认 PTK/GTK，实现密钥派生与双向确认', '分配 IP 地址', '选择信道', '提升速率'],
     '协商并确认 PTK/GTK，实现密钥派生与双向确认', '四次握手基于 PMK 与随机数(ANonce/SNonce)派生成对临时密钥 PTK 与组密钥 GTK，并确认双方密钥一致。', 'wlan-security', 'IE', 'hot')
 add('single', '802.11w（PMF，管理帧保护）的作用是？', ['对管理帧进行完整性保护，防止伪造的去关联/解认证攻击', '加密数据帧', '提升速率', '隐藏 SSID'],
@@ -185,13 +185,13 @@ add('single', '无线网络勘测（Survey）通常分为哪两类？', ['预规
 add('single', 'WLAN 中，Beacon 帧的默认发送间隔是？', ['100ms（100 TU）', '1s', '10ms', '500ms'], '100ms（100 TU）',
     'Beacon Interval 默认 100 TU（1 TU=1024µs），AP 周期广播 SSID、支持速率等参数供终端发现。', 'wlan-standard', 'IE')
 add('single', '802.11 帧类型中，用于关联、认证、Beacon 的是？', ['管理帧', '控制帧', '数据帧', '扩展帧'], '管理帧',
-    '802.11 帧分管理帧（关联/认证/Beacon/探测）、控制帧（RTS/CTS/ACK）、数据帧（承载上层数据）。', 'wlan-standard', 'IP', 'real')
+    '802.11 帧分管理帧（关联/认证/Beacon/探测）、控制帧（RTS/CTS/ACK）、数据帧（承载上层数据）。', 'wlan-standard', 'IP', 'hot')
 add('single', 'WLAN 中 RTS/CTS 机制的主要作用是？', ['解决隐蔽终端问题，通过预约信道减少冲突', '加密数据', '提升速率', '节能'],
     '解决隐蔽终端问题，通过预约信道减少冲突', 'RTS/CTS 通过短帧预约信道，使隐蔽终端获知信道占用，降低冲突（代价是额外开销）。', 'wlan-standard', 'IE', 'hot')
 add('judge', '5GHz 频段相比 2.4GHz，通常信道更多、干扰更小、可用带宽更大。', True,
     '5G 信道资源丰富（多个非重叠 20/40/80/160MHz 信道）、干扰源少，适合高带宽业务；但穿墙能力弱于 2.4G。', 'wlan-standard', 'IP', 'hot')
 add('single', 'WLAN 中，终端接入 AP 的正常流程是？', ['扫描 → 认证 → 关联 → （可选）802.1X/PSK 密钥协商 → 接入', '关联 → 扫描 → 认证', '认证 → 扫描 → 关联', '直接接入'],
-    '扫描 → 认证 → 关联 → （可选）802.1X/PSK 密钥协商 → 接入', '终端先扫描发现 SSID，进行链路认证(开放/共享)、关联，再做安全认证与密钥协商后接入。', 'wlan-sta-online', 'IE', 'real')
+    '扫描 → 认证 → 关联 → （可选）802.1X/PSK 密钥协商 → 接入', '终端先扫描发现 SSID，进行链路认证(开放/共享)、关联，再做安全认证与密钥协商后接入。', 'wlan-sta-online', 'IE', 'hot')
 add('single', 'AP 组（AP Group）在华为 WLAN 中的作用是？', ['对不同 AP 分组下发不同配置模板，实现差异化业务', '分配 IP', '加密数据', '选信道'],
     '对不同 AP 分组下发不同配置模板，实现差异化业务', 'AP 组将 AP 归类，可分别绑定 VAP/射频/安全模板，实现分区域差异化配置。', 'wlan-arch', 'IE')
 add('single', 'WLAN 射频调优（RRM）自动完成的工作不包括？', ['修改终端 IP 地址', '自动信道分配', '发射功率调整', '干扰检测与规避'],
@@ -213,7 +213,7 @@ add('single', 'WLAN 中，"负载均衡"功能的作用是？', ['在多个 AP/�
 add('single', 'WLAN 中，AP 发现 AC 的方式不包括？', ['通过 BGP 邻居发现', '静态配置 AC 地址', 'DHCP Option 43', 'DNS 解析'], '通过 BGP 邻居发现',
     'AP 通过静态配置、二层广播、DHCP Option 43、DNS（huawei-ac.net 等）发现 AC；BGP 与 AP 发现无关。', 'wlan-sta-online', 'IE', 'hot')
 add('single', 'WLAN 中，802.1X 认证体系的三要素是？', ['客户端(Supplicant)、认证设备(Authenticator)、认证服务器(Authentication Server)', 'AP、AC、交换机', 'SSID、VLAN、IP', '证书、密钥、密码'],
-    '客户端(Supplicant)、认证设备(Authenticator)、认证服务器(Authentication Server)', '802.1X 三要素：终端客户端、认证设备(AP/交换机)、认证服务器(RADIUS)，AP 作为认证设备转发 EAP 报文。', 'wlan-security', 'IE', 'real')
+    '客户端(Supplicant)、认证设备(Authenticator)、认证服务器(Authentication Server)', '802.1X 三要素：终端客户端、认证设备(AP/交换机)、认证服务器(RADIUS)，AP 作为认证设备转发 EAP 报文。', 'wlan-security', 'IE', 'hot')
 add('single', 'WLAN 中，无线侧常见的攻击类型不包括？', ['ARP 表溢出（属有线侧二层攻击）', '钓鱼 AP（Evil Twin）', '去认证泛洪', '暴力破解 PSK'],
     'ARP 表溢出（属有线侧二层攻击）', '无线侧典型攻击：钓鱼 AP、去认证/解认证泛洪、暴力破解、泛洪等；ARP 表溢出是有线二层威胁。', 'wlan-security', 'IE')
 add('single', 'WLAN 中，漫游时"漫游组"与"AC 间隧道"的作用是？', ['在 AC 间同步用户信息并在主备/多 AC 间转发用户数据', '加密终端数据', '分配 IP', '选信道'],
@@ -261,7 +261,7 @@ add('single', '东西向流量微隔离的主要目的是？', ['精细化隔离
 add('single', '防火墙双机热备中，HRP 同步的内容不包括？', ['终端用户的 IP 地址池分配记录', '会话表', '配置与策略', '证书与密钥'],
     '终端用户的 IP 地址池分配记录', 'HRP 在防火墙间同步会话表、配置、证书等，保证主备切换业务不中断；终端地址由 DHCP，不属 HRP 同步。', 'security-ha', 'IE', 'hot')
 add('single', 'SSL VPN 的三种接入方式不包括？', ['IPSec 站点到站点', 'Web 接入（无客户端）', '网络扩展（全隧道）', '端口转发'],
-    'IPSec 站点到站点', 'SSL VPN 接入方式：Web（无客户端）、网络扩展（需客户端，全网络访问）、端口转发；站点到站点属 IPSec VPN。', 'security-ssl-vpn', 'IE', 'real')
+    'IPSec 站点到站点', 'SSL VPN 接入方式：Web（无客户端）、网络扩展（需客户端，全网络访问）、端口转发；站点到站点属 IPSec VPN。', 'security-ssl-vpn', 'IE', 'hot')
 add('single', '防火墙"安全策略"默认动作通常是？', ['拒绝（Deny）', '允许', '丢弃但不记录', '随机'],
     '拒绝（Deny）', '华为防火墙安全策略默认动作通常为 deny，未匹配任何策略的流量被拒绝，符合最小授权原则。', 'security-firewall-basic', 'IE', 'hot')
 add('single', 'IPSec 中，IKE 的作用是？', ['协商并建立 IPSec SA（密钥与参数）', '加密所有流量', '分配 IP', '做 NAT'],
@@ -269,7 +269,7 @@ add('single', 'IPSec 中，IKE 的作用是？', ['协商并建立 IPSec SA（�
 add('single', '下列哪种技术用于防止 DHCP 私接与 IP 欺骗？', ['DHCP Snooping + IPSG', 'SSL VPN', 'WPA3', 'STP'],
     'DHCP Snooping + IPSG', 'DHCP Snooping 建立合法绑定表并过滤非法 DHCP；IPSG 基于绑定表校验源 IP/MAC，二者配合防私接与欺骗。', 'security-dhcp-snooping', 'IE', 'hot')
 add('single', '802.1X 认证中，认证设备（Authenticator）通常是？', ['交换机或 AP', '终端', 'RADIUS 服务器', '防火墙'],
-    '交换机或 AP', '802.1X 三要素：Supplicant(终端)、Authenticator(交换机/AP)、Authentication Server(RADIUS)。', 'security-8021x', 'IE', 'real')
+    '交换机或 AP', '802.1X 三要素：Supplicant(终端)、Authenticator(交换机/AP)、Authentication Server(RADIUS)。', 'security-8021x', 'IE', 'hot')
 add('single', 'Portal 认证相比 802.1X 的主要优势是？', ['终端无需安装客户端，浏览器即可认证', '加密更强', '必须配合证书', '仅支持有线'],
     '终端无需安装客户端，浏览器即可认证', 'Portal（Web）认证免客户端，适合访客与哑终端；802.1X 通常需客户端或系统 EAP 支持。', 'security-portal', 'IE', 'hot')
 add('single', '防火墙 Vsys（虚拟系统）与 VRF 的核心区别是？', ['Vsys 提供含安全策略/会话的完整逻辑防火墙，VRF 仅隔离路由表', '二者相同', 'VRF 更安全', 'Vsys 只隔离路由'],
@@ -277,7 +277,7 @@ add('single', '防火墙 Vsys（虚拟系统）与 VRF 的核心区别是？', [
 add('single', 'WAF 主要防护的攻击类型是？', ['SQL 注入、XSS 等 Web 应用层攻击', 'SYN Flood', 'ARP 欺骗', '暴力破解 SSH'],
     'SQL 注入、XSS 等 Web 应用层攻击', 'WAF 针对 HTTP/HTTPS 应用层攻击（注入、XSS、文件包含等），与网络层 DDoS 防护互补。', 'security-antivirus', 'IE')
 add('single', '数字签名主要用于保证？', ['完整性、身份认证与不可否认性', '机密性', '可用性', '带宽'],
-    '完整性、身份认证与不可否认性', '数字签名用私钥签名、公钥验证，保证完整性与不可否认；机密性由加密保证。', 'security-pki', 'IE', 'real')
+    '完整性、身份认证与不可否认性', '数字签名用私钥签名、公钥验证，保证完整性与不可否认；机密性由加密保证。', 'security-pki', 'IE', 'hot')
 add('single', 'IPSec 隧道模式与传输模式的区别是？', ['隧道模式封装整个原始 IP 包并新增外层 IP 头，传输模式保留原 IP 头', '传输模式更安全', '隧道模式不加密', '二者相同'],
     '隧道模式封装整个原始 IP 包并新增外层 IP 头，传输模式保留原 IP 头', '隧道模式用于网关到网关，隐藏内网地址；传输模式用于端到端，仅保护载荷，开销更小。', 'security-ipsec', 'IE', 'hot')
 

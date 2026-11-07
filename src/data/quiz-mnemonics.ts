@@ -2,7 +2,8 @@
 //
 // 为什么需要这一层：口诀是按**知识点**挂的（src/data/mnemonics.ts），一个知识点动辄 20~60 道题，
 // 却只有 3 条变体轮换，mnemonicSeq 又是纯轮询（不认语义）—— 于是大量题目看到的是一条
-// 「同考点但不同事实」的口诀。抽样实测：全库 628 道题（37%）的口诀与题干/答案几乎没有实词重合。
+// 「同考点但不同事实」的口诀。2026-11-07 首次测量（当时全库 1707 题）：628 道（37%）的口诀
+// 与题干/答案几乎没有实词重合；修复后零重合 291 → 0。此后新增的题也一并逐题配钩子。
 //
 // 本表只给这些题逐题写一条**指向本题答案**的记忆钩子，优先级高于知识点口诀
 // （见 src/components/QuizExplanation.tsx：question.mnemonic 优先，其次 mnemonicOf）。
@@ -452,6 +453,9 @@ export const QUIZ_MNEMONIC: Record<string, string> = {
   'real-dc-005': '10.1.1.1 落在 10/8 私有段，公网不认。',
   'real-dc-006': 'Sub-VLAN 之间默认二层隔离，要通得配代理或走三层。',
   'real-dc-009': 'RR 靠两个属性防环：Originator ID 与 Cluster List。',
+  'real-fanl-001': 'VLAN 划的是广播域边界，跨 VLAN 必须走三层。',
+  'real-fanl-002': 'MAC 表查不到就泛洪，回应一来就学到表项。',
+  'real-fanl-003': 'ACL 缺省 config 按编号走，按精度排序是 auto 模式。',
   'real-final-01': 'MTTR 是平均修复时间（多久修好），MTBF 才是平均无故障间隔。',
   'real-final-02': '要比的是报文里的值（掩码、定时器、区域、认证字段），不是配在哪个视图。',
   'real-final-03': 'ASPF 的 Server-map 相当于给多通道协议开一条临时安全策略。',
@@ -583,6 +587,36 @@ export const QUIZ_MNEMONIC: Record<string, string> = {
   'real-p25-212': '总长 1500 减首部 20 = 1480 字节有效载荷。',
   'real-p25-213': '二层子接口封装只有 dot1q / qinq / default，没有 Trunk 这一种。',
   'real-p25-225': '区域验证与接口验证撞车时接口优先 —— 越具体的配置越压得住。',
+  'real-p25m-001': 'Calico 四件套：BGP Client 通告、etcd 存储、RR 收敛、Felix 执行。',
+  'real-p25m-002': 'VRRP 震荡只因通告收不到：链路抖、接口丢包、间隔太小。',
+  'real-p25m-003': '割接调研四件事：静态台账、动态指标、硬件去留、业务窗口。',
+  'real-p25m-004': '能改配置的是 CLI、NETCONF、SNMP Set；Syslog 只上报日志。',
+  'real-p25m-005': 'SLAAC 要前缀靠 RS 请求、RA 通告；NS/NA 是查邻居 MAC 的。',
+  'real-p25m-006': 'AP 升级三种：AC 下发、FTP、SFTP；没有 TFTP。',
+  'real-p25m-007': 'LACP 主动端看设备优先级+MAC；活动口才看接口优先级+编号。',
+  'real-p25m-008': 'OSPF 四种网络类型：Broadcast、NBMA、P2P、P2MP；前两类涉及 DR。',
+  'real-p25m-009': 'MPLS 的 S 位固定 1bit：S=1 栈底走 IP，S=0 后面还有标签。',
+  'real-p25m-010': '存储阵列四件套：控制器算、硬盘框存、接口模块连、电源保供。',
+  'real-p25m-011': 'IKEv1 主模式六条：1-2 协商、3-4 DH 生密钥、5-6 验身份证书。',
+  'real-p25m-012': '拥塞影响时延、抖动、有效带宽；传输距离是物理属性，不受影响。',
+  'real-p25m-013': 'BGP 必带 Origin、AS_Path、Next_Hop；Local-Preference 与 MED 可不带。',
+  'real-p25m-014': 'OSPF Router ID 全网唯一，可手工可自动，不必须是接口 IP。',
+  'real-p25m-015': '单臂路由：一根 Trunk + 多个子接口，每个子接口做一个 VLAN 网关。',
+  'real-p25m-016': '无损网络硬件层四类芯片：AI Chip、FPGA、NP、ASIC。',
+  'real-p25m-017': 'MPLS 帧模式给以太/PPP 插标签头；ATM 信元模式用 VPI/VCI。',
+  'real-p25m-018': '端口镜像抓入方向、出方向或双向；抓的是经过端口的流量。',
+  'real-p25m-019': 'CAPWAP 保活：Echo 测控制隧道(5246)，Keepalive 测数据隧道(5247)。',
+  'real-p25m-020': 'iNOF 用 TCP 封装、缺省端口 19516，不依赖 BGP 邻居。',
+  'real-p25m-021': 'IPv4/IPv6 共有 Version、源地址、目的地址；Next Header 是 IPv6 特有。',
+  'real-p25m-022': 'RS 请求前缀、RA 通告前缀：S 求 A 告，别记反。',
+  'real-p25m-023': 'PQ+WFQ：PQ 严格优先保低时延，WFQ 按权重分剩余带宽。',
+  'real-p25m-024': 'BFD 与 OSPF/BGP/VRRP/静态路由都能联动，只负责快速探活。',
+  'real-p25m-025': 'WRED 三段：低于下限不丢、中间按概率丢、高于上限全丢。',
+  'real-p25m-026': '网络设计两大模式：层次化（接入/汇聚/核心）+ 模块化（按功能切块）。',
+  'real-p25m-027': 'Python 注释用 # 不用 =；缩进是强制语法，错了直接报错。',
+  'real-p25m-028': 'TCP 三次握手四次挥手；UDP 无 SYN/ACK、无序列号；知名端口 1~1023。',
+  'real-p25m-029': 'TTL 是 8bit / 0~255，每过一台三层设备减 1，归零丢弃防环路。',
+  'real-p25m-030': 'AC 添加 AP 三招：离线导入、未认证列表手工确认、自动发现。',
   'real-se-002': '三重防护是通信网络、区域边界、计算环境；「管理中心」属于那一个中心。',
   'real-sv-002': '邻接建成是 Full；2-Way 只是选完 DR，还没同步 LSDB。',
   'real-sv-013': '568B 线序：橙白橙、绿白蓝、蓝白绿、棕白棕。',

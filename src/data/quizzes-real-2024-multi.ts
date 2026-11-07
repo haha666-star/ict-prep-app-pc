@@ -1,0 +1,287 @@
+// 华为ICT大赛 网络赛道 · 省赛真题补充批次（2026-11-07，共 33 道）
+//
+// 来源 A：好烦小窝《华为ICT大赛往年初赛题》 https://blog.fanl.cn/archives/154.html
+// 来源 B：人人文库《第九届华为ICT大赛(网络赛道)省选拔赛真题考试题库-下(多选、判断题汇总)》
+//         https://m.renrendoc.com/paper/362671448.html 的免费「文档简介」部分
+//
+// 性质与可信度（与 quizzes-real-provincial.ts 的 A 级题区分）：
+//   · 两份材料都是**第三方公开整理的赛题**，不是华为官方原卷扫描件，也不是官方出版物。
+//   · 原始文本 OCR 错字较多（IS—IS、ackup、LDPSeeion、estinationAddress 等），本批次逐题校订；
+//     选项残缺、解析与答案自相矛盾、解析文不对题、引用选项位置的题**一律未收录**。
+//   · 答案以文档自带参考答案为准，台账阶段逐题做了技术复核，仅保留能独立确认的题。
+//   · 页面标题含「判断题汇总」，但免费可见部分只放出多选题，因此本批次**没有判断题**。
+//   · 解析全部重写为内容锚定写法，不引用选项字母或「第 N 项」；每题配一条逐题记忆钩子。
+//   · 33 道题逐题映射到现有叶子知识点（kid 字段），不挂方向根节点 —— 根节点只有 1 条
+//     口诀变体，挂多题会触发 probe-explain 的「变体条数够轮换」断言。
+//
+// 原始页面已留存：real-src/fanl-provincial-prelim.html、real-src/renrendoc-362671448.html、
+//                real-src/renrendoc-362671448-plaintext.txt、real-src/renrendoc-362671448-parsed.json
+// 台账：real-src/ledger-fanl-prelim.json、ledger-multi-a.json、ledger-multi-b.json
+import type { IQuizQuestion } from './quizzes'
+
+export const EXTRA_QUIZZES_REAL_2024_MULTI: IQuizQuestion[] = [
+  {
+    id: 'real-fanl-001', type: 'single',
+    question: '网络工程师在设计和规划网络时经常使用虚拟局域网技术，该技术的主要作用是以下哪一项？',
+    options: ['增强数据保密性', '隔离广播域', '提升组网灵活度', '提高网络扩展性'],
+    answer: '隔离广播域',
+    explanation: 'VLAN 把一个物理局域网按逻辑划分成多个二层广播域，广播报文只在同一个 VLAN 内泛洪，不同 VLAN 之间默认无法直接二层互通，必须经由三层设备转发。保密性靠加密与访问控制实现，灵活度和扩展性是划分之后带来的好处，不是 VLAN 这项技术本身要解决的问题。记忆抓手：划分 VLAN 的直接效果就是给广播帧划边界。',
+    knowledgeId: 'datacom-vlan', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-fanl-002', type: 'single',
+    question: '华为交换机转发数据帧时，若收到一个单播帧且在 MAC 表中未查找到相应表项，会进行以下哪一操作？',
+    options: ['直接丢弃该帧', '按默认路由转发', '缓存后等待表项', '向同 VLAN 其它端口泛洪'],
+    answer: '向同 VLAN 其它端口泛洪',
+    explanation: '交换机对未知单播帧、组播帧和广播帧的处理一致：除入端口之外，向同一个 VLAN 内的所有其它端口泛洪。查得到表项才按表项单播转发，查不到不会丢弃，也不会缓存等表项；等目标主机回应后，交换机通过源 MAC 学习补上表项，后续帧就不再泛洪。记忆抓手：查表失败靠泛洪兜底，回应一到就学会。',
+    knowledgeId: 'datacom-ethernet', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-fanl-003', type: 'single',
+    question: '在网络设备上配置 ACL 时一条 ACL 可以设置多条规则，关于 ACL 匹配机制的描述错误的是哪一项？',
+    options: ['缺省匹配顺序为 config 模式', '缺省按规则精确度从高到低匹配', '报文一旦命中某条规则就不再往下匹配', '动作是 permit 还是 deny 都算命中'],
+    answer: '缺省按规则精确度从高到低匹配',
+    explanation: '华为设备 ACL 缺省采用 config 模式，也就是按规则编号从小到大依次匹配；按精确度从高到低是 auto 模式的行为，需要另行配置才会生效。命中即停止匹配，且 permit 与 deny 都属于命中，只是后续动作不同。记忆抓手：缺省认编号不认精度，认精度要切 auto。',
+    knowledgeId: 'datacom-acl', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-001', type: 'multiple',
+    question: 'Calico 网络方案包含以下哪些组件？',
+    options: ['BGP Client', 'etcd', 'Route Reflector', 'Felix'],
+    answer: ['BGP Client', 'etcd', 'Route Reflector', 'Felix'],
+    explanation: 'Calico 用 BGP 在节点间发布容器路由：每个节点上的 BGP Client 负责把本节点路由通告出去，etcd 保存网络策略与配置数据，规模大时用 Route Reflector 收敛 BGP 连接数量，Felix 运行在每台节点上，把策略落成 iptables 或路由规则并上报状态。四者分别对应通告、存储、收敛与执行。记忆抓手：四件事对上四个组件，缺一不可。',
+    knowledgeId: 'dcn-container', direction: 'dcn', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-002', type: 'multiple',
+    question: '以下哪些项会引起 VRRP 备份组震荡？',
+    options: ['承载 VRRP 通告报文的链路震荡', 'Backup 设备接口丢包', '两端抢占延时配置不一致', '通告报文发送间隔设置过小'],
+    answer: ['承载 VRRP 通告报文的链路震荡', 'Backup 设备接口丢包', '通告报文发送间隔设置过小'],
+    explanation: 'VRRP 靠周期性通告报文维持主备关系，Backup 超时收不到通告就认为 Master 故障并抢占。所以承载通告的链路时断时通、Backup 接口丢包、通告间隔设得过小导致偶发延迟即超时，都会让主备反复切换。抢占延时配置不一致只影响故障恢复后谁先抢占与切换快慢，不会让备份组持续来回震荡。记忆抓手：震荡的根源都是「通告没能按时送到」。',
+    knowledgeId: 'datacom-vrrp', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-003', type: 'multiple',
+    question: '在割接项目的项目调研阶段，需要了解客户网络的哪些信息？',
+    options: ['业务模型', '静态信息', '硬件环境信息', '动态信息'],
+    answer: ['业务模型', '静态信息', '硬件环境信息', '动态信息'],
+    explanation: '割接调研要把现网摸清：静态信息指拓扑、设备型号、版本、地址与路由规划等固定台账；动态信息指流量、带宽利用率、丢包与时延等运行指标；硬件环境信息决定哪些设备要升级、哪些可以沿用；业务模型说明客户业务对网络的依赖与可停窗口。四类信息共同决定割接方案与回退预案。记忆抓手：静态看台账、动态看运行、硬件看去留、业务看窗口。',
+    knowledgeId: 'datacom-campus', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-004', type: 'multiple',
+    question: '网络运维包含配置管理与监控管理，以下哪些项可以实现网络的配置管理功能？',
+    options: ['SNMP', 'Syslog', 'NETCONF', 'CLI'],
+    answer: ['SNMP', 'NETCONF', 'CLI'],
+    explanation: '配置管理要求能下发、修改、读取设备配置：CLI 是最直接的命令行通道，NETCONF 基于 YANG 模型做标准化配置，SNMP 除了读取状态也能通过 Set 操作修改部分配置对象。Syslog 只是设备把日志单向推送给服务器，属于监控与告警采集，不具备下发配置的能力。记忆抓手：能改设备参数的才算配置管理，只上报日志的不算。',
+    knowledgeId: 'datacom-nms', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-005', type: 'multiple',
+    question: 'IPv6 无状态地址自动配置使用以下哪些报文？',
+    options: ['NS', 'RS', 'RA', 'NA'],
+    answer: ['RS', 'RA'],
+    explanation: '无状态地址自动配置靠 RS 与 RA 配合：主机先发 RS（路由请求）催促链路上路由器回应，路由器周期性或以 RA（路由通告）应答，RA 里携带前缀、前缀长度与默认网关信息，主机据此拼出全球单播地址。NS 与 NA 属于邻居发现里的地址解析与重复地址检测，不承担前缀分发。记忆抓手：要前缀用 RS/RA，查 MAC 用 NS/NA。',
+    knowledgeId: 'datacom-ipv6-basic', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-006', type: 'multiple',
+    question: 'AP 从 AC 上获取版本进行升级的模式有哪些？',
+    options: ['FTP 模式', 'SFTP 模式', 'TFTP 模式', 'AC 模式'],
+    answer: ['FTP 模式', 'SFTP 模式', 'AC 模式'],
+    explanation: 'AP 进入版本下载状态后，升级文件的获取方式包括 AC 模式（由 AC 直接下发）以及 FTP 模式、SFTP 模式（AP 自行到文件服务器拉取）。TFTP 常见于其它厂商或普通网络设备的文件传输，不在华为 WLAN 版本升级的既定模式清单内。记忆抓手：升级走 AC 或 FTP/SFTP，别把 TFTP 混进来。',
+    knowledgeId: 'wlan-sta-online', direction: 'wlan', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-007', type: 'multiple',
+    question: '链路聚合的 LACP 模式采用 LACPDU 选举主动端，LACPDU 中哪些信息是选举主动端的依据？',
+    options: ['接口编号', '设备 MAC 地址', '设备优先级', '接口优先级'],
+    answer: ['设备 MAC 地址', '设备优先级'],
+    explanation: 'LACP 先在系统层面选出主动端：比较两端设备的系统优先级，数值小者优先；相同时再比较系统 MAC 地址，小者胜出。选出的主动端再以自己的接口优先级和接口编号决定哪些成员口成为活动口。所以设备优先级与设备 MAC 决定「哪台设备说了算」，接口优先级与接口编号决定「哪几个口干活」。记忆抓手：系统级选主动端，接口级选活动口。',
+    knowledgeId: 'datacom-link-aggregation', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-008', type: 'multiple',
+    question: 'OSPF 协议支持的网络类型有哪些？',
+    options: ['Point-to-Point', 'Non-Broadcast Multi-Access', 'Point-to-Multipoint', 'Broadcast'],
+    answer: ['Point-to-Point', 'Non-Broadcast Multi-Access', 'Point-to-Multipoint', 'Broadcast'],
+    explanation: 'OSPF 按链路层特性把网络分为四类：广播型（如以太网，需要选 DR/BDR）、非广播多路访问（如帧中继，需手工指定邻居）、点到点（如 PPP/HDLC，不选 DR）、点到多点（常由 NBMA 改造成多个点到点看待）。网络类型决定邻居发现方式与是否选举 DR。记忆抓手：广播要选 DR，点到点不选，NBMA 要手工配邻居。',
+    knowledgeId: 'datacom-ospf', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-009', type: 'multiple',
+    question: '关于 MPLS 报文头中的 S 字段，说法正确的是哪些？',
+    options: ['S 位存在于每个 MPLS 标签头中', 'S=0 表示后面还有标签，S=1 表示到底', '帧模式下 S 占 1bit，信元模式占 2bit', 'S=1 表示后面还有标签，S=0 表示到底'],
+    answer: ['S 位存在于每个 MPLS 标签头中', 'S=0 表示后面还有标签，S=1 表示到底'],
+    explanation: 'MPLS 标签头里 S（Bottom of Stack）固定占 1 比特，每个标签头都带这一位，与封装模式无关。置 1 表示这是栈底标签，剥掉后直接按 IP 转发；置 0 表示后面还压着下一层标签，需要继续按标签转发。标签栈正是靠这一位层层判定的。记忆抓手：S 就是「到底没到底」，1 到底、0 继续。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-010', type: 'multiple',
+    question: '集中式存储一般由存储阵列提供数据存储，存储阵列包含以下哪些组件？',
+    options: ['电源模块', '控制器', '硬盘框', '接口模块'],
+    answer: ['电源模块', '控制器', '硬盘框', '接口模块'],
+    explanation: '存储阵列是一套机框式系统：控制器承担读写调度、缓存与 RAID 计算，是核心；硬盘框承载实际磁盘并提供槽位与背板；接口模块提供主机侧与后端盘的 FC/iSCSI/SAS 连接；电源模块（通常冗余）与风扇、电池一起保障供电与掉电保护。四者分别对应算、存、连、供。记忆抓手：算控存连供，阵列缺一不可。',
+    knowledgeId: 'dcn-storage', direction: 'dcn', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-011', type: 'multiple',
+    question: 'IPSec 使用 IKEv1 主模式建立隧道并用证书验证身份，以下哪些消息对证书合法性进行验证？',
+    options: ['消息 5', '消息 4', '消息 6', '消息 3'],
+    answer: ['消息 5', '消息 6'],
+    explanation: 'IKEv1 主模式共六条消息：前两条协商安全策略，第三、四条交换 DH 公钥与随机数生成密钥，第五、六条才在加密保护下互送身份标识与认证数据。使用证书认证时，证书与签名正是在第五、六条消息里传递并被对端校验，因此合法性验证发生在这两条。记忆抓手：一二谈算法、三四生密钥、五六验身份。',
+    knowledgeId: 'security-ipsec', direction: 'security', difficulty: 'IE', tag: 'real',
+  },
+  {
+    id: 'real-p25m-012', type: 'multiple',
+    question: '当拥塞发生时，通常会影响到 QoS 的哪些指标？',
+    options: ['传输时延', '传输抖动', '有效吞吐带宽', '传输距离'],
+    answer: ['传输时延', '传输抖动', '有效吞吐带宽'],
+    explanation: '拥塞时报文在队列里排队甚至被丢弃，直接后果是排队时延变长、时延抖动变大、重传增多导致有效吞吐下降，严重时吞吐坍塌形成拥塞崩溃。传输距离由物理链路和路由路径决定，是拓扑属性，不会因队列长短而改变。记忆抓手：拥塞改的是时间和吞吐，改不了地理距离。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-013', type: 'multiple',
+    question: '以下哪几种 BGP 属性不是 BGP 路由的 Update 消息中必须包含的？',
+    options: ['Origin', 'AS_Path', 'Local-Preference', 'MED'],
+    answer: ['Local-Preference', 'MED'],
+    explanation: 'BGP 把路径属性分为四类，其中 Origin 与 AS_Path 属于公认必遵属性，每条 Update 里的路由都必须携带，Next_Hop 同样必带。Local-Preference 属于公认任意属性，只在 IBGP 内部传递用于选路；MED 是可选非过渡属性，用于向相邻 AS 建议入口。两者都不是必须出现。记忆抓手：必遵三件套是 Origin、AS_Path、Next_Hop。',
+    knowledgeId: 'datacom-bgp', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-014', type: 'multiple',
+    question: '关于 OSPF 的 Router ID，描述不正确的是哪些项？',
+    options: ['运行 OSPF 的前提是该路由器有 Router ID', '同一区域内 Router ID 必须相同', 'Router ID 必须是某接口的 IP 地址', '必须通过手工配置方式指定 Router ID'],
+    answer: ['同一区域内 Router ID 必须相同', 'Router ID 必须是某接口的 IP 地址', '必须通过手工配置方式指定 Router ID'],
+    explanation: 'Router ID 是 32 位无符号整数，用来在 OSPF 域内唯一标识一台路由器，全网都不能重复，而不是「同一区域内相同」。它可以手工配置，也可以自动选举（优先 loopback 接口最大地址，其次物理接口最大地址），不要求一定是某个接口地址，也不是非手工不可。唯一成立的说法是运行 OSPF 必须先有 Router ID。记忆抓手：全网唯一，可手可自，形如 IP 但不必是接口 IP。',
+    knowledgeId: 'datacom-ospf', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-015', type: 'multiple',
+    question: '关于单臂路由的说法正确的有哪些？',
+    options: ['每个 VLAN 各需一条物理连接', '需要在路由器上创建子接口', '交换机侧端口配成 Trunk 并放通相关 VLAN', '交换机与路由器之间仅用一条物理链路'],
+    answer: ['需要在路由器上创建子接口', '交换机侧端口配成 Trunk 并放通相关 VLAN', '交换机与路由器之间仅用一条物理链路'],
+    explanation: '单臂路由的要点就是「一条物理链路承载多个 VLAN」：交换机连接路由器的端口配成 Trunk 并放通相关 VLAN，路由器在单个物理接口上创建多个子接口，每个子接口对应一个 VLAN 并封装 802.1Q、配置该 VLAN 的网关地址。因此不需要每个 VLAN 单独拉一根线。记忆抓手：一臂＝一条 Trunk，VLAN 靠子接口分家。',
+    knowledgeId: 'datacom-vlan', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-016', type: 'multiple',
+    question: '华为智能无损网络技术分为多个层次，其中硬件层的芯片类型包括以下哪些项？',
+    options: ['AI Chip', 'FPGA', 'NP', 'ASIC'],
+    answer: ['AI Chip', 'FPGA', 'NP', 'ASIC'],
+    explanation: '无损网络的硬件层要兼顾智能与线速转发，因此覆盖四类芯片：AI 加速芯片承担智能分析与调度决策，FPGA 提供可重编程的灵活逻辑，NP（网络处理器）负责高速可编程转发，ASIC 以固定流水线换取最高吞吐与最低时延。四者按灵活度递减、专用性递增排列。记忆抓手：从「最灵活」到「最专用」正好是 FPGA、NP、ASIC。',
+    knowledgeId: 'dcn-lossless', direction: 'dcn', difficulty: 'IE', tag: 'real',
+  },
+  {
+    id: 'real-p25m-017', type: 'multiple',
+    question: 'MPLS 封装有不同方式，关于封装方式的说法正确的是哪些？',
+    options: ['MPLS 封装分帧模式和信元模式', 'Ethernet 与 PPP 使用帧模式封装', 'ATM 使用信元模式封装', '信元模式保留原报文 MPLS Header 转发'],
+    answer: ['MPLS 封装分帧模式和信元模式', 'Ethernet 与 PPP 使用帧模式封装', 'ATM 使用信元模式封装'],
+    explanation: 'MPLS 有两种封装：帧模式把标签头直接插在二层头部与三层头部之间，以太网和 PPP 都走这种；信元模式用于 ATM，把标签信息映射进信元的 VPI/VCI 字段，不再保留完整的 MPLS 标签头。因此「信元模式保留原有标签头」不成立。记忆抓手：以太与 PPP 插标签头，ATM 用 VPI/VCI 代替标签。',
+    knowledgeId: 'datacom-mpls-basic', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-018', type: 'multiple',
+    question: '端口镜像可以对哪些流量进行镜像？',
+    options: ['端口接收的报文', '端口发送的报文', '端口收发的双向报文', '端口丢弃的报文'],
+    answer: ['端口接收的报文', '端口发送的报文', '端口收发的双向报文'],
+    explanation: '端口镜像把观察端口的入方向报文、出方向报文或双向报文复制一份送到监控口，三种方向范围都可以在配置里指定。被设备丢弃的报文能否复制取决于丢弃原因与具体芯片实现，不属于通用端口镜像承诺的范围。记忆抓手：镜像抓的是「经过该端口」的流量，方向可选入、出、双向。',
+    knowledgeId: 'datacom-ethernet', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-019', type: 'multiple',
+    question: '为检测 CAPWAP 隧道的连通状态，隧道建立之后 AC 使用以下哪些 CAPWAP 报文进行检测？',
+    options: ['DPD', 'Hello', 'Echo', 'Keepalive'],
+    answer: ['Echo', 'Keepalive'],
+    explanation: 'CAPWAP 建链之后靠两类保活报文分工：Echo 走 UDP 5246 检测控制隧道，Keepalive 走 UDP 5247 检测数据隧道，两端周期性互发，超时未收到即判定对应隧道断开。Hello 属于隧道建立阶段的发现与协商用途，DPD 是 IPSec 的死亡对端检测机制，都不是 CAPWAP 保活报文。记忆抓手：控制隧道 Echo，数据隧道 Keepalive，端口 5246 与 5247。',
+    knowledgeId: 'wlan-arch', direction: 'wlan', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-020', type: 'multiple',
+    question: '关于 iNOF 报文的描述，正确的有哪些项？',
+    options: ['iNOF 报文采用 TCP 封装', '缺省端口号为 19516', 'iNOF 报文采用 UDP 封装', '交换机间必须建立 BGP 邻居才能传递'],
+    answer: ['iNOF 报文采用 TCP 封装', '缺省端口号为 19516'],
+    explanation: 'iNOF 报文走 TCP 承载，缺省使用端口 19516，借助 TCP 的可靠传输保证主机上线、下线等状态通告不丢失。交换机之间通过 iNOF 自身的会话交互信息，不要求另外建立 BGP 邻居关系。记忆抓手：要可靠所以选 TCP，端口记 19516，不必搭 BGP。',
+    knowledgeId: 'dcn-lossless', direction: 'dcn', difficulty: 'IE', tag: 'real',
+  },
+  {
+    id: 'real-p25m-021', type: 'multiple',
+    question: '以下哪些字段在 IPv6 与 IPv4 报文头中都存在？',
+    options: ['Next Header', 'Version', 'Source Address', 'Destination Address'],
+    answer: ['Version', 'Source Address', 'Destination Address'],
+    explanation: '两个版本都要标明版本号、源地址与目的地址，这三项功能一致，只是 IPv6 把地址扩到 128 位并规范了字段命名。IPv4 用 Protocol 字段指明上层协议，IPv6 改为 Next Header，还可能串起一串扩展头，这是 IPv6 独有的结构。记忆抓手：版本与两端地址谁都有，「下一头」是 IPv6 换的名。',
+    knowledgeId: 'datacom-ipv6-basic', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-022', type: 'multiple',
+    question: '关于 IPv6 中的 RA 与 RS 报文，说法正确的是哪些？',
+    options: ['RS 用于请求地址前缀信息', 'RS 用于回复地址前缀信息', 'RA 用于回复地址前缀信息', 'RA 用于请求地址前缀信息'],
+    answer: ['RS 用于请求地址前缀信息', 'RA 用于回复地址前缀信息'],
+    explanation: '主机刚接入还没有单播地址时发 RS（路由请求）主动向链路上路由器索要前缀；路由器周期性或收到 RS 后回 RA（路由通告），携带前缀、前缀长度、默认路由以及是否启用有状态分配的标志。方向是 RS 请求、RA 应答，反过来就错了。记忆抓手：S 是 Solicitation 求，A 是 Advertisement 告。',
+    knowledgeId: 'datacom-ipv6-basic', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-023', type: 'multiple',
+    question: 'PQ+WFQ 调度组合的优点有哪些？',
+    options: ['无法差别对待不同优先级报文', '可保证低时延业务得到及时调度', '能按权重分配剩余带宽', '可按用户自定义灵活分类报文'],
+    answer: ['可保证低时延业务得到及时调度', '能按权重分配剩余带宽'],
+    explanation: 'PQ+WFQ 把关键业务放进 PQ 高优先队列严格优先发送，保证低时延；其余队列用 WFQ 按权重分享剩余带宽，避免低优先级队列被彻底饿死。「无法差别对待」与 PQ 的设计正好相反，按用户自定义分类属于流分类与标记的职责，不是这个调度组合本身提供的能力。记忆抓手：PQ 保时延、WFQ 分带宽。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-024', type: 'multiple',
+    question: 'BFD 检测可以与哪些协议模块联动？',
+    options: ['VRRP', 'OSPF', 'BGP', '静态路由'],
+    answer: ['VRRP', 'OSPF', 'BGP', '静态路由'],
+    explanation: 'BFD 是协议无关、介质无关的毫秒级快速检测机制，检测出链路故障后通知上层模块快速收敛：与 OSPF、BGP、IS-IS 联动可加快邻居失效感知，与静态路由联动可让备份路由及时生效，与 VRRP 联动可加快主备切换。四类模块都能对接 BFD。记忆抓手：BFD 只管「快速发现断了」，收敛动作交给被联动的协议。',
+    knowledgeId: 'datacom-bfd', direction: 'datacom', difficulty: 'IP', tag: 'real',
+  },
+  {
+    id: 'real-p25m-025', type: 'multiple',
+    question: '对标记为 AF21 的报文设置 WRED 丢弃策略：下限 35、上限 40、丢弃概率 50%。关于处理结果的描述错误的是哪些项？',
+    options: ['平均队列长度小于 35 时开始丢弃', '平均长度在 35 与 40 之间时按 50% 丢弃', '平均长度大于 40 时该报文开始进入队列', '平均长度大于 40 时该报文被丢弃'],
+    answer: ['平均队列长度小于 35 时开始丢弃', '平均长度大于 40 时该报文开始进入队列'],
+    explanation: 'WRED 的分段规则是：平均队列长度低于下限不丢弃；介于下限与上限之间按配置的丢弃概率随机丢弃，并随长度增大而提高；超过上限则全部丢弃。所以「小于 35 开始丢弃」和「大于 40 开始进入队列」都把方向说反了，后两项描述才是规则本身。记忆抓手：下限以下全放行、中间随机丢、上限以上全丢。',
+    knowledgeId: 'datacom-qos-basic', direction: 'datacom', difficulty: 'IE', tag: 'real',
+  },
+  {
+    id: 'real-p25m-026', type: 'multiple',
+    question: '网络设计的模式一般可以归纳为以下哪些项？',
+    options: ['模块化', '层次化', '自动化', '现代化'],
+    answer: ['模块化', '层次化'],
+    explanation: '经典网络设计方法论归结为两条：层次化按接入、汇聚、核心分层，把职责与故障域逐层收敛；模块化按功能或业务把网络划成可独立设计、扩建与替换的模块，例如园区、数据中心、出口与广域网。自动化与现代化是运维手段或目标描述，不是设计模式本身。记忆抓手：分层管纵向，模块管横向。',
+    knowledgeId: 'datacom-campus', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-027', type: 'multiple',
+    question: '关于 Python 语言，说法错误的是哪些项？',
+    options: ['代码一般按次序从头到尾执行', '注释以 = 开头便于阅读', '支持自动缩进，写代码无需关注', 'print() 用于输出括号内的内容'],
+    answer: ['注释以 = 开头便于阅读', '支持自动缩进，写代码无需关注'],
+    explanation: 'Python 的注释以 # 开头，等号是赋值运算符；缩进是强制语法，用来界定代码块，缩进错误会直接抛 IndentationError，不能「无需关注」。顺序执行与 print() 输出都是正确描述。记忆抓手：注释认 #，缩进是语法不是排版。',
+    knowledgeId: 'dcn-ops', direction: 'dcn', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-028', type: 'multiple',
+    question: '关于传输层协议，说法正确的有哪些？',
+    options: ['TCP 建连三次握手、释放连接四次挥手', 'UDP 使用 SYN 与 ACK 标志位建立连接', '知名端口号范围为 1~1023', 'UDP 依据首部序列号字段重组报文'],
+    answer: ['TCP 建连三次握手、释放连接四次挥手', '知名端口号范围为 1~1023'],
+    explanation: 'TCP 是面向连接的可靠协议，建连三次握手、断连四次挥手；端口号 1~1023 为知名端口，1024~49151 为注册端口，其余为动态端口。UDP 无连接、没有 SYN/ACK 握手，首部只有源端口、目的端口、长度与校验和四个字段，也没有序列号，报文重组要交给应用层。记忆抓手：握手与序号都属 TCP，UDP 首部四字段。',
+    knowledgeId: 'datacom-tcp-udp', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-029', type: 'multiple',
+    question: '关于 IPv4 首部中的 TTL 字段，说法正确的是哪些？',
+    options: ['TTL 长度为 8 bit', '报文每经过一台三层设备 TTL 减 1', '路由环路时 TTL 可防止报文无限转发', 'TTL 取值范围是 0~255'],
+    answer: ['TTL 长度为 8 bit', '报文每经过一台三层设备 TTL 减 1', '路由环路时 TTL 可防止报文无限转发', 'TTL 取值范围是 0~255'],
+    explanation: 'TTL 占 8 比特，取值 0~255；报文每经过一次三层转发就减 1，减到 0 被丢弃并向源端回送 ICMP 超时消息。这样即便路由出现环路，报文也会在有限跳内消失，不会永远占用带宽。字段设计之初按秒计时，实际实现按跳数计。记忆抓手：8 位、逐跳减一、归零即弃。',
+    knowledgeId: 'datacom-osi-tcpip', direction: 'datacom', difficulty: 'IA', tag: 'real',
+  },
+  {
+    id: 'real-p25m-030', type: 'multiple',
+    question: '在 AC 上添加 AP 的方式有哪些？',
+    options: ['离线导入 AP', '手工确认未认证列表中的 AP', '自动发现 AP', '在线添加 AP'],
+    answer: ['离线导入 AP', '手工确认未认证列表中的 AP', '自动发现 AP'],
+    explanation: '把 AP 纳入 AC 管理有三种常规途径：预先按 MAC 地址或序列号离线导入、AP 上线后在未认证列表里手工确认、以及开启自动发现让符合认证规则的 AP 直接上线。华为 WLAN 的规范术语里没有「在线添加」这一独立方式，它通常只是手工确认或自动发现的另一种叫法。记忆抓手：预先导入、上线确认、自动放行。',
+    knowledgeId: 'wlan-sta-online', direction: 'wlan', difficulty: 'IA', tag: 'real',
+  },
+];

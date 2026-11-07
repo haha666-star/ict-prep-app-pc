@@ -109,7 +109,7 @@ add('single', 'VXLAN 相比传统 VLAN 的核心优势不包括？', ['无需 IP
 add('single', 'VXLAN 中 BUM 流量（广播/未知单播/组播）的转发方式有？', ['组播复制与头端复制', '单播洪泛', '丢弃', '仅组播'],
     '组播复制与头端复制', 'BUM 流量依赖组播或头端复制（ingress replication）在隧道内泛洪；EVPN 后用 IMET 路由动态构建复制列表。', 'dcn-vxlan-basic', 'IE', 'hot')
 add('single', 'VXLAN 报文默认使用的 UDP 目的端口是？', ['4789', '5246', '179', '4500'], '4789',
-    'VXLAN 默认 UDP 目的端口 4789（IANA 分配），部分实现可自定义。', 'dcn-vxlan-basic', 'IP', 'real')
+    'VXLAN 默认 UDP 目的端口 4789（IANA 分配），部分实现可自定义。', 'dcn-vxlan-basic', 'IP', 'hot')
 add('single', 'VXLAN 封装带来的额外开销（对 MTU 的要求）约为？', ['约 50 字节，需相应增大 MTU', '0 字节', '约 8 字节', '约 200 字节'],
     '约 50 字节，需相应增大 MTU', 'VXLAN 外层含 14B 以太 + 20B IP + 8B UDP + 8B VXLAN 头约 50 字节，故物理链路 MTU 需 ≥ 1550 左右。', 'dcn-vxlan-basic', 'IE', 'hot')
 add('single', 'VXLAN 中"二层网关"的作用是？', ['实现 VXLAN 网络内不同网段（三层）之间的互通', '实现 VXLAN 与 VLAN 之间二层互通', '分配 VNI', '做防火墙'],
