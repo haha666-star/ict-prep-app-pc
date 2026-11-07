@@ -6,25 +6,25 @@
  *   2) 目标：校一等奖 → 出线；主攻省一等奖（省复赛参赛队前 10%），能进国赛最好
  *   3) 三人分散使用不同设备，进度各自独立，队长汇总
  *
- * 量化依据（按当前题库 1637 题实测，命令见 ict-audit-v2/）：
+ * 量化依据（按当前题库 1707 题实测，命令见 ict-audit-v2/）：
  *   【刷题侧】高概率题（真题同源 real ∪ 高频 hot）= 1231 题，占 72.1%
  *     —— 实测命令：node ict-audit-v2/diag-snapshot-v8.mjs（口径与 src/lib/tags.ts 的
  *        effectiveTag 逐行一致：只补多选/判断，真题保持严格）
  *     为什么要「补齐」：标签是逐题手标的，多选/判断侧的标注密度远低于单选 ——
- *       真题严格 392 = 单选 342 / 多选 36 / 判断 14
+ *       真题同源 369 = 单选 326 / 多选 29 / 判断 14
  *       ⇒ 2026-11-07 新增的 2023-2024 省赛初赛真题含 14 道判断题，「真题 × 判断」不再是 0；这些题均有可追溯出处，不靠知识点推导伪造。
  *       而「考点是不是高频」是知识点级属性，同考点的多选/判断自然也是高频。
  *     补齐后按题型：单选 489 / 多选 366 / 判断 376（合计 1231）
  *       单选不补（本身已充分标注）；「真题」不扩（真题同源是来源属性，
  *       靠知识点推导等于伪造出处 —— 新增判断题均来自可追溯的公开真题解析）。
  *     ★ 本文件用的是刷题侧口径；组卷侧（src/lib/exam.ts 的 tagRank / countLikely）
- *       仍走严格手标的 935 道窄集 —— 押题要稀缺性、练题要覆盖面，两套口径并存。
+ *       仍走严格手标的 1005 道窄集 —— 押题要稀缺性、练题要覆盖面，两套口径并存。
  *     按方向：数通 490 / 安全 282 / WLAN 186 / DCN 273
  *     按难度：IA 276 / IP 731 / IE 224（IA + IP 基础难度 = 1007）
  *   判断题 376 道 —— 省赛必考、最易「想当然」失分；已 **全部** 落在高概率集合内，
  *     所以刷「高概率」时切一次题型即可专练，不必另排题库。
- *   真题同源 392 道 —— 2 天约 196 道/天
- *   全库 1637 题 ÷ (12 天 × 3 人) ≈ 45 题/人/天 → 分工后跑完全库可行
+ *   真题同源 369 道 —— 2 天约 185 道/天
+ *   全库 1707 题 ÷ (12 天 × 3 人) ≈ 45 题/人/天 → 分工后跑完全库可行
  */
 
 import { SCHOOL_CONTEST_DATE } from './contest';
@@ -62,7 +62,7 @@ export interface ISprintPhase {
 export const SPRINT_PHASES: ISprintPhase[] = [
   { phase: '保底分', range: 'Day 1–3', goal: '高概率题 1231 道过完一轮（IA/IP 基础难度 1007 道优先）＋ 判断题 376 道专项全覆盖', color: 'amber' },
   { phase: '主攻方向', range: 'Day 4–8', goal: '每人主攻方向正确率 ≥85%，高概率题每日保温', color: 'cyan' },
-  { phase: '真题演练', range: 'Day 9–10', goal: '真题同源 392 道过完，错因归类（含 14 道省赛真题判断题）', color: 'rose' },
+  { phase: '真题演练', range: 'Day 9–10', goal: '真题同源 369 道过完，错因归类（含 14 道省赛真题判断题）', color: 'rose' },
   { phase: '全真模考', range: 'Day 11–12', goal: '模考稳定 ≥85 分', color: 'emerald' },
 ];
 
@@ -78,19 +78,19 @@ export const SPRINT_TEAM_ROLES: ITeamRole[] = [
   {
     role: '甲 · 数通主力',
     directions: ['datacom'],
-    why: '数通占比最高（约 42.6%，575 题），是总分的基本盘，必须有人专职拿下',
+    why: '数通占比最高（约 40.0%，682 题），是总分的基本盘，必须有人专职拿下',
     dailyQuota: '主攻 60 题/天 + 高概率题保温 20 题/天',
   },
   {
     role: '乙 · 安全 + WLAN',
     directions: ['security', 'wlan'],
-    why: '两个方向合计约 40.8%（安全 307 + WLAN 244），考点相对独立，适合一人双方向',
+    why: '两个方向合计约 38.0%（安全 374 + WLAN 275），考点相对独立，适合一人双方向',
     dailyQuota: '主攻 30+30 题/天 + 高概率题保温 20 题/天',
   },
   {
     role: '丙 · DCN + 数通补位',
     directions: ['dcn', 'datacom'],
-    why: 'DCN 约 16.7%（225 题）自成一体；空余时间补数通的短板，避免数通成为木桶底',
+    why: 'DCN 约 22.0%（376 题）自成一体；空余时间补数通的短板，避免数通成为木桶底',
     dailyQuota: '主攻 DCN 60 题/天 + 数通补位 20 题/天',
   },
 ];
@@ -129,8 +129,8 @@ export function buildSprintPlan(contestDate: string = SCHOOL_CONTEST_DATE): ISpr
          —— 实测命令：node ict-audit-v2/diag-judge-direction.mjs
          三天各 125 / 125 / 126 道，入口为全局「判断」筛选（不按方向切分），可覆盖全量 376 道 */
       const zone = ['第一轮', '第二轮', '第三轮'][d - 1];
-      const likelyQuota = [387, 387, 387][d - 1];
-      const judgeQuota = [112, 112, 112][d - 1];
+      const likelyQuota = [410, 410, 411][d - 1];
+      const judgeQuota = [125, 125, 126][d - 1];
       days.push({
         day: d,
         date,
@@ -174,19 +174,20 @@ export function buildSprintPlan(contestDate: string = SCHOOL_CONTEST_DATE): ISpr
         shortcuts: [{ label: '刷高概率题', tag: 'likely' }],
       });
     } else if (d <= 10) {
+      const realQuota = d === 9 ? 185 : 184; // 369 道分两天
       days.push({
         day: d,
         date,
         phase: '真题演练',
-        title: '真题同源题 ×53 + 判断题补位 ×30 + 错题清盘',
+        title: `真题同源题 ×${realQuota} + 高频补位 ×30 + 错题清盘`,
         tasks: [
-          '刷题页把标签切到「真题」，刷 53 道（真题同源共 106 道，两天过完）',
-          '真题档里没有判断题（公开真题回忆无判断题原题，标签按出处严格标注）—— 判断题改从「高频」档补练',
+          `刷题页把标签切到「真题」，刷 ${realQuota} 道（真题同源共 369 道，两天过完）`,
+          '真题档里含 14 道判断题（省赛初赛真题原文），其余判断题再从「高频」档补练',
           '错题本整体过一遍，按「概念不熟 / 看错题 / 算错」三类归因',
           '高频 tag 题扫 30 道，只记结论不看长篇',
         ],
         quota: [
-          { label: '真题', value: '53 道' },
+          { label: '真题', value: `${realQuota} 道` },
           { label: '高频（含判断题）', value: '30 道' },
         ],
         shortcuts: [{ label: '刷真题', tag: 'real' }],
