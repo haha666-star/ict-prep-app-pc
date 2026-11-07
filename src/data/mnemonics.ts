@@ -268,7 +268,10 @@ export const MNEMONIC_BY_KNOWLEDGE: Record<string, string[]> = {
     '攻击按目标层次分：二层（ARP/MAC 欺骗）、三层（IP 欺骗/扫描）、四层（SYN Flood）、七层（CC/注入）。',
     '三件套是一家人：DHCP Snooping 建「IP-MAC-端口」表，IPSG 查表拦私设 IP，DAI 用同表查 ARP。',
   ],
-  'security-vpn': ['VPN 三兄弟：IPSec 在三层、SSL 在七层（免客户端）、GRE/L2TP 是隧道。'],
+  'security-vpn': [
+    'VPN 三兄弟：IPSec 在三层、SSL 在七层（免客户端）、GRE/L2TP 是隧道。',
+    '按接入场景选：出差个人用 SSL（免客户端）、站点互联用 IPSec、承载组播或非 IP 用 GRE 隧道。',
+  ],
   'security-ipsec': [
     'IPSec 两阶段：一阶段建管理隧道（IKE，主/野蛮模式）、二阶段建数据隧道；ESP 加密、AH 只认证。',
     '三个协议分清楚：AH 只认证不加密、ESP 既加密又认证（最常用）、IKE 负责协商密钥。',
@@ -282,6 +285,7 @@ export const MNEMONIC_BY_KNOWLEDGE: Record<string, string[]> = {
   'security-ips': [
     'IDS 只旁路告警、IPS 在线阻断 ——「D 不动手，P 会动手」。',
     '两种检测口径：基于特征（签名库，准但滞后）与基于行为/流量基线（抓异常，灵但误报多），生产上以特征为主、行为为辅。',
+    '签名命中怎么判：预定义签名不能改，例外签名的响应动作优先于签名过滤器，同时命中时按例外签名走。',
   ],
   'security-ips-ids': [
     '签名检测准（认已知）、异常检测灵（抓未知），两者互补不替代。',

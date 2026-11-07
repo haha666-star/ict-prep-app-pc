@@ -505,8 +505,10 @@ export default function QuizPage() {
                     {tagTypeCounts.single ?? 0} · 多选 {tagTypeCounts.multiple ?? 0}
                     {tagFilter === 'real' ? (
                       <span className="text-muted-foreground/60">
-                        （真题按出处逐题标注、以单选/多选为主；公开真题回忆里没有判断题原题，
-                        故本档判断题恒为 0，练判断请改选「高频」）
+                        （真题按出处逐题标注；本档判断题 {tagTypeCounts.judge ?? 0} 道，
+                        {(tagTypeCounts.judge ?? 0) > 0
+                          ? '新增的 2023-2024 省赛初赛真题含判断题，可直接在真题档练习'
+                          : '练判断请改选「高频」'}）
                       </span>
                     ) : (
                       <span className="text-muted-foreground/60">
