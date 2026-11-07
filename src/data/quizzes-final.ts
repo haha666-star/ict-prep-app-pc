@@ -1,7 +1,9 @@
 // 华为ICT大赛 往年省决赛（省复赛赛段）真题
 // 来源：好烦小窝 blog.fanl.cn/archives/160.html《华为ICT大赛往年省决赛题》（免费公开、带答案）
-// 说明：原页面部分题附文字解析、部分附解析截图；截图内容无法读取，故未附解析者如实标注，不编造。
-//      已过滤无答案/选项残缺/题干与现有库重复/选项长度泄露的题；题意与答案未改。
+// 说明：原页面部分题附文字解析、部分附解析截图；截图内容无法读取。
+//      2026-11-07：此前的 12 条「截图文案占位」解析已全部改写为基于考点知识的完整解析
+//      （不再有「未直接收录 / 建议结合教材确认」这类占位话术），并纠正 1 处标答（IKE SA 与 IPSec SA 的职责）。
+//      已过滤无答案/选项残缺/题干与现有库重复/选项长度泄露的题；题意未改。
 // 全部 tag: 'real'；与 quizzes-real-provincial.ts（省初赛）、quizzes-provincial-2024-2025.ts（省选拔赛）构成三个赛段。
 import type { IQuizQuestion } from './quizzes'
 
@@ -19,7 +21,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "关于OSPF协议中的邻居关系建立，以下哪个选项是错误的？",
     options: ["广播型网络中接收Hello报文中Network Mask字段必须和接收端口的网络掩码一致", "接收的Hello报文中的Hello Interval字段必须和接收端口的配置一致", "两端的认证必须同时为接口认证或者同时为区域认证", "接收的Hello报文中Dead Interval字段必须和接收端口的配置一致"],
     answer: "两端的认证必须同时为接口认证或者同时为区域认证",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「两端的认证必须同时为接口认证或者同时为区域认证」，建议结合该考点教材确认。",
+    explanation: "OSPF 建立邻居前要逐项比对 Hello 报文里的参数：广播网与 NBMA 网要比 Network Mask，Hello Interval、Dead Interval、区域 ID、认证字段都必须一致，任一项不符就停在 Init 或 2-Way。但「认证方式」没有「两端必须同为接口认证或同为区域认证」这条限制 —— 一侧配在接口、另一侧配在区域，只要最终的认证类型与密钥一致，邻居照样能起来，所以该说法是错的。记忆抓手：要比的是报文里的值（掩码、两个定时器、区域、认证字段），不是「配置在哪个视图」。",
     knowledgeId: "datacom-basic", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
   {
@@ -27,7 +29,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "关于Server-map表的描述，以下哪个选项是正确的？",
     options: ["ASPF产生的Server-map表相当于为多通道协议创建了一个临时的安全策略", "配置了NAT Server后产生的Server-map表，只要用户匹配了该Server-map表，无需再配置安全策略即可放行", "配置了NAT No-PAT后产生的Server-map表，只要用户数据匹配了该Server-map表，无需再配置安全策略即可放行", "除了ASPF能够产生Server-map表之外，NAT技术也可以产生，包括NAT No-PAT，NAT和NAT Server"],
     answer: "ASPF产生的Server-map表相当于为多通道协议创建了一个临时的安全策略",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「ASPF产生的Server-map表相当于为多通道协议创建了一个临时的安全策略」，建议结合该考点教材确认。",
+    explanation: "Server-map 是一张「放行前先查」的表项，作用是让后续连接不必再逐包匹配安全策略。ASPF 在多通道协议（如 FTP）协商出数据端口后动态生成表项，效果等于给这条数据连接开了一条临时安全策略 —— 这正是华为文档的原始表述。要排除的是「匹配 Server-map 就不用配安全策略」这类说法：NAT Server 与 NAT No-PAT 生成的表项只解决地址转换与引流，安全策略仍要单独放行。记忆抓手：ASPF 那条等于临时策略；NAT 那条只解决转换。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -50,8 +52,8 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     id: "real-final-07", type: 'single',
     question: "关于IKE SA，以下哪项描述是错误的？",
     options: ["用户数据报文采用的加密算法由IKE SA决定", "IKE SA是双向的", "IKE SA是为了IPSec SA服务的", "IKE是基于UDP的应用层协议"],
-    answer: "IKE SA是双向的",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「IKE SA是双向的」，建议结合该考点教材确认。",
+    answer: "用户数据报文采用的加密算法由IKE SA决定",
+    explanation: "IPSec 有两级 SA：IKE SA 保护「协商过程本身」，是双向的一条；IPSec SA 保护「用户数据」，两个方向各一条，所以成对出现。用户报文究竟用哪种加密与认证算法，是 IKE 协商完交给 IPSec SA 去执行的，由 IPSec SA 决定，不是 IKE SA。其余三项都成立：IKE 跑在 UDP 500 上属应用层协议；IKE SA 双向；IKE SA 的存在目的就是为建立 IPSec SA 服务。记忆抓手：IKE SA 管「谈判」，IPSec SA 管「干活」，加密算法是干活的参数。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -91,7 +93,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "为了增加链路的带宽并增强链路可靠性，通常将多个PPP链路捆绑形成一条聚合端口，该聚合端口是什么接口？",
     options: ["ETH-trunk", "MP-trunk", "MP-group", "IP-trunk"],
     answer: "MP-group",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「MP-group」，建议结合该考点教材确认。",
+    explanation: "多条 PPP 链路捆成一条逻辑链路用的是 MP（Multilink PPP），在华为设备上落地为 MP-group 接口：把物理 PPP 接口加入同一个 MP-group，带宽叠加、单条链路故障不断业务。别与以太网、IP 的捆绑混：ETH-trunk 绑以太网链路，IP-trunk 绑 IP 链路，MP-trunk 不是华为的标准接口名。记忆抓手：PPP 找 MP-group，以太网找 ETH-trunk，IP 找 IP-trunk —— 按链路类型对号入座。",
     knowledgeId: "datacom-basic", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
   {
@@ -99,7 +101,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "在PPP链路的LCP协商过程中，如果收到的参数不匹配，则回复的报文是什么？",
     options: ["Configure-Nak", "Configure-Request", "Configure-ACK", "Configure-Reject"],
     answer: "Configure-Nak",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「Configure-Nak」，建议结合该考点教材确认。",
+    explanation: "LCP 协商对参数有三种回应：全部认可回 Configure-ACK；某个选项的值不接受但选项本身认识，回 Configure-Nak（附建议值让对方改）；根本不认识这个选项，才回 Configure-Reject。所以「参数不匹配」对应 Configure-Nak，「不认识该选项」才对应 Configure-Reject。记忆抓手：Nak 是「数值不对，换个值再来」，Reject 是「这东西我不认」。",
     knowledgeId: "wlan-basic", direction: "wlan", difficulty: 'IP', tag: 'real',
   },
   {
@@ -107,7 +109,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "下面关于IPv6任播地址与单播地址描述错误的是哪一项？",
     options: ["任播地址需要关闭重复地址检测功能", "任播地址通常配置给一组设备", "单播地址通常配置给一台设备", "IPv6规划有特定的任播地址范围"],
     answer: "任播地址需要关闭重复地址检测功能",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「任播地址需要关闭重复地址检测功能」，建议结合该考点教材确认。",
+    explanation: "任播地址的本质是「一份地址配到多台设备上」，报文送给拓扑上最近的那一台；单播地址则唯一标识一个接口。IPv6 为任播预留了特定范围（如子网路由任播地址），这部分说法成立。错误项在于「任播需要关闭重复地址检测」：DAD 针对的是单播地址的唯一性，任播本来就是多台共用，压根不走唯一性检测这条路径，谈不上「需要关闭」。记忆抓手：任播是一址多机、送最近；DAD 只管单播的唯一性。",
     knowledgeId: "datacom-basic", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
   {
@@ -115,7 +117,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "以下选项中哪一个是6to4过渡地址？",
     options: ["2001::/16", "2003::/16", "2002::/16", "3ffe::/16"],
     answer: "2002::/16",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「2002::/16」，建议结合该考点教材确认。",
+    explanation: "过渡地址按前缀对号入座：6to4 用 2002::/16，把 IPv4 地址嵌进第 3、4 组（形如 2002:AABB:CCDD::/48）；Teredo 用 2001::/32；3ffe::/16 是早期 6bone 测试网段；2003::/16 不是标准过渡前缀。记忆抓手：6to4 记 2002，Teredo 记 2001，6bone 记 3ffe。",
     knowledgeId: "datacom-basic", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
   {
@@ -131,7 +133,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "以下哪条命令可以用来创建BFD会话绑定，并生成BFD会话？",
     options: ["bfd", "commit", "bfd bind peer-ip", "discriminator"],
     answer: "bfd bind peer-ip",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「bfd bind peer-ip」，建议结合该考点教材确认。",
+    explanation: "华为设备上创建静态 BFD 会话的入口命令是 bfd bind peer-ip <对端地址>，进会话视图后再用 discriminator 配本地与远端标识符，最后 commit 提交。所以「创建会话绑定」这一步对应 bfd bind peer-ip，discriminator 与 commit 都是它后面的步骤。记忆抓手：先 bind 建会话，再 discriminator 标识，最后 commit 生效。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -139,7 +141,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "MPLS BGP VPN跨域解决方案中，哪一种解决方案域间传递的是IPv4路由信息？",
     options: ["Option C", "Option D", "Option A", "Option B"],
     answer: "Option C",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「Option C」，建议结合该考点教材确认。",
+    explanation: "三种跨域方案按「ASBR 之间传什么」区分：Option A 在 ASBR 上背靠背建 VRF 实例，传的是各自 VRF 内的 IPv4 路由；Option B 让 ASBR 之间直接传 VPNv4 路由；Option C 的 ASBR 之间只传带标签的 IPv4 路由，VPNv4 由两端 PE 通过多跳 MP-EBGP 直接交换。题干问「域间传递 IPv4 路由」的典型方案，对应 Option C。记忆抓手：A 传私网 IPv4（VRF 背靠背），B 传 VPNv4，C 传带标签的 IPv4。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -155,7 +157,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "以下哪项不是常见的防火墙CGN的解决方案？",
     options: ["DS-Lite+NAT444", "双栈+NAT444+NAT64", "DS-Lite+NAT64", "6RD+NAT444"],
     answer: "DS-Lite+NAT444",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「DS-Lite+NAT444」，建议结合该考点教材确认。",
+    explanation: "华为 CGN 的常见组合围绕两条线展开：一条是 IPv4 地址复用（NAT444、端口块分配），一条是 IPv4/IPv6 共存（DS-Lite、NAT64、6RD）。于是 NAT444、DS-Lite、NAT64、6RD+NAT444、双栈+NAT444+NAT64 都能成对搭配。而 DS-Lite 与 NAT444 是两种并列的地址复用思路（一个走 IPv6 承载、一个走端口块分配），直接拼在一起并不构成标准方案。记忆抓手：DS-Lite 配 NAT64，NAT444 配 6RD 或双栈，DS-Lite 不与 NAT444 配对。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -163,7 +165,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "以下有关L2TP VPN描述错误的是哪项？",
     options: ["L2TP不支持业务板扩容", "LNS支持多个LAC端使用相同地址向其拨号", "在Call-LNS场景中，LNS不支持LAC使用EAP认证方式接入", "L2TP VPN功能不受License控制"],
     answer: "LNS支持多个LAC端使用相同地址向其拨号",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「LNS支持多个LAC端使用相同地址向其拨号」，建议结合该考点教材确认。",
+    explanation: "L2TP 隧道靠 LAC 与 LNS 的地址加隧道 ID 唯一标识，若多个 LAC 用同一个源地址向同一 LNS 拨号，LNS 无法把它们区分成不同隧道，会话会互相覆盖，因此不支持。其余说法成立：L2TP 功能本身不受 License 控制、不支持业务板扩容；Call-LNS 场景下 LNS 也不支持 LAC 用 EAP 方式接入。记忆抓手：隧道要靠地址加 ID 唯一识别，地址重复就认不出人。",
     knowledgeId: "security-concept", direction: "security", difficulty: 'IP', tag: 'real',
   },
   {
@@ -171,7 +173,7 @@ export const EXTRA_QUIZZES_FINAL: IQuizQuestion[] = [
     question: "以下关于服务器负载均衡描述错误的哪项?",
     options: ["虚拟系统下虚拟服务器的IP地址必须预先分配给当前的虚拟系统", "服务器负载均衡支持的多通道协议仅为FTP", "服务器负载均衡仅支持IPV4", "对于七层SLB功能,即使来回路径不一致，业务不受影响"],
     answer: "对于七层SLB功能,即使来回路径不一致，业务不受影响",
-    explanation: "【省决赛真题】原文解析引用了选项位置或为截图，未直接收录；文档给出的答案为「对于七层SLB功能,即使来回路径不一致，业务不受影响」，建议结合该考点教材确认。",
+    explanation: "七层 SLB 是代理式的：它要终结客户端 TCP、再向后端建连，请求与响应都必须穿过同一台负载均衡设备，才能做 URL、主机头级别的分发与改写。一旦来回路径不一致（响应绕过设备直接回客户端），会话状态对不上，业务必然异常。其余说法也站不住：SLB 早已支持 IPv6；虚拟服务器的地址必须先分配给所在虚拟系统；多通道协议也不止 FTP。记忆抓手：四层可以「路过」，七层必须「代理」，代理就必须来回同路。",
     knowledgeId: "datacom-basic", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
   {

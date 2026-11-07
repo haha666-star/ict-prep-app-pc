@@ -19,6 +19,7 @@ import { EXTRA_QUIZZES_EXPAND_G } from './quizzes-expand-g'
 import { EXTRA_QUIZZES_EXPAND_H } from './quizzes-expand-h'
 import { EXTRA_QUIZZES_CLOUD_A } from './quizzes-cloud-a'
 import { EXTRA_QUIZZES_CLOUD_B } from './quizzes-cloud-b'
+import { QUIZ_MNEMONIC } from './quiz-mnemonics'
 import { stableShuffleOptions } from '../lib/options'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
@@ -51,6 +52,14 @@ export interface IQuizQuestion {
    * 手写题库数据里**不要**填这个字段。
    */
   mnemonicSeq?: number
+  /**
+   * 逐题记忆钩子：**优先级高于知识点口诀**（见 QuizExplanation 的取值顺序）。
+   * 由 `QUIZ_MNEMONIC`（src/data/quiz-mnemonics.ts）在聚合时按 id 注入，
+   * 手写题库数据里**不要**填这个字段。
+   * 为什么需要：知识点级口诀一个考点只有 3 条变体，而一个考点动辄 20~60 道题，
+   * 轮询分配必然出现「口诀讲的是同考点的另一件事」—— 这一层专门给这些题补一句贴题的。
+   */
+  mnemonic?: string
 }
 
 const RAW_QUIZZES: IQuizQuestion[] = [
@@ -3688,5 +3697,7 @@ const _mnemonicSeq = new Map<string, number>()
 export const MOCK_QUIZZES: IQuizQuestion[] = RAW_QUIZZES.map(stableShuffleOptions).map((q) => {
   const seq = _mnemonicSeq.get(q.knowledgeId) ?? 0
   _mnemonicSeq.set(q.knowledgeId, seq + 1)
-  return { ...q, mnemonicSeq: seq }
+  // 逐题记忆钩子（有则覆盖知识点口诀；见 IQuizQuestion.mnemonic 的说明）
+  const own = QUIZ_MNEMONIC[q.id]
+  return own ? { ...q, mnemonicSeq: seq, mnemonic: own } : { ...q, mnemonicSeq: seq }
 })

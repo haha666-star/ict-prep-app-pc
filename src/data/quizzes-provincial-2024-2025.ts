@@ -212,7 +212,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   },
   {
     id: "real-p25-031", type: 'single',
-    question: "在华为ARG3路由器上，VRP中Ping命令的—i参数是用来设置？",
+    question: "在华为ARG3路由器上，VRP中Ping命令的 -i 参数是用来设置？",
     options: ["发送EchoRequest报文的接口", "接收EchoReply报文的目的IP地址", "接收EchoReply报文的接口", "发送EchoRequest报文的源IP地址"],
     answer: "发送EchoRequest报文的接口",
     explanation: "ping 的 -i 参数用于指定「从哪个接口发出 Echo Request 报文」—— 当设备有多个出接口或多条路径时，用它强制探测报文从指定接口发出，从而验证该接口所在链路是否可达。要与另外两个易混参数区分：-a 指定报文的源 IP 地址（改的是源地址字段），-s 指定报文长度（用于测试 MTU 与分片）。记忆抓手：-i 管「从哪个口出」，-a 管「用哪个源地址」，一个改出口一个改源。",
@@ -444,7 +444,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   },
   {
     id: "real-p25-065", type: 'single',
-    question: "在CloudFabric云网一体化OpenStack场景中，某公司的内网中有两台双栈VM处于同—VPC之中，它们想要向对方发送文件（无需经过防火墙）。此时在OpenStack云平台上创建网络对应的子网时，不需要指定以下哪一项参数？",
+    question: "在CloudFabric云网一体化OpenStack场景中，某公司的内网中有两台双栈VM处于同一 VPC 之中，它们想要向对方发送文件（无需经过防火墙）。此时在OpenStack云平台上创建网络对应的子网时，不需要指定以下哪一项参数？",
     options: ["子网名称", "关联路由", "网络地址", "IP版本"],
     answer: "关联路由",
     explanation: "两台双栈虚拟机处在同一个 VPC、同一个子网内，互访走的是二层直通，不经过任何三层设备，因此创建子网时不需要指定「关联路由」。子网必须给的是：子网名称（标识）、网络地址与掩码（确定网段范围）、IP 版本（IPv4/IPv6 双栈时要声明）。关联路由是「这个子网接哪个路由器出网」的配置，属跨子网访问才需要的项。记忆抓手：同子网二层通、不需要路由器；只有要跨子网或出公网，才谈关联路由。",
@@ -645,8 +645,8 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   {
     id: "real-p25-093", type: 'single',
     question: "用以下哪条命令可以查看路由器的CPU使用率？",
-    options: ["displaycpu-state", "displayinterface", "displaymemory", "isplaycpu-usage"],
-    answer: "isplaycpu-usage",
+    options: ["display cpu-state", "display interface", "display memory-usage", "display cpu-usage"],
+    answer: "display cpu-usage",
     explanation: "VRP 平台查看 CPU 占用用 display cpu-usage，会按 5 秒、1 分钟、5 分钟三个统计周期给出占用率，便于判断是瞬时尖峰还是持续高负载。同一族命令要分清：display memory-usage 看内存占用，display interface 看接口状态与流量计数，display cpu-state 不是标准命令。记忆抓手：看 CPU 用 cpu-usage、看内存用 memory-usage，属「缺什么查什么」的直白命名，不需要死记。",
     knowledgeId: "datacom-basic", direction: "wlan", difficulty: 'IP', tag: 'real',
   },
@@ -820,7 +820,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   },
   {
     id: "real-p25-116", type: 'single',
-    question: "以下哪一项不属于Anti—DDoS管理中心的功能？",
+    question: "以下哪一项不属于 Anti-DDoS 管理中心的功能？",
     options: ["告警管理", "流量检测", "性能管理", "策略管理"],
     answer: "流量检测",
     explanation: "Anti-DDoS 系统分管理中心与检测中心两块：管理中心负责告警管理、性能管理、策略管理这类「管理与呈现」工作；检测中心负责流量检测，实时分析流量特征并识别攻击。所以流量检测不属于管理中心的功能。记忆抓手：管理中心管「策略与告警」，检测中心管「看流量」，清洗中心管「洗流量」，三者分工不要串。",
@@ -844,7 +844,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   },
   {
     id: "real-p25-121", type: 'single',
-    question: "以下哪一项不是Anti—DDoS防御系统管理中心的职责？",
+    question: "以下哪一项不是 Anti-DDoS 防御系统管理中心的职责？",
     options: ["进行流量引流", "安全报表分析", "下发防御策略", "设备管理"],
     answer: "进行流量引流",
     explanation: "Anti-DDoS 防御系统里，管理中心的职责是安全报表分析、设备管理、下发防御策略这类「指挥」工作；而把攻击流量引到清洗设备上（流量引流）是清洗中心配合检测结果执行的「动作」，不属于管理中心的职责。记忆抓手：管理中心「发号施令」，清洗中心「动手引流」，把执行动作安到管理中心头上就是错的。",
@@ -965,7 +965,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   {
     id: "real-p25-137", type: 'single',
     question: "以下关于智能DNS的描述，错误的是哪一项？",
-    options: ["智能DNS无需配合其它技术，可以单独使用", "智能DNS支持加权轮询方式实现链路负载均衡", "通过配置智能DNS功能，防火墙可以将DNS回应报文中的解析地址进行智能的修改，使用户能够获得最合适的解析地址，即与用户属于同—ISP网络的地址", "智能能DNS分为单服务器智能DNS和多服务器智能DNS两种场景"],
+    options: ["智能DNS无需配合其它技术，可以单独使用", "智能DNS支持加权轮询方式实现链路负载均衡", "通过配置智能DNS功能，防火墙可以将DNS回应报文中的解析地址进行智能的修改，使用户能够获得最合适的解析地址，即与用户属于同一 ISP 网络的地址", "智能DNS分为单服务器智能DNS和多服务器智能DNS两种场景"],
     answer: "智能DNS无需配合其它技术，可以单独使用",
     explanation: "智能 DNS 的价值在于「让用户解析到最合适的地址」，但这个能力不是孤立实现的：它需要与链路负载均衡、多出口选路等技术配合，才能根据用户所属 ISP、链路质量与负载情况动态改写 DNS 回应中的解析地址；单独部署无法感知链路状态。其余描述成立：支持加权轮询实现链路负载分担；可把 DNS 回应中的地址改写为与用户同一 ISP 的地址；分单服务器与多服务器两种场景。记忆抓手：智能 DNS 是「改写解析结果」，前提是有人告诉它「哪条链路最合适」—— 所以它必须配合选路技术。",
     knowledgeId: "security-fw-advance", direction: "dcn", difficulty: 'IP', tag: 'real',
@@ -1005,8 +1005,8 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   {
     id: "real-p25-142", type: 'single',
     question: "以下关于虚拟接口的描述。错误的是哪项？",
-    options: ["虚拟接口名的格式为\"Virtual—if+接口号”", "根系统的虚拟接口为Virtual—if", "虚拟系统之间通过虚拟接口实现互访", "虚拟接口的链路层和协议层始终是UP"],
-    answer: "根系统的虚拟接口为Virtual—if",
+    options: ["虚拟接口名的格式为“Virtual-if+接口号”", "根系统的虚拟接口为Virtual-if", "虚拟系统之间通过虚拟接口实现互访", "虚拟接口的链路层和协议层始终是UP"],
+    answer: "根系统的虚拟接口为Virtual-if",
     explanation: "虚拟接口（Virtual-if）是虚拟系统之间互访的逻辑通道，命名格式为 Virtual-if 加接口号。要分清两件事：根系统也有虚拟接口，但它固定是 Virtual-if0 这一个编号，不是笼统的「Virtual-if」；其他虚拟系统依次是 Virtual-if1、Virtual-if2 等。虚拟接口的链路层与协议层始终为 UP，因为它是设备内部逻辑接口，不存在物理链路故障。记忆抓手：根系统独享 0 号，其余顺延；内部逻辑接口永远 UP。",
     knowledgeId: "security-fw-advance", direction: "datacom", difficulty: 'IP', tag: 'real',
   },
@@ -1549,7 +1549,7 @@ export const EXTRA_QUIZZES_PROVINCIAL_2024_2025: IQuizQuestion[] = [  {
   {
     id: "real-p25-225", type: 'single',
     question: "下面关于OSPF报文验证描述错误的是:",
-    options: ["R2200支持的验证模式按加密算法不同分为null，simple、MD5以及HMAC—MD5.", "AR2200支持两种认证方式:区域验证和接口验证", "当区域验证方式和接口验证方式同时存在时，优先使用区域验证", "只有通过验证的OSPF报文才能接受，否则将不能正常建立邻居"],
+    options: ["AR2200支持的验证模式按加密算法不同分为null、simple、MD5以及HMAC-MD5", "AR2200支持两种认证方式：区域验证和接口验证", "当区域验证方式和接口验证方式同时存在时，优先使用区域验证", "只有通过验证的OSPF报文才能接受，否则将不能正常建立邻居"],
     answer: "当区域验证方式和接口验证方式同时存在时，优先使用区域验证",
     explanation: "OSPF 的报文验证有两种粒度：区域验证在区域视图下配置，对该区域内的所有接口生效；接口验证在接口视图下配置，只对当前接口生效。两者同时存在时接口验证优先，因为接口级配置更具体、更贴近报文。这也是排障时的常见坑——区域验证明明配对，某个接口单独配了不同的验证字，邻居就是起不来。AR2200 支持的验证模式按算法分为 null（不验证）、simple（明文）、MD5、HMAC-MD5 四类；只有通过验证的报文才会被处理，验证不过连邻居都建不起来。记忆抓手：接口验证压区域验证，越具体的配置越优先。",
     knowledgeId: "datacom-ospf", direction: "security", difficulty: 'IP', tag: 'real',
