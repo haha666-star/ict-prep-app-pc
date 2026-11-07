@@ -7,6 +7,8 @@ import { EXTRA_QUIZZES_E } from './quizzes-extra-e'
 import { EXTRA_QUIZZES_F } from './quizzes-extra-f'
 import { EXTRA_QUIZZES_REAL } from './quizzes-real'
 import { EXTRA_QUIZZES_PROVINCIAL_2023_2024 } from './quizzes-real-provincial'
+import { EXTRA_QUIZZES_PROVINCIAL_2024_2025 } from './quizzes-provincial-2024-2025'
+import { EXTRA_QUIZZES_FINAL } from './quizzes-final'
 import { EXTRA_QUIZZES_EXPAND_A } from './quizzes-expand-a'
 import { EXTRA_QUIZZES_EXPAND_B } from './quizzes-expand-b'
 import { EXTRA_QUIZZES_EXPAND_C } from './quizzes-expand-c'
@@ -3651,6 +3653,11 @@ const RAW_QUIZZES: IQuizQuestion[] = [
 
   // ==================== 2023-2024 省赛初赛公开真题（2026-11-07 新增，来源见文件头） ====================
   ...EXTRA_QUIZZES_PROVINCIAL_2023_2024,
+
+  // ==================== 2024-2025 省选拔赛（省资格赛）真题 210 道 ====================
+  ...EXTRA_QUIZZES_PROVINCIAL_2024_2025,
+  // ==================== 往年省决赛（省复赛）真题 22 道 ====================
+  ...EXTRA_QUIZZES_FINAL,
 
   // ==================== v7 国一冲刺扩容（补 WLAN 权重缺口 + IE 深水区） ====================
   ...EXTRA_QUIZZES_E,
