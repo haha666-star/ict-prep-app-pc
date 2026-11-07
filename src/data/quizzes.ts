@@ -17,6 +17,8 @@ import { EXTRA_QUIZZES_EXPAND_E } from './quizzes-expand-e'
 import { EXTRA_QUIZZES_EXPAND_F } from './quizzes-expand-f'
 import { EXTRA_QUIZZES_EXPAND_G } from './quizzes-expand-g'
 import { EXTRA_QUIZZES_EXPAND_H } from './quizzes-expand-h'
+import { EXTRA_QUIZZES_CLOUD_A } from './quizzes-cloud-a'
+import { EXTRA_QUIZZES_CLOUD_B } from './quizzes-cloud-b'
 import { stableShuffleOptions } from '../lib/options'
 
 export type QuizDifficulty = 'IA' | 'IP' | 'IE'
@@ -3654,7 +3656,7 @@ const RAW_QUIZZES: IQuizQuestion[] = [
   // ==================== 2023-2024 省赛初赛公开真题（2026-11-07 新增，来源见文件头） ====================
   ...EXTRA_QUIZZES_PROVINCIAL_2023_2024,
 
-  // ==================== 2024-2025 省选拔赛（省资格赛）真题 210 道 ====================
+  // ==================== 2024-2025 省选拔赛（省资格赛）真题（原 207 道，剔除 12 道 OCR 残缺或标答存疑题后 195 道） ====================
   ...EXTRA_QUIZZES_PROVINCIAL_2024_2025,
   // ==================== 往年省决赛（省复赛）真题 22 道 ====================
   ...EXTRA_QUIZZES_FINAL,
@@ -3674,6 +3676,10 @@ const RAW_QUIZZES: IQuizQuestion[] = [
   ...EXTRA_QUIZZES_EXPAND_F,
   ...EXTRA_QUIZZES_EXPAND_G,
   ...EXTRA_QUIZZES_EXPAND_H,
+
+  // ==================== 云/算力/园区网叶子知识点三题型补齐（2026-11-07，全部为原创练习题，tag: hot） ====================
+  ...EXTRA_QUIZZES_CLOUD_A,
+  ...EXTRA_QUIZZES_CLOUD_B,
 ];
 
 // 选项顺序稳定打乱：消除"正确答案集中在 A/B"的位置偏斜（按题号定种子，顺序稳定）

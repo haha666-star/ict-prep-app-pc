@@ -138,7 +138,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '该子网掩码为 255.255.255.192',
     ],
     explanation: '/26 对应掩码 255.255.255.192，块大小为 64。第四个八位组 130 落在 128~191 网段：网络地址 128、广播地址 191，可用主机数 2^6-2=62。四项均正确。',
-    knowledgeId: 'datacom-ip-subnet', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-ip-subnet', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-011', type: 'multiple', difficulty: 'IP',
@@ -245,7 +245,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
       '静态绑定 IP-MAC 可降低被 ARP 欺骗的风险',
     ],
     explanation: '四项均正确。绑定表 + DAI（动态 ARP 检测）是园区网防御 ARP 欺骗的标准组合，静态绑定则在关键设备（如网关）上进一步加固。',
-    knowledgeId: 'datacom-arp', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-arp', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-020', type: 'judge', difficulty: 'IA',
@@ -438,7 +438,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
     options: ['速率、双工、VLAN 一致', '仅需 VLAN 配置一致即可', '仅需速率完全一致即可', '仅需双工模式完全一致即可'],
     answer: '速率、双工、VLAN 一致',
     explanation: '成员接口的参数必须完全一致（速率、双工、链路类型、VLAN 配置），否则无法成功加入聚合组，这是配置环节最常见的排障点。',
-    knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-eth-trunk', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-040', type: 'multiple', difficulty: 'IP',
@@ -513,7 +513,7 @@ export const EXTRA_QUIZZES_EXPAND_A: IQuizQuestion[] = [
     options: ['堆叠优先级，数值大者优先', 'MAC 地址，数值大者优先', '堆叠 ID，数值大者优先', '设备运行时长，时长长者优先'],
     answer: '堆叠优先级，数值大者优先',
     explanation: '主交换机选举规则：先比较堆叠优先级（大者优先），若相同则比较 MAC 地址（小者优先）。注意与 STP 根桥选举（桥优先级小者优先）方向相反，是高频易错点。',
-    knowledgeId: 'datacom-stack', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-stack', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-046', type: 'multiple', difficulty: 'IP',

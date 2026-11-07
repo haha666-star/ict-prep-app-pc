@@ -157,7 +157,7 @@ export const EXTRA_QUIZZES_EXPAND_E: IQuizQuestion[] = [
     ],
     answer: ['用于让外网用户访问内网服务器', '支持配置端口映射', 'NAT 不能替代安全策略，流量仍需被安全策略允许'],
     explanation: 'NAT 只解决地址转换，是否放行仍由安全策略决定。忘记配置放行策略是 NAT Server 不生效的头号原因，因此「命中 NAT Server 的流量可以跳过安全策略检查」这一说法错误。',
-    knowledgeId: 'security-nat', direction: 'security', tag: 'real',
+    knowledgeId: 'security-nat', direction: 'security', tag: 'hot',
   },
   {
     id: 'ex-sec-014', type: 'multiple', difficulty: 'IP',

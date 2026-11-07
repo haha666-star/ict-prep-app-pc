@@ -194,7 +194,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
       '数字签名提供完整性、身份认证与不可否认性',
     ],
     explanation: '签名用私钥、验签用公钥，「数字签名由发送方使用公钥生成、接收方用私钥验证」这一说法把方向写反了。这与"公钥加密、私钥解密"的方向恰好相反，最易混淆。',
-    knowledgeId: 'security-pki', direction: 'security', tag: 'real',
+    knowledgeId: 'security-pki', direction: 'security', tag: 'hot',
   },
   {
     id: 'ex-sec-064', type: 'judge', difficulty: 'IP',
@@ -370,7 +370,7 @@ export const EXTRA_QUIZZES_EXPAND_F: IQuizQuestion[] = [
     options: ['存在二层环路或 MAC 仿冒攻击', '设备运行完全正常', '三层网关配置错误', 'DHCP 服务器故障'],
     answer: '存在二层环路或 MAC 仿冒攻击',
     explanation: 'MAC 漂移往往意味着同一地址出现在两个端口，常见原因为二层环路或攻击者伪造 MAC，需要结合环路检测与端口安全排查。',
-    knowledgeId: 'security-port-security', direction: 'security', tag: 'real',
+    knowledgeId: 'security-port-security', direction: 'security', tag: 'hot',
   },
   {
     id: 'ex-sec-081', type: 'multiple', difficulty: 'IP',

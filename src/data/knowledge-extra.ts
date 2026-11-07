@@ -366,4 +366,171 @@ export const EXTRA_KNOWLEDGE: IKnowledge[] = [
     ],
     tips: 'SDN 三要素（转控分离/集中控制/开放接口）与南北向接口区分是必考'
   },
+
+  // ===== 云/计算/存储类知识点（2026-11-07 新增，承接省赛真题的云网与算力考点）=====
+  {
+    id: 'dcn-server',
+    name: '服务器硬件与接口',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "服务器三大件分工：CPU 负责运算与控制，内存（DRAM）在运算时临时存放程序指令、数据和中间结果（断电即失），硬盘负责持久化存储",
+      "硬盘介质三类：HDD 机械硬盘（磁头寻道 + 盘片旋转，容量大、单位成本低、随机读写慢）、SSD 固态硬盘（NAND Flash，无机械部件，随机 IOPS 高）、SCM 存储级内存（非易失、接近内存的低时延，介于内存与 SSD 之间）",
+      "NVMe 是面向 PCIe 总线的闪存访问协议，支持 SSD 与 SCM，不支持 HDD —— 机械盘靠寻道定位，NVMe 的并行队列优势无从发挥",
+      "PCIe 插槽宽度（lane 数）规范内包含 x1、x2、x4、x8、x16、x32；链路可向下协商，x16 插槽可插 x4 卡",
+      "存储连接形态：DAS 直连（服务器直接挂盘）、NAS 文件级（走 TCP/IP，NFS/CIFS 协议）、SAN 块级（FC SAN 走光纤通道、IP SAN 走 iSCSI）",
+      "SAN 是存储区域网络（一种组网形态），不是硬盘介质；判断\"是否介质\"看它能不能直接存比特"
+    ],
+    tips: "介质与组网形态必须分清：HDD/SSD/SCM 是介质，DAS/NAS/SAN 是连接方式。NVMe 只面向闪存介质，判断题常在这里设陷阱"
+  },
+  {
+    id: 'dcn-virtualization',
+    name: '服务器虚拟化',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "Hypervisor（VMM，虚拟机监视器）负责在物理硬件与虚拟机之间做资源抽象与调度，是虚拟化的核心",
+      "Type 1 裸金属型：Hypervisor 直接跑在硬件上，性能损耗小，生产环境主流（ESXi、Xen、KVM 内核态）",
+      "Type 2 宿主型：Hypervisor 装在 Host OS 之上，部署方便但多一层开销（VirtualBox、VMware Workstation）",
+      "四个角色别混：Host OS 宿主机操作系统、Guest OS 虚拟机内操作系统、Guest Machine 虚拟机本身、Hypervisor 监视器",
+      "虚拟化管理平台：提供图形界面，负责监控与管理虚拟化资源池、简化虚拟机管理流程、配置资源调度策略与执行规则（如 FusionCompute 的 VRM）",
+      "DVS 分布式虚拟交换机：把多台主机的虚拟交换功能统一管理。同端口组且同主机 → 直接经 DVS 二层转发；不同端口组（不同 VLAN）→ 需经上行链路到物理交换机；不同 DVS 即使 VLAN 相同 → 也必须经物理交换机，不能直通"
+    ],
+    tips: "Hypervisor 是\"监视器\"不是\"操作系统\"；DVS 跨主机通信必须落到物理网络，只有同主机同端口组才在本地二层转发"
+  },
+  {
+    id: 'dcn-openstack',
+    name: 'OpenStack 云平台组件',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "Keystone：统一身份认证与服务目录，所有组件之间的认证鉴权都依赖它 —— 谁调用谁先过 Keystone",
+      "Nova：计算服务，负责虚拟机生命周期（创建/修改/删除）。创建时调用 Glance 取镜像、调用 Neutron 创建网络接口，自身不创建网卡",
+      "Neutron：网络服务，抽象 Network（网络）、Subnet（子网）、Port（端口）、Router（路由器）；Core Plugin 提供 Network/Subnet/Port/Router，Service Plugin 提供 LB/FW/VPN 等扩展",
+      "Neutron 的 Agent 部署在每个运行 Hypervisor 的主机上，负责本地虚拟交换机配置；L3 Agent 提供三层转发与 NAT；DHCP Agent 为租户网络动态分配 IP（不是静态分配）",
+      "Cinder：块存储，为虚拟机提供可挂载的云硬盘，用于需要长期保存的持久化数据",
+      "Swift：对象存储，面向海量非结构化数据，常用于存放虚拟机镜像、数据备份、归档",
+      "Glance：镜像服务，提供镜像的发现、注册与检索。同一个镜像可以启动多个实例；在实例内的修改不会回写到镜像",
+      "业务模型：一个 Project 内可包含多个 Router，一个 Router 可关联多个虚拟防火墙（不是一对一）"
+    ],
+    tips: "一句话串起来：Keystone 管\"你是谁\"，Glance 管\"装什么系统\"，Nova 管\"开机器\"，Neutron 管\"通不通\"，Cinder 管\"挂块盘\"，Swift 管\"存对象\""
+  },
+  {
+    id: 'dcn-container',
+    name: '容器与 Kubernetes',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "容器与虚拟机的本质差别：容器共享宿主机内核、不需要独立内核，因此镜像更小（MB 级）、启动更快（秒级）；但隔离性弱于虚拟机（VM 有独立内核与硬件虚拟化边界）",
+      "Kubernetes 核心组件：kube-apiserver（唯一入口）、etcd（集群元数据存储）、kube-scheduler（调度到节点）、kube-controller-manager（控制器循环）、kubelet（节点代理）、kube-proxy（Service 转发）",
+      "LoadBalancer 是 Service 的一种暴露类型（云厂商 LB），不是集群核心组件 —— 判断\"是否核心组件\"要分清组件与资源类型",
+      "Calico：基于 BGP 的三层路由方案，把运行容器的服务器当成路由器跑 BGP；Felix 是每节点上的代理，负责把路由与 ACL 下发到内核，不负责存元数据（存元数据的是 etcd）",
+      "Macvlan：Linux 内核特性、L2 桥接方案、Docker 原生支持；要求物理网卡开启混杂模式，容器网关落在物理交换机上，容器 IP 需手工规划管理，不自带地址自动分配",
+      "大规模 Calico 组网用路由反射器（RR）收敛全网 Pod 路由，避免 BGP 全互联的 N 平方问题"
+    ],
+    tips: "容器\"轻\"来自共享内核，代价就是隔离性弱；K8s 组件题先排除 Service 类型（LoadBalancer/NodePort/ClusterIP）和附加组件（Ingress/Dashboard）"
+  },
+  {
+    id: 'dcn-storage',
+    name: '存储网络与 RDMA',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "三种存储形态对应三种访问粒度：DAS 直连块设备、NAS 文件级（NFS/CIFS over TCP/IP）、SAN 块级（FC SAN 或 iSCSI over IP）",
+      "FC SAN 需要独立的光纤通道网络与 HBA 卡，性能稳定但成本高；IP SAN 复用以太网，成本低、易扩展",
+      "存储网络对带宽与吞吐敏感；HPC 里对时延最敏感的是计算网络，业务管理网络对时延最不敏感",
+      "RDMA：远程直接内存访问，网卡直接读写远端主机内存，实现内核旁路（kernel bypass）与零拷贝，CPU 几乎不参与数据搬运",
+      "RDMA 的价值在于降低 CPU 负载与端到端时延，AI 训练、分布式存储、HPC 场景收益最大",
+      "并行文件系统面向大规模高性能计算集群：大容量、高吞吐、易于动态扩容与统一管理；它的设计基础是并行 I/O 与元数据/数据分离，不是浏览器/服务器（B/S）模式"
+    ],
+    tips: "RDMA 的关键词是\"旁路内核 + 零拷贝 + 网卡直访内存\"，与之相反的描述（CPU 多次拷贝、内核反复参与）一定是错的"
+  },
+  {
+    id: 'dcn-hpc-ai',
+    name: 'HPC 与 AI 计算',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "HPC 四张网各司其职：计算网络（节点间 MPI 通信，InfiniBand 或高速以太，对时延要求最高）、存储前端网络（计算节点与存储节点之间）、存储后端网络（存储节点之间后台数据同步）、业务管理网络（管理、监控、登录，对时延最不敏感）",
+      "节点角色：胖节点（多路 CPU + 大内存，跑大内存作业）、加速节点（装 GPU/NPU 做异构加速）、登录节点、管理节点",
+      "多元计算三类：基础通用计算（CPU）、AI 计算（GPU/NPU/FPGA/ASIC 提供训练与推理算力）、高性能计算（超算集群）",
+      "并非所有计算都需要无损网络：通用计算对丢包不敏感，AI 训练与分布式存储才需要无损以太（PFC/ECN）保障",
+      "AI 产业分层：基础层（算力、芯片）、技术层（机器学习、深度学习、算法框架）、应用层（机器人、自动驾驶、语音识别）",
+      "主流深度学习框架：华为主导的是 MindSpore；TensorFlow、PyTorch 为开源社区框架"
+    ],
+    tips: "HPC 四张网按\"对时延的敏感度\"排序记：计算 > 存储前端 > 存储后端 > 业务管理。题目问\"时延要求最低/最高\"先想这条链"
+  },
+  {
+    id: 'dcn-cloudfabric',
+    name: '云网一体化与业务链',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "VPC 模型层级：Project（资源单元）→ VPC（租户内隔离网络，一个租户可有多个）→ LogicalRouter → LogicalSwitch → Port；一个逻辑路由器可关联多个逻辑交换机",
+      "业务链把 FW、LB、应用加速器、NAT 等统称为 SF（Service Function，服务功能）；SFF 是服务功能转发器，SFC 是服务功能链",
+      "业务链两种实现：PBR（策略路由引流，控制器向 SC/SFF 下发过滤与重定向策略，逐跳引流）、NSH（在报文中插入 NSH 头，携带元数据与路径信息）",
+      "NSH 方式中 NSH-Aware SF 能直接解析 NSH 头、无需解封装即可读到元数据，效率更高；NSH-Unaware SF 不认识 NSH 报文，需由 SFC Proxy 代其剥离封装",
+      "二次还原：云平台已下发的业务在控制器上还原后，可用批量配置做二次编排；支持 VPC 互通二次还原与 MDC 跨 DC 业务编排",
+      "AOC（开放可编程中心）以 YANG 模型为基础统一管理异构设备；OC 负责南向对接异构网络设备，Runbook 编排业务逻辑",
+      "MDC 与公有云模型映射：LogicalRouter ↔ VPC 路由表，TGW 路由表 ↔ TransitRouter"
+    ],
+    tips: "业务链先分清\"引流方式\"（PBR 靠策略路由、NSH 靠报文头）再记角色（SF 干活、SFF 转发、SC 分类、SFC Proxy 代管不认识 NSH 的设备）"
+  },
+  {
+    id: 'dcn-lossless',
+    name: '无损网络（PFC/ECN/AIECN）',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "无损网络的目标：在以太网上做到\"不丢包\"，靠 PFC 反压 + ECN 拥塞标记配合实现，AI 训练与分布式存储必需",
+      "PFC（基于优先级的流量控制，IEEE 802.1Qbb）：对指定优先级队列发反压帧（Pause），让上游暂停发送，避免交换机缓存溢出丢包",
+      "PFC 死锁：反压沿环路逐级传导形成死循环，全网卡死。两种解法：死锁检测（检测到就恢复/隔离）、死锁预防（让设备不响应反压帧从而打断环路）",
+      "ECN：利用 IP 头 TOS 字段末两位。00/01 表示支持 ECN 能力协商，11（CE，Congestion Experienced）表示路径上已发生拥塞",
+      "DCQCN：交换机拥塞时给报文打 ECN 标记 → 接收端（RP）收到后回 CNP 拥塞通知报文 → 发送端（NP）据此降速。降速动作发生在发送端，不是交换机或接收端自己限速",
+      "AIECN 面向 AI 流量做 ECN 增强；802.1Qcz 由华为主导，用于解决 PFC 头阻（HOL）问题"
+    ],
+    tips: "DCQCN 三句话记牢：交换机\"盖章\"（打 ECN）、接收端\"回信\"（CNP）、发送端\"减速\"。把降速说成交换机或接收端做的，一律错"
+  },
+  {
+    id: 'dcn-ops',
+    name: '数据中心智能运维',
+    direction: 'dcn',
+    parentId: 'dcn-basic',
+    level: 3,
+    keyPoints: [
+      "Telemetry：设备主动、周期性推送数据到采集器，采样粒度可达亚秒级；相比 SNMP 轮询（分钟级、拉模式）实时性高得多，适合大规模网络的流量与性能监控",
+      "网络健康度评估按层次划分：协议层（BGP 邻居、OSPF 邻居、M-LAG 组状态等控制面协议）、Overlay 层（VXLAN 隧道）、设备层与接口层",
+      "网络快照：对设备配置与运行状态做基线留存与比对，分析范围覆盖 ARP 表项、路由协议状态、接口丢包计数等运行态数据；设备启动配置属于配置文件范畴，不在快照的运行态分析范围",
+      "意图验证分控制面与数据面：控制面用仿真建模做事前推演（验证配置变更影响）；数据面基于真实转发表项、ARP 表项建模，验证全网连通性、路由黑洞与路由环路",
+      "三级回滚：全网回滚（整网回到变更前）、业务回滚（单点业务恢复）、租户快照（按租户粒度备份与恢复）",
+      "单路径探测：按五元组过滤，查看虚拟机之间具体业务流实际走过的物理路径，定位\"通但慢/丢包\"的路径级问题",
+      "iMaster NCE-Fabric 负责控制与编排，FabricInsight 负责分析与洞察，SecoManager 负责安全设备管理（可与 Fabric 融合部署，属可选组件）"
+    ],
+    tips: "控制面\"事前仿真\"、数据面\"事后验证\"是意图验证的分水岭；健康度看协议层与 Overlay 层，快照看运行态，别把配置文件混进去"
+  },
+  // ===== 园区网架构与建设流程（2026-11-07 新增，承接「园区网规模/生命周期」类真题）=====
+  {
+    id: 'datacom-campus',
+    name: '园区网架构与建设流程',
+    direction: 'datacom',
+    parentId: 'datacom',
+    level: 3,
+    keyPoints: [
+      "园区网三层次：接入层（连终端、做端口密度与接入认证）、汇聚层（策略与路由汇聚、跨网段转发）、核心层（高速转发、不承担复杂策略）",
+      "中小型园区常做两层扁平化：接入直连核心，省掉汇聚层，减少一跳转发与故障点；大型园区才做完整三层结构",
+      "小型园区网络特征：网络层次简单、覆盖范围小、用户数量少、业务需求简单；反过来说「覆盖范围广」「用户数多」「层次复杂」都属于中大型园区",
+      "网络生命周期四阶段：规划与设计 → 部署实施 → 运维监控 → 优化调整，循环迭代",
+      "规划与设计是一个项目的开端，产出需求分析、逻辑拓扑、地址与路由规划、设备选型与可靠性方案，后续所有阶段都以它为基准",
+      "实施照着设计落地，运维保证已上线业务稳定，优化基于运行数据做调优——三者都发生在项目启动之后"
+    ],
+    tips: "园区网先看规模再看层次：小园区扁平两层、大园区三层齐全；生命周期永远是「先画图纸再动工」，规划与设计打头"
+  },
 ];

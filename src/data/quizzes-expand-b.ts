@@ -50,7 +50,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       '主路由失效后，备用路由自动生效',
     ],
     explanation: '主备两条路由必须指向不同的下一跳或出接口，否则不具备备份意义，因此「主备两条路由必须指向同一个下一跳才有意义」这一说法错误。',
-    knowledgeId: 'datacom-static-route', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-static-route', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-056', type: 'multiple', difficulty: 'IP',
@@ -195,7 +195,7 @@ export const EXTRA_QUIZZES_EXPAND_B: IQuizQuestion[] = [
       'Local_Pref 相同时比较 AS_Path，长度短者优先',
     ],
     explanation: '优选顺序中华为私有的 Weight 最先比较，其次是 Local_Pref，再往后才是 AS_Path、Origin、MED，因此 MED 不可能优先于 Local_Pref。',
-    knowledgeId: 'datacom-bgp', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-bgp', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-066', type: 'judge', difficulty: 'IA',

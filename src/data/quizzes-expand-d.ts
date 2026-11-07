@@ -303,7 +303,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
       'instance vlan 用于配置实例与 VLAN 的映射',
     ],
     explanation: '域配置修改后需要执行 active region-configuration 显式激活，否则配置处于未生效状态，因此「MSTP 域配置完成后无需执行激活命令即可自动生效」这一说法错误。',
-    knowledgeId: 'datacom-mstp', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-mstp', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-170', type: 'judge', difficulty: 'IP',
@@ -354,7 +354,7 @@ export const EXTRA_QUIZZES_EXPAND_D: IQuizQuestion[] = [
     options: ['VLAN 间 ARP 代理', '静态 MAC 表项', '端口隔离', 'DHCP Snooping'],
     answer: 'VLAN 间 ARP 代理',
     explanation: 'Sub-VLAN 之间二层不通，主机的 ARP 请求无法直达对端，必须由 Super-VLAN 网关启用 VLAN 间 ARP 代理代为应答，才能实现三层互通。',
-    knowledgeId: 'datacom-vlan-aggregate', direction: 'datacom', tag: 'real',
+    knowledgeId: 'datacom-vlan-aggregate', direction: 'datacom', tag: 'hot',
   },
   {
     id: 'ex-dc-176', type: 'multiple', difficulty: 'IP',
