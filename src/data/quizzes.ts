@@ -20,6 +20,7 @@ import { EXTRA_QUIZZES_EXPAND_H } from './quizzes-expand-h'
 import { EXTRA_QUIZZES_CLOUD_A } from './quizzes-cloud-a'
 import { EXTRA_QUIZZES_CLOUD_B } from './quizzes-cloud-b'
 import { EXTRA_QUIZZES_REAL_2024_MULTI } from './quizzes-real-2024-multi'
+import { EXTRA_QUIZZES_REAL_2025_XS } from './quizzes-real-2025-xs'
 import { QUIZ_MNEMONIC } from './quiz-mnemonics'
 import { stableShuffleOptions } from '../lib/options'
 
@@ -3693,6 +3694,9 @@ const RAW_QUIZZES: IQuizQuestion[] = [
 
   // ==================== 2026-11-07 省赛真题补充批次（33 道，第三方公开整理、可追溯出处） ====================
   ...EXTRA_QUIZZES_REAL_2024_MULTI,
+
+  // ==================== 2026-11-08 校赛段真题批次（151 道，第三方公开整理、逐题技术复核） ====================
+  ...EXTRA_QUIZZES_REAL_2025_XS,
 ];
 
 // 选项顺序稳定打乱：消除"正确答案集中在 A/B"的位置偏斜（按题号定种子，顺序稳定）
